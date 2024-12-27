@@ -468,6 +468,21 @@
 @media (max-width: 768px) {
     .pair-calculator {
         --calculator-scale: 0.75;
+        margin: 5px 0 8px;
+        margin-left: 0;
+        margin-right: auto;
+        transform-origin: top left;
+        position: relative;
+        margin-top: 25px;
+    }
+
+    .pair-calculator::before {
+        left: 35px;
+    }
+
+    .pair-calculator::after {
+        left: 35px;
+        transform: translateX(0);
     }
 }
 
