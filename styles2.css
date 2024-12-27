@@ -475,13 +475,13 @@
     }
 
     .pair-calculator::before {
-        left: 35px;
-        transform: none;
+        left: 50%;
+        transform: translateX(-50%);
     }
 
     .pair-calculator::after {
-        left: 35px;
-        transform: none;
+        left: 50%;
+        transform: translateX(-50%);
     }
 }
 
