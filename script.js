@@ -775,24 +775,24 @@ function showPairChart(pair) {
         chartTitle.innerHTML = `
             <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
             <div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="font-weight: 600;">${pair.baseToken.symbol}/${pair.quoteToken.symbol}</div>
-                    <div class="contract-info">
-                        <span class="contract-label">Contract:</span>
-                        <span class="contract-address">${shortContractAddress}</span>
-                        <button class="icon-btn copy-btn" onclick="copyToClipboard('${pair.baseToken.address}')">
-                            <span class="material-icons-round">content_copy</span>
-                        </button>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="font-size: 12px; color: var(--text-secondary);">${pair.baseToken.name || pair.baseToken.symbol}</div>
-                    <div class="pair-address-info">
-                        <span class="pair-label">Pair:</span>
-                        <span class="pair-address">${shortPairAddress}</span>
-                        <button class="icon-btn copy-btn" onclick="copyToClipboard('${pair.pairAddress}')">
-                            <span class="material-icons-round">content_copy</span>
-                        </button>
+                <div style="display: flex; flex-direction: column;">
+                    <div style="font-weight: 600;">${pair.baseToken.name || pair.baseToken.symbol}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+                        ${pair.baseToken.symbol}/${pair.quoteToken.symbol}
+                        <div class="contract-info">
+                            <span class="contract-label">Contract:</span>
+                            <span class="contract-address">${shortContractAddress}</span>
+                            <button class="icon-btn copy-btn" onclick="copyToClipboard('${pair.baseToken.address}')">
+                                <span class="material-icons-round">content_copy</span>
+                            </button>
+                        </div>
+                        <div class="pair-address-info">
+                            <span class="pair-label">Pair:</span>
+                            <span class="pair-address">${shortPairAddress}</span>
+                            <button class="icon-btn copy-btn" onclick="copyToClipboard('${pair.pairAddress}')">
+                                <span class="material-icons-round">content_copy</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
