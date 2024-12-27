@@ -472,7 +472,7 @@
         margin: 0;
         width: 100%;
         position: relative;
-        border-radius: 8px;
+        border-radius: 6px;
         background: linear-gradient(
             45deg,
             rgba(18, 18, 26, 0.95),
@@ -481,9 +481,9 @@
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         z-index: 1000;
-        padding: 12px;
+        padding: 8px 10px;
         transform: none;
-        margin-top: 16px;
+        margin-top: 12px;
     }
 
     .pair-calculator::before,
@@ -492,47 +492,57 @@
     }
 
     .calc-inputs {
-        gap: 8px;
+        gap: 6px;
     }
 
     .calc-input-group {
-        padding: 8px;
+        padding: 4px 8px;
     }
 
     .calc-input {
-        font-size: 16px;
+        font-size: 13px;
     }
 
     .calc-symbol {
-        font-size: 14px;
+        font-size: 11px;
     }
 
     .calc-equals {
-        font-size: 18px;
+        font-size: 14px;
+        padding: 0 2px;
     }
 }
 
 @media (max-width: 576px) {
     .pair-calculator {
-        --calculator-scale: 1;
-        padding: 10px;
-        margin-top: 12px;
+        padding: 6px 8px;
+        margin-top: 3px;
     }
 }
 
 @media (max-width: 480px) {
     .pair-calculator {
-        --calculator-scale: 1;
-        padding: 8px;
-        margin-top: 10px;
+        padding: 5px 6px;
+        margin-top: 3px;
+    }
+
+    .calc-input {
+        font-size: 12px;
+    }
+
+    .calc-symbol {
+        font-size: 10px;
+    }
+
+    .calc-equals {
+        font-size: 13px;
     }
 }
 
 @media (max-width: 380px) {
     .pair-calculator {
-        --calculator-scale: 1;
-        padding: 6px;
-        margin-top: 8px;
+        padding: 4px 5px;
+        margin-top: 3px;
     }
 }
 
