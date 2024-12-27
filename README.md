@@ -28,12 +28,12 @@ A modern, sleek trading interface for Solana tokens with DexScreener integration
 git clone https://github.com/alexandephilia/Zinc.git
 ```
 
-2. Open `trading.html` in your browser
+2. Open `index.html` in your browser
 
 ## Development
 
 The project structure:
-- `trading.html` - Main interface
+- `index.html` - Main interface
 - `styles.css` - Core styles
 - `styles2.css` - Additional styles
 - `script.js` - Application logic
