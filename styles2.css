@@ -152,33 +152,90 @@
 /* Media queries for responsive design */
 @media (max-width: 768px) {
     .search-results {
-        width: calc(100vw - 40px);
-        max-width: none;
+        position: fixed;
+        top: 60px;
+        left: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
+        transform: none;
+        max-height: 60vh;
         padding: 4px;
     }
-    
+
     .search-result-item {
-        padding: 8px 10px;
-        gap: 12px;
+        padding: 6px 8px;
+        gap: 6px;
     }
-    
-    .result-info {
-        min-width: min-content;
+
+    .result-symbol {
+        font-size: 11px;
+    }
+
+    .result-name {
+        font-size: 10px;
+    }
+
+    .result-price {
+        font-size: 11px;
+    }
+
+    .result-volume {
+        font-size: 10px;
+    }
+
+    .chain-tag {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+
+    .result-addresses {
+        margin-top: 1px;
+    }
+
+    .mini-contract-info {
+        font-size: 8px;
+        padding: 1px 3px;
     }
 }
 
 @media (max-width: 480px) {
     .search-results {
-        width: calc(100vw - 20px);
+        top: 55px;
+        left: 8px;
+        right: 8px;
+        width: calc(100% - 16px);
+        max-height: 50vh;
     }
-    
+
     .search-result-item {
-        padding: 6px 8px;
-        gap: 8px;
+        padding: 5px 6px;
+        gap: 4px;
     }
-    
+
+    .result-symbol {
+        font-size: 10px;
+    }
+
+    .result-name {
+        font-size: 9px;
+    }
+
+    .result-price {
+        font-size: 10px;
+    }
+
+    .result-volume {
+        font-size: 9px;
+    }
+
     .chain-tag {
-        padding: 1px 4px;
+        font-size: 8px;
+        padding: 0px 3px;
+    }
+
+    .mini-contract-info {
+        font-size: 7px;
+        padding: 0px 2px;
     }
 }
 
@@ -480,7 +537,7 @@
         );
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        z-index: 1000;
+        z-index: 10;
         padding: 8px 10px;
         transform: none;
         margin-top: 12px;
