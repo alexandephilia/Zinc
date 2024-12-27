@@ -469,40 +469,87 @@
     .pair-calculator {
         --calculator-scale: 0.75;
         transform-origin: top left;
-        margin-left: 0;
-        margin-right: auto;
-        width: 90%;
+        margin: 0;
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        border-radius: 8px 8px 0 0;
+        background: linear-gradient(
+            45deg,
+            rgba(18, 18, 26, 0.95),
+            rgba(41, 98, 255, 0.15)
+        );
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 1000;
+        padding: 12px;
+        transform: none;
+        border-bottom: none;
     }
 
     .pair-calculator::before {
-        left: 50%;
-        transform: translateX(-50%);
+        content: none;
     }
 
     .pair-calculator::after {
+        content: "Calculator";
+        position: absolute;
+        top: -25px;
         left: 50%;
         transform: translateX(-50%);
+        background: linear-gradient(
+            45deg,
+            rgba(18, 18, 26, 0.95),
+            rgba(41, 98, 255, 0.15)
+        );
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 4px 16px;
+        border-radius: 8px 8px 0 0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: none;
+    }
+
+    .calc-inputs {
+        gap: 8px;
+    }
+
+    .calc-input-group {
+        padding: 8px;
+    }
+
+    .calc-input {
+        font-size: 16px;
+    }
+
+    .calc-symbol {
+        font-size: 14px;
+    }
+
+    .calc-equals {
+        font-size: 18px;
     }
 }
 
 @media (max-width: 576px) {
     .pair-calculator {
-        --calculator-scale: 0.7;
-        width: 85%;
+        --calculator-scale: 1;
+        padding: 10px;
     }
 }
 
 @media (max-width: 480px) {
     .pair-calculator {
-        --calculator-scale: 0.65;
-        width: 80%;
+        --calculator-scale: 1;
+        padding: 8px;
     }
 }
 
 @media (max-width: 380px) {
     .pair-calculator {
-        --calculator-scale: 0.6;
-        width: 75%;
+        --calculator-scale: 1;
+        padding: 6px;
     }
 }
 
