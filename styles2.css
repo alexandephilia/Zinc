@@ -307,6 +307,7 @@
     color: var(--text-primary);
     letter-spacing: 0.3px;
     font-size: 10px;
+    font-weight: 600;
 }
 
 .copy-btn {
