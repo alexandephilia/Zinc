@@ -1379,3 +1379,176 @@ function setupPairCalculator() {
 
 // Initialize calculator when DOM is loaded
 document.addEventListener('DOMContentLoaded', setupPairCalculator);
+
+// Market card click handlers
+document.querySelectorAll('.market-card').forEach(card => {
+    card.addEventListener('click', async () => {
+        const symbol = card.getAttribute('data-symbol');
+        
+        // Get pair data from DexScreener
+        let pairData = null;
+        if (symbol === 'WIF' || symbol === 'POPCAT' || symbol === 'JUP' || symbol === 'PENGU') {
+            try {
+                const pairAddress = symbol === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
+                                  symbol === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
+                                  symbol === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
+                                  'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV';
+                                  
+                const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
+                const data = await response.json();
+                pairData = data.pair;
+            } catch (error) {
+                console.error('Error fetching pair data:', error);
+            }
+        }
+        
+        // Hide trending section and adjust chart section
+        const marketGrid = document.querySelector('.market-grid');
+        const chartSection = document.querySelector('.chart-section');
+        const sectionHeader = document.querySelector('.section-header');
+        
+        // Update section header with the selected pair
+        sectionHeader.innerHTML = `
+            <div class="section-title">
+                <span class="material-icons-round">candlestick_chart</span>
+                ${symbol}/SOL Chart
+                <button class="icon-btn" onclick="showTrendingView()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+        `;
+
+        // Update chart title
+        const chartTitle = document.querySelector('.chart-title');
+        if (chartTitle) {
+            if (pairData) {
+                // Use real data from DexScreener
+                const shortContractAddress = pairData.baseToken.address.slice(0, 6) + '...' + pairData.baseToken.address.slice(-4);
+                const shortPairAddress = pairData.pairAddress.slice(0, 6) + '...' + pairData.pairAddress.slice(-4);
+                
+                chartTitle.innerHTML = `
+                    <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
+                    <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
+                        <div style="display: flex; align-items: center;">
+                            <span>${pairData.baseToken.name}</span>
+                            <div class="contract-info">
+                                <span class="contract-label">Contract:</span>
+                                <span class="contract-address">${shortContractAddress}</span>
+                                <button class="icon-btn copy-btn contract-copy" data-copy="${pairData.baseToken.address}">
+                                    <span class="material-icons-round">content_copy</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="font-size: 12px; color: var(--text-secondary);">${pairData.baseToken.symbol}/${pairData.quoteToken.symbol}</div>
+                            <div class="pair-address-info">
+                                <span class="pair-label">Pair:</span>
+                                <span class="pair-address">${shortPairAddress}</span>
+                                <button class="icon-btn copy-btn pair-copy" data-copy="${pairData.pairAddress}">
+                                    <span class="material-icons-round">content_copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add click handlers for copy buttons
+                const copyButtons = chartTitle.querySelectorAll('.copy-btn');
+                copyButtons.forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        e.stopPropagation(); // Prevent triggering card click
+                        const textToCopy = button.getAttribute('data-copy');
+                        try {
+                            await navigator.clipboard.writeText(textToCopy);
+                            const icon = button.querySelector('.material-icons-round');
+                            const originalText = icon.textContent;
+                            
+                            icon.textContent = 'check';
+                            button.style.color = 'var(--success-color)';
+                            
+                            setTimeout(() => {
+                                icon.textContent = originalText;
+                                button.style.color = '';
+                            }, 2000);
+                        } catch (err) {
+                            console.error('Failed to copy text: ', err);
+                        }
+                    });
+                });
+            } else {
+                // Default TradingView token display
+                chartTitle.innerHTML = `
+                    <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
+                    <div>
+                        <div style="font-weight: 600;">${symbol}/SOL</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Solana</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Update webpage title
+        document.title = `Zinc | ${symbol}/SOL`;
+        
+        // Handle chart controls and calculator based on pair type
+        const chartControls = document.querySelector('.chart-controls');
+        if (chartControls) {
+            if (pairData) {
+                // For DexScreener pairs, hide controls and show calculator
+                chartControls.style.display = 'none';
+                window.showCalculatorForPair(pairData.pairAddress, pairData.baseToken.symbol);
+            } else {
+                // For TradingView pairs, show controls and hide calculator
+                chartControls.style.display = 'flex';
+                window.hideCalculator();
+            }
+        }
+        
+        // Hide market grid for full chart view
+        marketGrid.style.display = 'none';
+        chartSection.style.height = 'calc(100vh - var(--navbar-height) - 64px)';
+        
+        // Update chart based on pair
+        const container = document.getElementById('tradingview_solana');
+        container.innerHTML = '';
+        
+        if (pairData) {
+            // Use DexScreener for supported pairs
+            container.style.position = 'relative';
+            container.style.width = '100%';
+            container.style.height = '100%';
+            container.innerHTML = `
+                <iframe 
+                    src="https://dexscreener.com/solana/${pairData.pairAddress}?embed=1&loadChartSettings=0&tabs=0&info=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=1&chartType=usd&interval=15"
+                    style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: 0;"
+                ></iframe>
+            `;
+        } else {
+            // Use TradingView for other pairs
+            container.style = ''; // Reset any custom styles
+            new TradingView.widget({
+                "width": "100%",
+                "height": "100%",
+                "symbol": `BINANCE:${symbol}USDT`,
+                "interval": "15",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "toolbar_bg": "#131722",
+                "enable_publishing": false,
+                "hide_side_toolbar": false,
+                "allow_symbol_change": true,
+                "save_image": false,
+                "container_id": "tradingview_solana",
+                "hide_top_toolbar": true,
+                "studies": [],
+                "show_popup_button": false,
+                "popup_width": "1000",
+                "popup_height": "650",
+                "backgroundColor": "#0a0a0f",
+                "hide_volume": false
+            });
+        }
+    });
+});
