@@ -120,13 +120,31 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 
 // Watchlist item selection
 document.querySelectorAll('.watchlist-item').forEach(item => {
-    item.addEventListener('click', () => {
+    item.addEventListener('click', async () => {
         // Update active state
         document.querySelectorAll('.watchlist-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
         
         // Get the trading pair from the clicked item
         const symbol = item.querySelector('.watchlist-symbol span:last-child').textContent;
+        const pairName = symbol.split('/')[0];
+        
+        // Get pair data from DexScreener
+        let pairData = null;
+        if (pairName === 'WIF' || pairName === 'POPCAT' || pairName === 'JUP' || pairName === 'PENGU') {
+            try {
+                const pairAddress = pairName === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
+                                  pairName === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
+                                  pairName === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
+                                  'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV';
+                                  
+                const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
+                const data = await response.json();
+                pairData = data.pair;
+            } catch (error) {
+                console.error('Error fetching pair data:', error);
+            }
+        }
         
         // Hide trending section and adjust chart section
         const marketGrid = document.querySelector('.market-grid');
@@ -134,7 +152,6 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
         const sectionHeader = document.querySelector('.section-header');
         
         // Update section header with the selected pair
-        const pairName = symbol.split('/')[0];
         sectionHeader.innerHTML = `
             <div class="section-title">
                 <span class="material-icons-round">candlestick_chart</span>
@@ -148,81 +165,81 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
         // Update chart title
         const chartTitle = document.querySelector('.chart-title');
         if (chartTitle) {
-            chartTitle.innerHTML = `
-                <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
-                <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
-                    <div style="display: flex; align-items: center;">
-                        <span>${
-                            pairName === 'WIF' ? 'Wif' :
-                            pairName === 'POPCAT' ? 'Pop Cat' :
-                            pairName === 'JUP' ? 'Jupiter' :
-                            pairName === 'PENGU' ? 'Penguin' :
-                            symbol
-                        }</span>
-                        ${pairName === 'WIF' || pairName === 'POPCAT' || pairName === 'JUP' || pairName === 'PENGU' ? `
+            if (pairData) {
+                // Use real data from DexScreener
+                const shortContractAddress = pairData.baseToken.address.slice(0, 6) + '...' + pairData.baseToken.address.slice(-4);
+                const shortPairAddress = pairData.pairAddress.slice(0, 6) + '...' + pairData.pairAddress.slice(-4);
+                
+                chartTitle.innerHTML = `
+                    <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
+                    <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
+                        <div style="display: flex; align-items: center;">
+                            <span>${pairData.baseToken.name}</span>
                             <div class="contract-info">
                                 <span class="contract-label">Contract:</span>
-                                <span class="contract-address">${
-                                    pairName === 'WIF' ? 'EP2ib6...eyMx' :
-                                    pairName === 'POPCAT' ? 'FRhB8L...LLMo' :
-                                    pairName === 'JUP' ? 'C1MgLo...vW8Wz' :
-                                    'B4Vwoz...MhUV'
-                                }</span>
-                                <button class="icon-btn copy-btn" onclick="copyToClipboard('${
-                                    pairName === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
-                                    pairName === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
-                                    pairName === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
-                                    'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV'
-                                }')">
+                                <span class="contract-address">${shortContractAddress}</span>
+                                <button class="icon-btn copy-btn contract-copy" data-copy="${pairData.baseToken.address}">
                                     <span class="material-icons-round">content_copy</span>
                                 </button>
                             </div>
-                        ` : ''}
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="font-size: 12px; color: var(--text-secondary);">Solana</div>
-                        ${pairName === 'WIF' || pairName === 'POPCAT' || pairName === 'JUP' || pairName === 'PENGU' ? `
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="font-size: 12px; color: var(--text-secondary);">${pairData.baseToken.symbol}/${pairData.quoteToken.symbol}</div>
                             <div class="pair-address-info">
                                 <span class="pair-label">Pair:</span>
-                                <span class="pair-address">${
-                                    pairName === 'WIF' ? 'HYuUq...Ck3L' :
-                                    pairName === 'POPCAT' ? 'GJtoV...Ck3L' :
-                                    pairName === 'JUP' ? 'BRLsM...Ck3L' :
-                                    'AKzwH...Ck3L'
-                                }</span>
-                                <button class="icon-btn copy-btn" onclick="copyToClipboard('${
-                                    pairName === 'WIF' ? 'HYuUqBkV1X9BwTJqJyFkNb2NhxEMGDZkxkWEpBgFqSZm' :
-                                    pairName === 'POPCAT' ? 'GJtoVxGvBZqmW4qrKkLFzJYgCEK77YZxhHBxPkUvCk3L' :
-                                    pairName === 'JUP' ? 'BRLsMczQkP6WA5egLHMcHgqemfqPFZtxvnQUMfPJZKqm' :
-                                    'AKzwHKYvrxfguPR1SBD4ug1v1C7rHKqQhzVKkEFQxbPm'
-                                }')">
+                                <span class="pair-address">${shortPairAddress}</span>
+                                <button class="icon-btn copy-btn pair-copy" data-copy="${pairData.pairAddress}">
                                     <span class="material-icons-round">content_copy</span>
                                 </button>
                             </div>
-                        ` : ''}
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+
+                // Add click handlers for copy buttons
+                const copyButtons = chartTitle.querySelectorAll('.copy-btn');
+                copyButtons.forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        const textToCopy = button.getAttribute('data-copy');
+                        try {
+                            await navigator.clipboard.writeText(textToCopy);
+                            const icon = button.querySelector('.material-icons-round');
+                            const originalText = icon.textContent;
+                            
+                            icon.textContent = 'check';
+                            button.style.color = 'var(--success-color)';
+                            
+                            setTimeout(() => {
+                                icon.textContent = originalText;
+                                button.style.color = '';
+                            }, 2000);
+                        } catch (err) {
+                            console.error('Failed to copy text: ', err);
+                        }
+                    });
+                });
+            } else {
+                // Default TradingView token display
+                chartTitle.innerHTML = `
+                    <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
+                    <div>
+                        <div style="font-weight: 600;">${symbol}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">Solana</div>
+                    </div>
+                `;
+            }
         }
 
         // Update webpage title
         document.title = `Zinc | ${pairName}/SOL`;
         
-        // Hide market grid for full chart view
-        marketGrid.style.display = 'none';
-        chartSection.style.height = 'calc(100vh - var(--navbar-height) - 64px)';
-        
         // Handle chart controls and calculator based on pair type
         const chartControls = document.querySelector('.chart-controls');
         if (chartControls) {
-            if (pairName === 'WIF' || pairName === 'POPCAT' || pairName === 'JUP' || pairName === 'PENGU') {
+            if (pairData) {
                 // For DexScreener pairs, hide controls and show calculator
                 chartControls.style.display = 'none';
-                const pairAddress = pairName === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
-                                  pairName === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
-                                  pairName === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
-                                  'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV';
-                window.showCalculatorForPair(pairAddress, pairName);
+                window.showCalculatorForPair(pairData.pairAddress, pairData.baseToken.symbol);
             } else {
                 // For TradingView pairs, show controls and hide calculator
                 chartControls.style.display = 'flex';
@@ -230,51 +247,22 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
             }
         }
         
+        // Hide market grid for full chart view
+        marketGrid.style.display = 'none';
+        chartSection.style.height = 'calc(100vh - var(--navbar-height) - 64px)';
+        
         // Update chart based on pair
         const container = document.getElementById('tradingview_solana');
         container.innerHTML = '';
         
-        if (pairName === 'WIF') {
-            // Use DexScreener for WIF
+        if (pairData) {
+            // Use DexScreener for supported pairs
             container.style.position = 'relative';
             container.style.width = '100%';
             container.style.height = '100%';
             container.innerHTML = `
                 <iframe 
-                    src="https://dexscreener.com/solana/EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx?embed=1&loadChartSettings=0&tabs=0&info=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=1&chartType=usd&interval=15"
-                    style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: 0;"
-                ></iframe>
-            `;
-        } else if (pairName === 'POPCAT') {
-            // Use DexScreener for POPCAT
-            container.style.position = 'relative';
-            container.style.width = '100%';
-            container.style.height = '100%';
-            container.innerHTML = `
-                <iframe 
-                    src="https://dexscreener.com/solana/FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo?embed=1&loadChartSettings=0&tabs=0&info=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=1&chartType=usd&interval=15"
-                    style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: 0;"
-                ></iframe>
-            `;
-        } else if (pairName === 'JUP') {
-            // Use DexScreener for JUP
-            container.style.position = 'relative';
-            container.style.width = '100%';
-            container.style.height = '100%';
-            container.innerHTML = `
-                <iframe 
-                    src="https://dexscreener.com/solana/C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz?embed=1&loadChartSettings=0&tabs=0&info=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=1&chartType=usd&interval=15"
-                    style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: 0;"
-                ></iframe>
-            `;
-        } else if (pairName === 'PENGU') {
-            // Use DexScreener for PENGU
-            container.style.position = 'relative';
-            container.style.width = '100%';
-            container.style.height = '100%';
-            container.innerHTML = `
-                <iframe 
-                    src="https://dexscreener.com/solana/B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV?embed=1&loadChartSettings=0&tabs=0&info=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=1&chartType=usd&interval=15"
+                    src="https://dexscreener.com/solana/${pairData.pairAddress}?embed=1&loadChartSettings=0&tabs=0&info=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=1&chartType=usd&interval=15"
                     style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: 0;"
                 ></iframe>
             `;
@@ -774,29 +762,52 @@ function showPairChart(pair) {
         
         chartTitle.innerHTML = `
             <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
-            <div>
-                <div style="display: flex; flex-direction: column;">
-                    <div style="font-weight: 600;">${pair.baseToken.name || pair.baseToken.symbol}</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
-                        ${pair.baseToken.symbol}/${pair.quoteToken.symbol}
-                        <div class="contract-info">
-                            <span class="contract-label">Contract:</span>
-                            <span class="contract-address">${shortContractAddress}</span>
-                            <button class="icon-btn copy-btn" onclick="copyToClipboard('${pair.baseToken.address}')">
-                                <span class="material-icons-round">content_copy</span>
-                            </button>
-                        </div>
-                        <div class="pair-address-info">
-                            <span class="pair-label">Pair:</span>
-                            <span class="pair-address">${shortPairAddress}</span>
-                            <button class="icon-btn copy-btn" onclick="copyToClipboard('${pair.pairAddress}')">
-                                <span class="material-icons-round">content_copy</span>
-                            </button>
-                        </div>
+            <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
+                <div style="display: flex; align-items: center;">
+                    <span>${pair.baseToken.name || pair.baseToken.symbol}</span>
+                    <div class="contract-info">
+                        <span class="contract-label">Contract:</span>
+                        <span class="contract-address">${shortContractAddress}</span>
+                        <button class="icon-btn copy-btn contract-copy" data-copy="${pair.baseToken.address}">
+                            <span class="material-icons-round">content_copy</span>
+                        </button>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="font-size: 12px; color: var(--text-secondary);">${pair.baseToken.symbol}/${pair.quoteToken.symbol}</div>
+                    <div class="pair-address-info">
+                        <span class="pair-label">Pair:</span>
+                        <span class="pair-address">${shortPairAddress}</span>
+                        <button class="icon-btn copy-btn pair-copy" data-copy="${pair.pairAddress}">
+                            <span class="material-icons-round">content_copy</span>
+                        </button>
                     </div>
                 </div>
             </div>
         `;
+
+        // Add click handlers for copy buttons
+        const copyButtons = chartTitle.querySelectorAll('.copy-btn');
+        copyButtons.forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const textToCopy = button.getAttribute('data-copy');
+                try {
+                    await navigator.clipboard.writeText(textToCopy);
+                    const icon = button.querySelector('.material-icons-round');
+                    const originalText = icon.textContent;
+                    
+                    icon.textContent = 'check';
+                    button.style.color = 'var(--success-color)';
+                    
+                    setTimeout(() => {
+                        icon.textContent = originalText;
+                        button.style.color = '';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+            });
+        });
     }
     
     // Update webpage title
@@ -1274,18 +1285,20 @@ async function copyToClipboard(text) {
     try {
         await navigator.clipboard.writeText(text);
         
-        // Show success feedback
-        const copyBtn = document.querySelector('.copy-btn');
-        const icon = copyBtn.querySelector('.material-icons-round');
-        const originalText = icon.textContent;
-        
-        icon.textContent = 'check';
-        copyBtn.style.color = 'var(--success-color)';
-        
-        setTimeout(() => {
-            icon.textContent = originalText;
-            copyBtn.style.color = '';
-        }, 2000);
+        // Find the clicked button by looking at the event target
+        const clickedButton = event.currentTarget;
+        if (clickedButton) {
+            const icon = clickedButton.querySelector('.material-icons-round');
+            const originalText = icon.textContent;
+            
+            icon.textContent = 'check';
+            clickedButton.style.color = 'var(--success-color)';
+            
+            setTimeout(() => {
+                icon.textContent = originalText;
+                clickedButton.style.color = '';
+            }, 2000);
+        }
     } catch (err) {
         console.error('Failed to copy text: ', err);
     }
