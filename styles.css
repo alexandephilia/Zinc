@@ -1,0 +1,2574 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Core Colors */
+    --primary-bg: #0a0a0f;
+    --secondary-bg: #12121a;
+    --tertiary-bg: #1a1a24;
+    --accent-color: #2962ff;
+    --accent-hover: #1e47c8;
+    --success-color: #00c853;
+    --danger-color: #ff3d00;
+    
+    /* Text Colors */
+    --text-primary: #e6e6e9;
+    --text-secondary: #9699a6;
+    
+    /* Border Colors */
+    --border-color: #1f1f2c;
+    
+    /* Layout */
+    --navbar-height: 44px;
+    --sidebar-width: 240px;
+    --market-card-height: 120px;
+    --chart-header-height: 48px;
+    --spacing: 12px;
+}
+
+body {
+    font-family: 'Roboto Mono', monospace;
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Layout Structure */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.navbar {
+    height: var(--navbar-height);
+    background: var(--secondary-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing);
+    gap: var(--spacing);
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: clamp(240px, 20vw, 400px);
+    background: var(--secondary-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: width 0.1s ease;
+    min-width: 240px;
+    max-width: min(400px, 30vw);
+    flex-shrink: 0;
+}
+
+.sidebar-content {
+    height: calc(100vh - var(--navbar-height));
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--spacing);
+    padding-right: calc(var(--spacing) + 8px);
+    mask-image: linear-gradient(to bottom, 
+        transparent, 
+        black 10px,
+        black calc(100% - 10px),
+        transparent
+    );
+    -webkit-mask-image: linear-gradient(to bottom, 
+        transparent, 
+        black 10px,
+        black calc(100% - 10px),
+        transparent
+    );
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 4px var(--spacing);
+    height: 40px;
+}
+
+.sidebar-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-header .icon-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.sidebar-header .icon-btn .material-icons-round {
+    font-size: 18px;
+}
+
+.sidebar-resizer {
+    width: 4px;
+    height: 100%;
+    cursor: col-resize;
+    position: absolute;
+    right: -2px;
+    top: 0;
+    background: transparent;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.sidebar-resizer::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar-resizer:hover::before,
+.sidebar-resizer.resizing::before {
+    opacity: 1;
+}
+
+.sidebar-resizer::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 40px;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 1px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar-resizer:hover::after,
+.sidebar-resizer.resizing::after {
+    opacity: 1;
+}
+
+.sidebar.resizing {
+    transition: none;
+    user-select: none;
+}
+
+.sidebar.resizing .sidebar-content {
+    pointer-events: none;
+}
+
+/* Add cursor styles for resizing state */
+.resizing * {
+    cursor: col-resize !important;
+}
+
+.content-area {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.market-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing);
+    padding: var(--spacing);
+    background: var(--primary-bg);
+    min-height: 120px;
+    max-height: 260px;
+    overflow-y: auto;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    opacity: 1;
+}
+
+.market-grid[style*="display: none"] {
+    opacity: 0;
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.market-grid-resizer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    cursor: row-resize;
+    background: transparent;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.market-grid-resizer::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.market-grid-resizer:hover::before,
+.market-grid-resizer.resizing::before {
+    opacity: 1;
+}
+
+.market-grid-resizer::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 1px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.market-grid-resizer:hover::after,
+.market-grid-resizer.resizing::after {
+    opacity: 1;
+}
+
+.market-grid.resizing {
+    user-select: none;
+    transition: none;
+}
+
+.market-grid.resizing * {
+    pointer-events: none;
+}
+
+.market-card {
+    background: linear-gradient(45deg, var(--secondary-bg), rgba(41, 98, 255, 0.02));
+    border-radius: 8px;
+    padding: 12px;
+    display: grid;
+    grid-template-rows: auto auto auto;
+    gap: 6px;
+    height: auto;
+    min-height: 100px;
+    max-height: 140px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    position: relative;
+}
+
+/* Compact mode when grid height is small */
+.market-grid[style*="height: "] .market-card,
+.market-grid[style*="max-height: "] .market-card {
+    padding: 8px;
+    gap: 4px;
+    min-height: 80px;
+}
+
+.market-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.market-title-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.market-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(12px, 1.1vw, 14px);
+    line-height: 1.2;
+}
+
+.market-pair {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.market-subtitle {
+    font-size: clamp(11px, 0.9vw, 12px);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.title-percentage {
+    font-size: clamp(10px, 0.9vw, 12px);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.market-price {
+    font-size: clamp(14px, 1.2vw, 16px);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.market-stats {
+    font-size: clamp(10px, 0.9vw, 12px);
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Compact styles when grid is smaller */
+@media (max-height: 800px), (max-width: 768px) {
+    .market-grid {
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .market-card {
+        padding: 8px;
+        gap: 4px;
+        min-height: 80px;
+    }
+
+    .market-title {
+        font-size: 12px;
+    }
+
+    .market-subtitle {
+        font-size: 11px;
+    }
+
+    .title-percentage {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+
+    .market-price {
+        font-size: 14px;
+    }
+
+    .market-stats {
+        font-size: 10px;
+    }
+
+    .icon-btn {
+        width: 24px;
+        height: 24px;
+        padding: 4px;
+    }
+
+    .icon-btn .material-icons-round {
+        font-size: 16px;
+    }
+}
+
+/* Ultra compact mode for very small heights */
+@media (max-height: 600px) {
+    .market-grid {
+        gap: 6px;
+        padding: 6px;
+    }
+
+    .market-card {
+        padding: 6px;
+        gap: 2px;
+        min-height: 70px;
+    }
+
+    .market-subtitle {
+        display: none;
+    }
+
+    .market-stats {
+        opacity: 0.7;
+    }
+}
+
+/* Responsive grid columns */
+@media (max-width: 1200px) {
+    .market-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .market-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+}
+
+/* Hover effects */
+.market-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.market-grid[style*="height: "] .market-card:hover,
+.market-grid[style*="max-height: "] .market-card:hover {
+    transform: translateY(-1px);
+}
+
+.market-card {
+    height: 120px;
+    min-height: 120px;
+    flex-shrink: 0;
+}
+
+.chart-section {
+    flex: 1;
+    transition: all 0.3s ease;
+    background: var(--primary-bg);
+    position: relative;
+}
+
+/* Component Styles */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-right: var(--spacing);
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 18px;
+    color: white;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+}
+
+.logo-icon {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-icon::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(41, 98, 255, 0.233);
+    border-radius: 10px;
+}
+
+.logo-icon .material-icons-round {
+    color: white;
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+.logo-version {
+    font-size: 11px;
+    color: var(--accent-color);
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(41, 98, 255, 0.1);
+    margin-left: 4px;
+}
+
+.nav-items {
+    display: flex;
+    gap: var(--spacing);
+    align-items: center;
+    height: 100%;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--text-primary);
+    background: var(--tertiary-bg);
+}
+
+.nav-link.active {
+    color: var(--accent-color);
+    background: rgba(41, 98, 255, 0.1);
+}
+
+.market-card {
+    background: linear-gradient(
+        45deg,
+        var(--secondary-bg),
+        rgba(41, 98, 255, 0.02)
+    );
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    min-height: 0;
+    height: 100%;
+    position: relative;
+    border: 1px solid transparent;
+    transform: translateY(0);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.market-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Add positive/negative states for market cards */
+.market-card.positive {
+    background: linear-gradient(
+        45deg,
+        var(--secondary-bg),
+        rgba(0, 200, 83, 0.05)
+    );
+    border-color: rgba(0, 200, 83, 0.1);
+    box-shadow: 0 0 20px rgba(0, 200, 83, 0.05);
+}
+
+.market-card.negative {
+    background: linear-gradient(
+        45deg,
+        var(--secondary-bg),
+        rgba(255, 61, 0, 0.05)
+    );
+    border-color: rgba(255, 61, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 61, 0, 0.05);
+}
+
+.market-card.positive:hover {
+    background: linear-gradient(
+        45deg,
+        var(--secondary-bg),
+        rgba(0, 200, 83, 0.1)
+    );
+    border-color: rgba(0, 200, 83, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 200, 83, 0.1),
+                0 0 0 1px rgba(0, 200, 83, 0.1);
+}
+
+.market-card.negative:hover {
+    background: linear-gradient(
+        45deg,
+        var(--secondary-bg),
+        rgba(255, 61, 0, 0.1)
+    );
+    border-color: rgba(255, 61, 0, 0.2);
+    box-shadow: 0 8px 24px rgba(255, 61, 0, 0.1),
+                0 0 0 1px rgba(255, 61, 0, 0.1);
+}
+
+.market-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    min-height: 0;
+    flex-shrink: 0;
+}
+
+.market-title-group {
+    display: flex;
+    align-items: flex-start;
+    flex: 1;
+}
+
+.market-title-wrapper {
+    flex: 1;
+}
+
+.market-title {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.market-pair {
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+}
+
+.title-percentage {
+    font-size: clamp(11px, 0.9vw, 13px);
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.title-percentage.positive {
+    color: var(--success-color);
+    background: rgba(0, 200, 83, 0.1);
+}
+
+.title-percentage.negative {
+    color: var(--danger-color);
+    background: rgba(255, 61, 0, 0.1);
+}
+
+.market-price {
+    font-size: clamp(14px, 1.1vw, 16px);
+    font-weight: 700;
+    margin: 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.market-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    min-height: 0;
+}
+
+.change-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.change-badge.positive {
+    color: var(--success-color);
+    background: rgba(0, 200, 83, 0.1);
+}
+
+.change-badge.negative {
+    color: var(--danger-color);
+    background: rgba(255, 61, 0, 0.1);
+}
+
+.chart-container {
+    flex: 1;
+    background: var(--secondary-bg);
+    border: none;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    height: 100%;
+}
+
+.chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(12px, 2vw, 16px);
+    background: var(--primary-bg);
+    border-bottom: 1px solid var(--border-color);
+    gap: clamp(12px, 2vw, 16px);
+}
+
+.chart-title {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1.5vw, 12px);
+}
+
+.chart-title img {
+    width: clamp(20px, 2vw, 24px);
+    height: clamp(20px, 2vw, 24px);
+}
+
+.chart-title > div > div:first-child {
+    font-size: clamp(13px, 1.2vw, 16px);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.chart-title > div > div:last-child {
+    font-size: clamp(11px, 0.9vw, 12px);
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1.5vw, 16px);
+    margin-left: auto;
+}
+
+.timeframe-group {
+    display: flex;
+    border-radius: 6px;
+    padding: 1px;
+    gap: 4px;
+}
+
+.timeframe-btn {
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    padding: clamp(4px, 0.8vw, 6px) clamp(8px, 1.2vw, 12px);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: clamp(11px, 0.9vw, 13px);
+    min-width: clamp(32px, 3vw, 40px);
+    text-align: center;
+}
+
+.timeframe-btn:hover {
+    color: var(--text-primary);
+    background: var(--secondary-bg);
+}
+
+.timeframe-btn.active {
+    background: #21216859;
+    color: white;
+}
+
+.chart-controls .icon-btn {
+    width: clamp(28px, 2.5vw, 32px);
+    height: clamp(28px, 2.5vw, 32px);
+    padding: clamp(5px, 0.8vw, 6px);
+}
+
+.chart-controls .icon-btn .material-icons-round {
+    font-size: clamp(16px, 1.2vw, 18px);
+}
+
+@media (max-width: 768px) {
+    .chart-header {
+        padding: 10px;
+        gap: 8px;
+    }
+
+    .chart-controls {
+        gap: 8px;
+    }
+
+    .timeframe-btn {
+        padding: 4px 8px;
+        min-width: 30px;
+        font-size: 11px;
+    }
+
+    .chart-controls .icon-btn {
+        width: 28px;
+        height: 28px;
+        padding: 5px;
+    }
+
+    .chart-controls .icon-btn .material-icons-round {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 8px;
+    }
+
+    .chart-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .timeframe-group {
+        flex: 1;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.chart-content {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+}
+
+/* Utility Classes */
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    height: 32px;
+    width: 32px;
+}
+
+.icon-btn:hover {
+    color: var(--text-primary);
+    background: var(--tertiary-bg);
+}
+
+.material-icons-round {
+    font-size: 18px;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    height: 100%;
+}
+
+/* Search Bar */
+.search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--tertiary-bg);
+    border-radius: 6px;
+    padding: 0;
+    margin: 0 10px;
+    height: 28px;
+    min-width: 140px;
+    max-width: 180px;
+    flex: 0.5;
+    transition: all 0.2s ease;
+}
+
+.search-bar:focus-within {
+    background: var(--secondary-bg);
+    box-shadow: 0 0 0 1px var(--border-color),
+               0 0 0 4px rgba(41, 98, 255, 0.1),
+               0 4px 12px rgba(41, 98, 255, 0.1);
+}
+
+.search-bar:focus-within .material-icons-round {
+    color: var(--accent-color);
+}
+
+.search-bar input {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    padding: 0 28px 0 28px;
+}
+
+.search-bar input:focus::placeholder {
+    color: var(--accent-color);
+    opacity: 0.5;
+}
+
+.search-bar .material-icons-round {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.search-bar .clear-btn {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 3px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-bar .clear-btn:hover {
+    background: var(--secondary-bg);
+}
+
+.search-bar .clear-btn .material-icons-round {
+    font-size: 14px;
+    position: static;
+    transform: none;
+    pointer-events: auto;
+}
+
+.search-bar.has-value .clear-btn {
+    display: flex;
+}
+
+@media (max-width: 768px) {
+    .search-bar {
+        margin: 0 8px;
+        height: 32px;
+        min-width: 0;
+    }
+
+    .search-bar input {
+        font-size: 13px;
+        padding: 0 32px 0 32px;
+    }
+
+    .search-bar input::placeholder {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-bar {
+        margin: 0 4px;
+    }
+}
+
+/* Footer */
+.footer {
+    height: 40px;
+    background: var(--secondary-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.watchlist-item {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(41, 98, 255, 0.02)
+    );
+    border-radius: 8px;
+    padding: clamp(10px, 1.2vw, 12px);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    transform: translateX(0);
+    opacity: 1;
+    animation: slideIn 0.3s ease;
+    border: 1px solid transparent;
+    min-width: 0;
+}
+
+.watchlist-item:hover {
+    transform: translateX(4px);
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(41, 98, 255, 0.05)
+    );
+    box-shadow: 0px 8px 16px 0px rgb(0 0 0 / 3%);
+    border: 1px solid rgba(41, 98, 255, 0.1);
+}
+
+.watchlist-item.active {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(41, 98, 255, 0.1)
+    );
+    box-shadow: 0px -16px 24px 0px rgba(255, 255, 255, 0.05) inset,
+                0px 8px 16px 0px rgb(0 0 0 / 5%);
+    border: 1px solid rgba(41, 98, 255, 0.2);
+}
+
+/* Add positive/negative states while keeping original style */
+.watchlist-item.positive {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(0, 200, 83, 0.02)
+    );
+    border: 1px solid rgba(0, 200, 83, 0.1);
+}
+
+.watchlist-item.negative {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(255, 61, 0, 0.02)
+    );
+    border: 1px solid rgba(255, 61, 0, 0.1);
+}
+
+.watchlist-item.positive:hover {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(0, 200, 83, 0.05)
+    );
+    border: 1px solid rgba(0, 200, 83, 0.15);
+    box-shadow: 0px 8px 16px 0px rgba(0, 200, 83, 0.03);
+}
+
+.watchlist-item.negative:hover {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(255, 61, 0, 0.05)
+    );
+    border: 1px solid rgba(255, 61, 0, 0.15);
+    box-shadow: 0px 8px 16px 0px rgba(255, 61, 0, 0.03);
+}
+
+.watchlist-item.positive.active {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(0, 200, 83, 0.1)
+    );
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    box-shadow: 0px -16px 24px 0px rgba(255, 255, 255, 0.05) inset,
+                0px 8px 16px 0px rgba(0, 200, 83, 0.05);
+}
+
+.watchlist-item.negative.active {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(255, 61, 0, 0.1)
+    );
+    border: 1px solid rgba(255, 61, 0, 0.2);
+    box-shadow: 0px -16px 24px 0px rgba(255, 255, 255, 0.05) inset,
+                0px 8px 16px 0px rgba(255, 61, 0, 0.05);
+}
+
+.watchlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+    min-width: 0;
+}
+
+.watchlist-symbol {
+    font-weight: 600;
+    font-size: clamp(13px, 1vw, 15px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+}
+
+/* Add text truncation for long symbols */
+.watchlist-symbol span:last-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.watchlist-price {
+    font-size: clamp(14px, 1.1vw, 16px);
+    font-weight: 700;
+    margin: 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.watchlist-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: clamp(11px, 0.9vw, 12px);
+    color: var(--text-secondary);
+    gap: 8px;
+}
+
+.watchlist-stats span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.sidebar-section {
+    margin-bottom: 24px;
+    padding: 0 var(--spacing);
+}
+
+.sidebar-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 0 var(--spacing);
+}
+
+.sidebar-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.market-filter {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 8px;
+    padding: 0 var(--spacing);
+    margin-bottom: 16px;
+}
+
+.filter-btn {
+    background: var(--tertiary-bg);
+    border: none;
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: rgba(41, 98, 255, 0.1);
+    color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
+.filter-btn:active {
+    transform: translateY(1px);
+}
+
+/* Quick Trade Section - More Compact */
+
+.quick-trade {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        var(--secondary-bg)
+    );
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: clamp(10px, 1.2vw, 12px);
+    margin: 0;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+.trade-input-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(80px, 100px);
+    gap: 8px;
+    min-height: 80px; /* Match watchlist item height */
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.quick-trade-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Update compact mode styles */
+.quick-trade.compact .trade-input-group {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.trade-input {
+    height: 36px;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 0 12px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    width: 100%;
+}
+
+.custom-select {
+    height: 36px;
+}
+
+.custom-select-trigger {
+    height: 36px;
+    padding: 0 12px;
+}
+
+/* JavaScript will add this class when sidebar is narrow */
+.quick-trade.compact {
+    .trade-input-group {
+        grid-template-columns: 1fr;
+    }
+    
+    select.trade-input {
+        width: 100%;
+    }
+}
+
+.trade-btn-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(4px, 0.5vw, 8px);
+}
+
+.trade-btn {
+    width: 100%;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    font-size: clamp(12px, 1vw, 14px);
+    padding: clamp(8px, 1vw, 10px);
+    white-space: nowrap;
+}
+
+.trade-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%) scale(0);
+    border-radius: 50%;
+    transition: transform 0.4s ease;
+    pointer-events: none;
+}
+
+
+.trade-btn:active {
+    transform: translateY(1px);
+}
+
+.trade-btn.sell {
+    background: var(--danger-color);
+}
+
+.trade-btn.sell:hover {
+    background: #cc3000;
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    display: none;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Hide scrollbar for Firefox */
+* {
+    scrollbar-width: none;
+}
+
+/* Dynamic Sidebar Styling */
+.sidebar {
+    width: clamp(240px, 20vw, 400px);
+    background: var(--secondary-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: width 0.1s ease;
+    min-width: 240px;
+    max-width: min(400px, 30vw);
+    flex-shrink: 0;
+}
+
+.sidebar-content {
+    height: calc(100vh - var(--navbar-height));
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--spacing);
+    padding-right: calc(var(--spacing) + 8px);
+    mask-image: linear-gradient(to bottom, 
+        transparent, 
+        black 10px,
+        black calc(100% - 10px),
+        transparent
+    );
+    -webkit-mask-image: linear-gradient(to bottom, 
+        transparent, 
+        black 10px,
+        black calc(100% - 10px),
+        transparent
+    );
+}
+
+/* Adaptive Market Filter */
+.market-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 var(--spacing);
+    margin-bottom: 16px;
+}
+
+.filter-btn {
+    flex: 1;
+    min-width: 60px;
+    max-width: calc(50% - 3px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Dynamic Watchlist Items */
+.watchlist-item {
+    transform: translateX(0);
+    opacity: 1;
+    animation: slideIn 0.3s ease;
+    position: relative;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.watchlist-item::after {
+    display: none;
+}
+
+.watchlist-item:hover::after {
+    opacity: 0.5;
+}
+
+.watchlist-item.active::after {
+    opacity: 1;
+}
+
+/* Adaptive Quick Trade Section */
+.quick-trade {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        var(--secondary-bg)
+    );
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: clamp(12px, 1.5vw, 16px);
+    transition: padding 0.1s ease;
+}
+
+.trade-input-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 100px;
+    gap: 8px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.trade-input {
+    min-width: 0;
+    width: 100%;
+    font-size: clamp(12px, 1vw, 14px);
+    padding: clamp(6px, 0.8vw, 8px) clamp(8px, 1vw, 12px);
+}
+
+.trade-btn-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(4px, 0.5vw, 8px);
+}
+
+.trade-btn {
+    font-size: clamp(12px, 1vw, 14px);
+    padding: clamp(8px, 1vw, 10px);
+    white-space: nowrap;
+}
+
+/* Ensure quick trade title stays proportional */
+.quick-trade-title {
+    font-size: clamp(13px, 1.1vw, 14px);
+    margin-bottom: clamp(8px, 1vw, 12px);
+}
+
+.quick-trade-title .material-icons-round {
+    font-size: clamp(16px, 1.2vw, 18px);
+}
+
+/* Adjust select width based on sidebar width */
+.trade-input[type="number"] {
+    width: 100%;
+}
+
+.trade-input-group select.trade-input {
+    width: clamp(80px, 30%, 100px);
+}
+
+@media (max-width: 300px) {
+    .trade-input-group {
+        grid-template-columns: 1fr;
+    }
+    
+    .trade-input-group select.trade-input {
+        width: 100%;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        max-width: none;
+        position: fixed;
+        left: 0;
+        top: var(--navbar-height);
+        height: calc(100vh - var(--navbar-height));
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .market-filter {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    }
+
+    .trade-input-group {
+        grid-template-columns: 1fr;
+    }
+
+    .trade-input-group .trade-input,
+    .trade-input-group .custom-select {
+        width: 100%;
+    }
+
+    .custom-select-trigger {
+        width: 100%;
+    }
+
+    .chart-header {
+        flex-direction: column;
+        height: auto;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+
+    .chart-title {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .chart-title .material-icons-round {
+        font-size: 18px;
+    }
+
+    .chart-title > div > div:first-child {
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .chart-title > div > div:last-child {
+        font-size: 11px;
+        opacity: 0.7;
+    }
+
+    .chart-controls {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .timeframe-group {
+        flex: 1;
+        display: flex;
+        overflow-x: auto;
+        gap: 4px;
+        padding: 4px 12px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        position: relative;
+        background: var(--tertiary-bg);
+        border-radius: 6px;
+        cursor: grab;
+        user-select: none;
+        transition: all 0.2s ease;
+    }
+
+    .timeframe-group.active {
+        cursor: grabbing;
+        background: var(--secondary-bg);
+    }
+
+    .timeframe-group:active {
+        cursor: grabbing;
+    }
+
+    .timeframe-group * {
+        user-select: none;
+    }
+
+    .timeframe-group::before,
+    .timeframe-group::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 32px;
+        pointer-events: none;
+        z-index: 2;
+        opacity: 1;
+        transition: opacity 0.2s ease;
+    }
+
+    .timeframe-group::before {
+        left: 0;
+        background: linear-gradient(to right, 
+            var(--tertiary-bg) 0%,
+            rgba(26, 26, 36, 0) 100%
+        );
+        border-top-left-radius: 6px;
+        border-bottom-left-radius: 6px;
+    }
+
+    .timeframe-group::after {
+        right: 0;
+        background: linear-gradient(to left, 
+            var(--tertiary-bg) 0%,
+            rgba(26, 26, 36, 0) 100%
+        );
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+    }
+
+    .timeframe-group::-webkit-scrollbar {
+        display: none;
+    }
+
+    .timeframe-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Hide fade when at the start/end */
+    .timeframe-group.at-start::before {
+        opacity: 0;
+    }
+
+    .timeframe-group.at-end::after {
+        opacity: 0;
+    }
+
+    .chart-controls > div:last-child {
+        display: flex;
+        gap: 4px;
+    }
+
+    .chart-controls .icon-btn {
+        width: 32px;
+        height: 32px;
+        padding: 6px;
+    }
+
+    .chart-controls .icon-btn .material-icons-round {
+        font-size: 18px;
+    }
+
+    .navbar {
+        padding: 0 8px;
+        gap: 8px;
+        height: 48px;
+    }
+
+    .logo {
+        font-size: 16px;
+    }
+
+    .logo-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 6px;
+    }
+
+    .logo-icon .material-icons-round {
+        font-size: 12px;
+    }
+
+    .logo-version {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+
+    .nav-items {
+        display: none;
+    }
+
+    .search-bar {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: none;
+        margin: 0 8px;
+        height: 32px;
+        background: var(--tertiary-bg);
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .search-bar.focused {
+        background: var(--secondary-bg);
+        box-shadow: 0 0 0 1px var(--border-color),
+                   0 0 0 4px rgba(41, 98, 255, 0.1);
+    }
+
+    .search-bar input {
+        font-size: 13px;
+        width: 100%;
+        height: 100%;
+        padding: 0 32px;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-family: 'Roboto Mono', monospace;
+    }
+
+    .search-bar input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    .search-bar .material-icons-round {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 16px;
+        color: var(--text-secondary);
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .search-bar.focused .material-icons-round {
+        color: var(--accent-color);
+    }
+
+    .search-bar .clear-btn {
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        padding: 4px;
+        border-radius: 4px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-secondary);
+        background: none;
+        border: none;
+        opacity: 0.7;
+    }
+
+    .search-bar .clear-btn:hover {
+        opacity: 1;
+        background: var(--secondary-bg);
+    }
+
+    .search-bar .clear-btn .material-icons-round {
+        position: static;
+        transform: none;
+        font-size: 16px;
+        pointer-events: auto;
+    }
+
+    .search-bar.has-value .clear-btn {
+        display: flex;
+    }
+
+    .nav-actions {
+        margin-left: 0;
+        gap: 2px;
+    }
+
+    .nav-actions .icon-btn {
+        width: 32px;
+        height: 32px;
+        padding: 6px;
+    }
+
+    .nav-actions .material-icons-round {
+        font-size: 18px;
+    }
+
+    .mobile-menu-btn {
+        width: 32px;
+        height: 32px;
+        padding: 6px;
+    }
+
+    .mobile-menu-btn .material-icons-round {
+        font-size: 18px;
+    }
+}
+
+/* Dynamic Theme Colors */
+.watchlist-item.positive {
+    background: linear-gradient(45deg, 
+        var(--tertiary-bg), 
+        rgba(0, 200, 83, 0.05)
+    );
+}
+
+.watchlist-item.negative {
+    background: linear-gradient(45deg, 
+        var(--tertiary-bg), 
+        rgba(255, 61, 0, 0.05)
+    );
+}
+
+/* Custom Dropdown Styling */
+.custom-select {
+    position: relative;
+    width: 100%;
+}
+
+.custom-select-trigger {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 6px;
+    font-family: 'Roboto Mono', monospace;
+    padding: 8px 12px;
+    font-size: clamp(12px, 1vw, 14px);
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    user-select: none;
+    height: 100%;
+}
+
+.custom-select-trigger:hover,
+.custom-select.active .custom-select-trigger {
+    border-color: transparent;
+    box-shadow: 0 0 12px rgba(41, 98, 255, 0.2),
+               0 0 2px rgba(41, 98, 255, 0.3);
+    background: linear-gradient(45deg,
+        var(--secondary-bg),
+        rgba(41, 98, 255, 0.05)
+    );
+}
+
+.custom-select-trigger .material-icons-round {
+    font-size: 16px;
+    transition: transform 0.2s ease;
+    opacity: 0.7;
+}
+
+.custom-select.active .custom-select-trigger .material-icons-round {
+    transform: rotate(180deg);
+    opacity: 1;
+}
+
+.custom-select-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.custom-select.active .custom-select-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.custom-select-option {
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+    font-size: clamp(12px, 1vw, 14px);
+}
+
+.custom-select-option:hover {
+    background: linear-gradient(45deg,
+        var(--tertiary-bg),
+        rgba(41, 98, 255, 0.1)
+    );
+    color: var(--accent-color);
+}
+
+.custom-select-option.selected {
+    background: rgba(41, 98, 255, 0.1);
+    color: var(--accent-color);
+}
+
+/* Position dropdown above if not enough space below */
+.custom-select.dropup .custom-select-options {
+    top: auto;
+    bottom: calc(100% + 4px);
+    transform: translateY(10px);
+}
+
+.custom-select.dropup.active .custom-select-options {
+    transform: translateY(0);
+}
+
+/* Update positive/negative states */
+.watchlist-item.positive:hover,
+.watchlist-item.positive.active {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(0, 200, 83, 0.05)
+    );
+    border-color: rgba(0, 200, 83, 0.2);
+}
+
+.watchlist-item.negative:hover,
+.watchlist-item.negative.active {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(255, 61, 0, 0.05)
+    );
+    border-color: rgba(255, 61, 0, 0.2);
+}
+
+/* Profile Dropdown Styles */
+.profile-dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 240px;
+    background: linear-gradient(
+        45deg,
+        rgba(18, 18, 26, 0.4),
+        rgba(41, 98, 255, 0.05)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+.dropdown-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+    font-size: 13px;
+    background: rgba(26, 26, 36, 0.3);
+    border-radius: 10px 10px 0 0;
+}
+
+.dropdown-items {
+    padding: 6px;
+    background: rgba(18, 18, 26, 0.3);
+    border-radius: 0 0 10px 10px;
+}
+
+.wallet-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+}
+
+.wallet-option img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: var(--tertiary-bg);
+    padding: 3px;
+}
+
+/* Special handling for WalletConnect logo which should stay square */
+.wallet-option img[alt="WalletConnect"] {
+    border-radius: 0;
+    background: none;
+    padding: 0;
+}
+
+.wallet-option:hover {
+    background: rgba(41, 98, 255, 0.15);
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(41, 98, 255, 0.1);
+}
+
+/* Section Header Styles */
+.section-header {
+    padding: var(--spacing);
+    padding-bottom: 0;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.section-title .icon-btn {
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+    border-radius: 6px;
+    background: rgba(41, 98, 255, 0.15);
+    border: 1px solid rgba(41, 98, 255, 0.2);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+}
+
+.section-title .icon-btn:hover {
+    background: rgba(41, 98, 255, 0.15);
+    border-color: rgba(41, 98, 255, 0.3);
+    box-shadow: 0 0 20px rgba(41, 98, 255, 0.1);
+}
+
+.section-title .icon-btn .material-icons-round {
+    font-size: 18px;
+}
+
+/* Add subtle animation */
+@keyframes glowPulse {
+    0% { filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.4)); }
+    50% { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5)); }
+    100% { filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.4)); }
+}
+
+.section-title .material-icons-round {
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+.section-title:hover .material-icons-round {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+}
+
+/* Quick Trade Styles */
+.trade-input-group.blurred {
+    position: relative;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    min-height: 120px;
+}
+
+.blur-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(9, 9, 19, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    z-index: 4;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.lock-icon {
+    margin-right: 12px;
+    color: var(--text-secondary);
+}
+
+.trade-field {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.dex-buttons.blurred {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.dex-buttons.blurred .trade-btn {
+    background: linear-gradient(
+        45deg,
+        var(--secondary-bg),
+        rgba(41, 98, 255, 0.02)
+    );
+    border: 1px solid var(--border-color);
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+    padding: 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    height: 44px;
+    width: 100%;
+    letter-spacing: 0.5px;
+}
+
+.dex-buttons.blurred .trade-btn img {
+    opacity: 0.7;
+}
+
+.connect-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(41, 98, 255, 0.1);
+    border: 1px solid rgba(41, 98, 255, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    height: 44px;
+    margin-top: 12px;
+    letter-spacing: 0.5px;
+    position: relative;
+    color: var(--accent-color);
+    transition: all 0.3s ease;
+}
+
+.connect-btn:hover {
+    background: rgba(41, 98, 255, 0.15);
+    border-color: rgba(41, 98, 255, 0.3);
+    box-shadow: 0 0 20px rgba(41, 98, 255, 0.3),
+                0 0 0 1px rgba(41, 98, 255, 0.2);
+}
+
+.connect-btn:active {
+    transform: translateY(1px);
+}
+
+.connect-btn .material-icons-round {
+    font-size: 18px;
+}
+
+/* Add transition for smooth unblur effect */
+.trade-input-group {
+    transition: all 0.3s ease;
+}
+
+.blur-overlay {
+    transition: opacity 0.3s ease;
+}
+
+/* Update the blurred state styles */
+.trade-input-group.blurred {
+    position: relative;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    min-height: 120px;
+}
+
+.dex-buttons:not(.blurred) .trade-btn {
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* When not blurred, enable the buttons */
+.dex-buttons:not(.blurred) .trade-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Update the DEX buttons styling */
+.dex-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Base button styles that apply to both blurred and unblurred states */
+.dex-buttons .trade-btn {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    height: 32px;
+    width: 100%;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+}
+
+/* Blurred state specific styles */
+.dex-buttons.blurred .trade-btn {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+    background: linear-gradient(
+        45deg,
+        var(--secondary-bg),
+        rgba(41, 98, 255, 0.02)
+    );
+}
+
+/* Unblurred state specific styles */
+.dex-buttons:not(.blurred) .trade-btn {
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: auto;
+    background: var(--secondary-bg);
+}
+
+.dex-buttons:not(.blurred) .trade-btn:hover {
+    transform: translateY(-1px);
+    background: var(--tertiary-bg);
+    border-color: var(--accent-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dex-buttons:not(.blurred) .trade-btn:active {
+    transform: translateY(1px);
+}
+
+/* Ensure images are consistent */
+.dex-buttons .trade-btn img {
+    width: 12px;
+    height: 12px;
+    transition: opacity 0.2s ease;
+}
+
+.dex-buttons.blurred .trade-btn img {
+    opacity: 0.7;
+}
+
+.dex-buttons:not(.blurred) .trade-btn img {
+    opacity: 1;
+}
+
+/* Add media query for very narrow screens */
+@media (max-width: 300px) {
+    .watchlist-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .title-percentage {
+        align-self: flex-start;
+    }
+}
+
+/* Update the connect button to match the new size */
+.trade-btn.connect-btn {
+    height: 32px;
+    font-size: 12px;
+    padding: 6px 10px;
+    letter-spacing: 0.3px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Update the gap between buttons */
+.dex-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+/* Update the blur overlay to match new size */
+.trade-input-group.blurred {
+    position: relative;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 10px;
+    min-height: 80px;
+}
+
+/* Update the lock icon size */
+.blur-overlay .lock-icon .material-icons-round {
+    font-size: 20px;
+}
+
+/* Add responsive adjustments */
+@media (max-width: 300px) {
+    .quick-trade {
+        width: 100%;
+    }
+}
+
+/* Add responsive breakpoints */
+@media (max-width: 1200px) {
+    .market-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: clamp(8px, 1vw, var(--spacing));
+        padding: clamp(8px, 1vw, var(--spacing));
+    }
+}
+
+@media (max-width: 768px) {
+    .market-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        max-height: 400px;
+        min-height: 120px;
+        overflow-y: auto;
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .chart-section {
+        height: calc(100vh - var(--navbar-height) - var(--market-card-height) - var(--spacing) * 2);
+        min-height: 300px;
+    }
+}
+
+/* Add cursor styles for resizing state */
+.resizing-vertical * {
+    cursor: row-resize !important;
+}
+
+.market-card.compact {
+    min-height: 70px;
+    padding: 6px 8px;
+    gap: 4px;
+}
+
+.market-card.compact .market-header {
+    gap: 4px;
+}
+
+.market-card.compact .market-title {
+    font-size: 12px;
+}
+
+.market-card.compact .market-subtitle {
+    display: none;
+}
+
+.market-card.compact .title-percentage {
+    font-size: 10px;
+    padding: 1px 4px;
+}
+
+.market-card.compact .market-price {
+    font-size: 14px;
+    margin: 2px 0;
+}
+
+.market-card.compact .market-stats {
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+.market-card.compact .icon-btn {
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+}
+
+.market-card.compact .icon-btn .material-icons-round {
+    font-size: 14px;
+}
+
+/* Add transition for smooth resizing */
+.market-card {
+    transition: all 0.2s ease-out;
+}
+
+/* Adjust grid layout based on container height */
+.market-grid.compact {
+    gap: 6px;
+    padding: 6px;
+}
+
+.market-grid.compact .market-card {
+    min-height: 70px;
+}
+
+/* Ensure content stays within bounds */
+.market-card > * {
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Improve text truncation */
+.market-pair,
+.market-subtitle,
+.market-stats span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Optimize hover effect for compact mode */
+.market-card.compact:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Search Results Styles */
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-top: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+}
+
+.search-result-item {
+    padding: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: var(--surface-hover);
+}
+
+.result-pair {
+    display: flex;
+    flex-direction: column;
+}
+
+.result-symbol {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.result-name {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.result-price {
+    font-family: 'Roboto Mono', monospace;
+    color: var(--text-primary);
+}
+
+.no-results {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+/* Scrollbar styles for search results */
+.search-results::-webkit-scrollbar {
+    width: 8px;
+}
+
+.search-results::-webkit-scrollbar-track {
+    background: var(--surface-color);
+    border-radius: 8px;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 8px;
+}
+
+.search-results::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}

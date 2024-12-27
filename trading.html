@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zinc | Degen </title>
+    <link rel="icon" type="image/png" href="/asterisk-mark-symbol-design-blue-600nw-2310398637.webp">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles2.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="logo-container">
+                <div class="logo">
+                    <span class="logo-icon">
+                        <span class="material-icons-round">bolt</span>
+                    </span>
+                    ZINC
+                    <span class="logo-version">DEGEN</span>
+                </div>
+            </div>
+            <div class="nav-items">
+                <a href="#" class="nav-link active">
+                    <span class="material-icons-round">dashboard</span>
+                    Trading
+                </a>
+                <a href="#" class="nav-link">
+                    <span class="material-icons-round">account_balance</span>
+                    DeFi
+                </a>
+                <a href="#" class="nav-link">
+                    <span class="material-icons-round">screen_search_desktop</span>
+                    NFTs
+                </a>
+                <a href="#" class="nav-link">
+                    <span class="material-icons-round">forum</span>
+                    Community
+                </a>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search">
+                <span class="material-icons-round">search</span>
+                <button class="clear-btn">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="nav-actions">
+                <button class="icon-btn">
+                    <span class="material-icons-round">notifications</span>
+                </button>
+                <div class="profile-dropdown">
+                    <button class="icon-btn" id="profileBtn">
+                        <span class="material-icons-round">account_circle</span>
+                    </button>
+                    <div class="dropdown-menu" id="walletMenu">
+                        <div class="dropdown-header">
+                            <span class="material-icons-round">account_balance_wallet</span>
+                            Connect Wallet
+                        </div>
+                        <div class="dropdown-items">
+                            <button class="wallet-option">
+                                <img src="https://play-lh.googleusercontent.com/4E-ouY-jU11F0Y7g5J0cl_rCjxVPzFanY3KS-J_0V5tzQewpqI68rqUAPVCaluk61Cg" alt="MetaMask" />
+                                Solflare
+                            </button>
+                            <button class="wallet-option">
+                                <img src="https://187760183-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F-MVOiF6Zqit57q_hxJYp%2Ficon%2FU7kNZ4ygz4QW1rUwOuTT%2FWhite%20Ghost_docs_nu.svg?alt=media&token=447b91f6-db6d-4791-902d-35d75c19c3d1" alt="Phantom" />
+                                Phantom
+                            </button>
+                            <button class="wallet-option">
+                                <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" alt="WalletConnect" />
+                                WalletConnect
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-resizer"></div>
+                <div class="sidebar-content">
+                    <!-- Market Filter Section -->
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-header">
+                            <h3 class="sidebar-section-title">Markets</h3>
+                        </div>
+                        <div class="market-filter">
+                            <button class="filter-btn active">All</button>
+                            <button class="filter-btn">Layer 1</button>
+                            <button class="filter-btn">Layer 2</button>
+                            <button class="filter-btn">DeFi</button>
+                            <button class="filter-btn">Memecoin</button>
+                            <button class="filter-btn">AI</button>
+                        </div>
+                    </div>
+
+                    <!-- Watchlist Section -->
+                    <div class="sidebar-section">
+                        <div class="sidebar-header">
+                            <h2 class="sidebar-title">
+                                <span class="material-icons-round" style="font-size: 18px; margin-right: 8px;">star</span>
+                                Watchlist
+                            </h2>
+                            <button class="icon-btn">
+                                <span class="material-icons-round">add</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Watchlist Items -->
+                        <div class="watchlist-item active" data-symbol="JUP">
+                            <div class="watchlist-header">
+                                <div class="watchlist-symbol">
+                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
+                                    <span>JUP/SOL</span>
+                                </div>
+                                <span class="title-percentage positive">0.00%</span>
+                            </div>
+                            <div class="watchlist-price">$0.00000000</div>
+                            <div class="watchlist-stats">
+                                <span>Vol $0.00</span>
+                                <span>24h: 0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="watchlist-item" data-symbol="POPCAT">
+                            <div class="watchlist-header">
+                                <div class="watchlist-symbol">
+                                    <span class="material-icons-round" style="font-size: 16px; color: var(--danger-color);">trending_down</span>
+                                    <span>POPCAT/SOL</span>
+                                </div>
+                                <span class="title-percentage negative">-1.24%</span>
+                            </div>
+                            <div class="watchlist-price">$0.00000000</div>
+                            <div class="watchlist-stats">
+                                <span>Vol $0.00</span>
+                                <span>24h: 0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- WIF Watchlist Item -->
+                        <div class="watchlist-item" data-symbol="WIF">
+                            <div class="watchlist-header">
+                                <div class="watchlist-symbol">
+                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
+                                    <span>WIF/SOL</span>
+                                </div>
+                                <span class="title-percentage">0.00%</span>
+                            </div>
+                            <div class="watchlist-price">$0.00000000</div>
+                            <div class="watchlist-stats">
+                                <span>Vol $0.00</span>
+                                <span>24h: 0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="watchlist-item" data-symbol="PENGU">
+                            <div class="watchlist-header">
+                                <div class="watchlist-symbol">
+                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
+                                    <span>PENGU/SOL</span>
+                                </div>
+                                <span class="title-percentage positive">0.00%</span>
+                            </div>
+                            <div class="watchlist-price">$0.00000000</div>
+                            <div class="watchlist-stats">
+                                <span>Vol $0.00</span>
+                                <span>24h: 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Trade Section -->
+                    <div class="sidebar-section">
+                        <div class="quick-trade">
+                            <div class="quick-trade-title">
+                                <span class="material-icons-round">bolt</span>
+                                Quick Trade
+                            </div>
+                            <div class="trade-input-group blurred">
+                                <div class="dex-buttons blurred">
+                                    <button class="trade-btn jupiter-btn" disabled>
+                                        <img src="https://jup.ag/favicon.ico" alt="Jupiter" style="width: 16px; height: 16px; margin-right: 4px;">
+                                        Jupiter
+                                    </button>
+                                    <button class="trade-btn meteora-btn" disabled>
+                                        <img src="https://meteora.ag/favicon.ico" alt="Meteora" style="width: 16px; height: 16px; margin-right: 4px;">
+                                        Meteora
+                                    </button>
+                                </div>
+                                <div class="blur-overlay">
+                                    <span class="lock-icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                        <span class="material-icons-round" style="font-size: 32px;">lock</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <button class="trade-btn connect-btn" id="quickTradeConnect">
+                                <span class="material-icons-round">account_balance_wallet</span>
+                                Connect
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                <!-- Trending Title -->
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="material-icons-round" style="animation: glowPulse 2s ease-in-out infinite;">trending_up</span>
+                        Trending
+                    </div>
+                </div>
+
+                <!-- Market Grid -->
+                <div class="market-grid">
+                    <!-- Market Cards -->
+                    <div class="market-card" data-symbol="WIF">
+                        <div class="market-header">
+                            <div class="market-title-group">
+                                <div class="market-title">
+                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
+                                    <span class="market-pair">WIF/SOL</span>
+                                </div>
+                                <div class="market-subtitle">Wif</div>
+                            </div>
+                            <span class="title-percentage positive">0.00%</span>
+                        </div>
+                        <div class="market-price">$0.00000000</div>
+                        <div class="market-stats">
+                            <span>Vol $0.00</span>
+                            <span>24h: 0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="market-card" data-symbol="POPCAT">
+                        <div class="market-header">
+                            <div class="market-title-group">
+                                <div class="market-title">
+                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
+                                    <span class="market-pair">POPCAT/SOL</span>
+                                </div>
+                                <div class="market-subtitle">Pop Cat</div>
+                            </div>
+                            <span class="title-percentage positive">0.00%</span>
+                        </div>
+                        <div class="market-price">$0.00000000</div>
+                        <div class="market-stats">
+                            <span>Vol $0.00</span>
+                            <span>24h: 0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="market-card" data-symbol="JUP">
+                        <div class="market-header">
+                            <div class="market-title-group">
+                                <div class="market-title">
+                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
+                                    <span class="market-pair">JUP/SOL</span>
+                                </div>
+                                <div class="market-subtitle">Jupiter</div>
+                            </div>
+                            <span class="title-percentage positive">0.00%</span>
+                        </div>
+                        <div class="market-price">$0.00000000</div>
+                        <div class="market-stats">
+                            <span>Vol $0.00</span>
+                            <span>24h: 0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="market-card" data-symbol="PENGU">
+                        <div class="market-header">
+                            <div class="market-title-group">
+                                <div class="market-title">
+                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
+                                    <span class="market-pair">PENGU/SOL</span>
+                                </div>
+                                <div class="market-subtitle">Penguin</div>
+                            </div>
+                            <span class="title-percentage positive">0.00%</span>
+                        </div>
+                        <div class="market-price">$0.00000000</div>
+                        <div class="market-stats">
+                            <span>Vol $0.00</span>
+                            <span>24h: 0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <div class="chart-title">
+                                <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Solana Logo" style="width: 24px; height: 24px;">
+                                <div>
+                                    <div style="font-weight: 600;">SOL/USDT</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">Solana / Tether</div>
+                                </div>
+                            </div>
+                            <div class="pair-calculator">
+                                <div class="calc-inputs">
+                                    <div class="calc-input-group">
+                                        <input type="number" class="calc-input" id="tokenAmount" placeholder="0.00">
+                                        <span class="calc-symbol">JUP</span>
+                                    </div>
+                                    <span class="calc-equals">=</span>
+                                    <div class="calc-input-group">
+                                        <input type="number" class="calc-input" id="usdAmount" placeholder="0.00">
+                                        <span class="calc-symbol">USD</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-controls">
+                                <div class="timeframe-group">
+                                    <button class="timeframe-btn">1m</button>
+                                    <button class="timeframe-btn">5m</button>
+                                    <button class="timeframe-btn active">15m</button>
+                                    <button class="timeframe-btn">1H</button>
+                                    <button class="timeframe-btn">4H</button>
+                                    <button class="timeframe-btn">1D</button>
+                                    <button class="timeframe-btn">1W</button>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="icon-btn">
+                                        <span class="material-icons-round">candlestick_chart</span>
+                                    </button>
+                                    <button class="icon-btn">
+                                        <span class="material-icons-round">draw</span>
+                                    </button>
+                                    <button class="icon-btn">
+                                        <span class="material-icons-round">widgets</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                            <!-- TradingView Widget BEGIN -->
+                            <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                                <div id="tradingview_solana" style="height: 100%; width: 100%;"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                                <script type="text/javascript">
+                                new TradingView.widget({
+                                    "width": "100%",
+                                    "height": "100%",
+                                    "symbol": "BINANCE:SOLUSDT",
+                                    "interval": "15",
+                                    "timezone": "Etc/UTC",
+                                    "theme": "dark",
+                                    "style": "1",
+                                    "locale": "en",
+                                    "toolbar_bg": "#131722",
+                                    "enable_publishing": false,
+                                    "hide_side_toolbar": false,
+                                    "allow_symbol_change": true,
+                                    "save_image": false,
+                                    "container_id": "tradingview_solana",
+                                    "hide_top_toolbar": true,
+                                    "studies": [],
+                                    "show_popup_button": false,
+                                    "popup_width": "1000",
+                                    "popup_height": "650",
+                                    "backgroundColor": "#0a0a0f",
+                                    "hide_volume": false
+                                });
+                                </script>
+                            </div>
+                            <!-- TradingView Widget END -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            &copy; 2024 Zinc. All rights reserved.
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

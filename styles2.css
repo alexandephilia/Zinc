@@ -1,0 +1,538 @@
+/* Search Results Styles */
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: -100px;
+    right: -100px;
+    background: linear-gradient(
+        45deg,
+        rgba(18, 18, 26, 0.4),
+        rgba(41, 98, 255, 0.05)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: none;
+    padding: 6px;
+    width: min(calc(100vw - 40px), 350px);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.search-result-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(8px, 2vw, 24px);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    margin: 2px 0;
+    min-width: 0;
+    width: 100%;
+    background: linear-gradient(
+        45deg,
+        rgba(18, 18, 26, 0.3),
+        rgba(41, 98, 255, 0.02)
+    );
+}
+
+.search-result-item:hover {
+    background: linear-gradient(
+        45deg,
+        rgba(41, 98, 255, 0.1),
+        rgba(41, 98, 255, 0.05)
+    );
+    border-color: rgba(41, 98, 255, 0.2);
+    box-shadow: 0 0 20px rgba(41, 98, 255, 0.1),
+                0 0 0 1px rgba(41, 98, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.result-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.result-symbol {
+    font-size: clamp(12px, 3vw, 14px);
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: clamp(4px, 1vw, 8px);
+    letter-spacing: 0.3px;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.result-name {
+    font-size: clamp(10px, 2.5vw, 12px);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.result-info {
+    text-align: right;
+    min-width: min-content;
+    width: max-content;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.result-price {
+    font-family: 'Roboto Mono', monospace;
+    color: var(--text-primary);
+    font-size: clamp(12px, 3vw, 14px);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.result-volume {
+    font-size: clamp(10px, 2.5vw, 12px);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.chain-tag {
+    font-size: clamp(9px, 2.2vw, 11px);
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.no-results {
+    padding: 16px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: clamp(11px, 2.8vw, 13px);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    margin: 2px;
+}
+
+/* Scrollbar styles for search results */
+.search-results::-webkit-scrollbar {
+    width: 6px;
+}
+
+.search-results::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.search-results::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+    .search-results {
+        width: calc(100vw - 40px);
+        max-width: none;
+        padding: 4px;
+    }
+    
+    .search-result-item {
+        padding: 8px 10px;
+        gap: 12px;
+    }
+    
+    .result-info {
+        min-width: min-content;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-results {
+        width: calc(100vw - 20px);
+    }
+    
+    .search-result-item {
+        padding: 6px 8px;
+        gap: 8px;
+    }
+    
+    .chain-tag {
+        padding: 1px 4px;
+    }
+}
+
+/* Contract Controls Styles */
+.contract-controls {
+    display: flex;
+    align-items: center;
+    margin-left: 16px;
+}
+
+/* Contract Info Styles */
+.contract-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-left: 12px;
+    height: 25px;
+    width: fit-content;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.contract-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.contract-address {
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+}
+
+.pair-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-left: 12px;
+}
+
+.pair-address-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    height: 20px;
+    width: fit-content;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    margin-left: 0;
+    margin-top: 3px;
+}
+
+.pair-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 10px;
+}
+
+.pair-address {
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+    font-size: 10px;
+}
+
+.copy-btn {
+    padding: 2px;
+    font-size: 12px;
+    opacity: 0.6;
+    transition: color 0.2s ease;
+    margin-left: 0;
+    background: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copy-btn:hover {
+    background: none !important;
+}
+
+.copy-btn:hover .material-icons-round {
+    color: var(--accent-color);
+    filter: drop-shadow(0 0 4px var(--accent-color));
+}
+
+.copy-btn .material-icons-round {
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .contract-info {
+        font-size: 10px;
+        gap: 3px;
+        margin-left: 8px;
+        padding: 2px 5px;
+    }
+    
+    .copy-btn {
+        padding: 1px;
+    }
+    
+    .copy-btn .material-icons-round {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contract-info {
+        font-size: 9px;
+        gap: 2px;
+        margin-left: 6px;
+        padding: 1px 4px;
+    }
+    
+    .copy-btn {
+        padding: 1px;
+    }
+
+    .copy-btn .material-icons-round {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pair-address-info {
+        font-size: 10px;
+        gap: 3px;
+        padding: 2px 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pair-address-info {
+        font-size: 9px;
+        gap: 2px;
+        padding: 1px 4px;
+    }
+}
+
+/* Pair Calculator Styles */
+.pair-calculator {
+    margin: 10px 0 8px;
+    padding: 8px 12px;
+    background: linear-gradient(
+        45deg,
+        rgba(18, 18, 26, 0.4),
+        rgba(41, 98, 255, 0.05)
+    );
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: min(400px, 100%);
+    transform-origin: top right;
+    transform: scale(var(--calculator-scale, 0.9));
+    margin-left: auto;
+    margin-right: 0;
+    position: relative;
+    margin-top: 25px;
+}
+
+.pair-calculator::before {
+    content: "";
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    min-width: 70px;
+    height: 25px;
+    background: linear-gradient(
+        45deg,
+        rgba(18, 18, 26, 0.4),
+        rgba(41, 98, 255, 0.05)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    z-index: 1;
+    padding: 0 12px;
+}
+
+.pair-calculator::after {
+    content: "Calculator";
+    font-family: 'Roboto Mono', monospace;
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 25px;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    z-index: 2;
+    transition: all 0.3s ease;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.3px;
+    width: auto;
+    padding: 0 8px;
+}
+
+
+
+.calc-inputs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.calc-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    flex: 1;
+    min-width: 0;
+}
+
+.calc-input {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+    min-width: 0;
+}
+
+.calc-input::-webkit-outer-spin-button,
+.calc-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.calc-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.calc-symbol {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: max-content;
+}
+
+.calc-equals {
+    color: var(--text-secondary);
+    font-size: 16px;
+    padding: 0 4px;
+    min-width: max-content;
+}
+
+@media (max-width: 1200px) {
+    .pair-calculator {
+        --calculator-scale: 0.85;
+    }
+}
+
+@media (max-width: 992px) {
+    .pair-calculator {
+        --calculator-scale: 0.8;
+    }
+}
+
+@media (max-width: 768px) {
+    .pair-calculator {
+        --calculator-scale: 0.75;
+    }
+}
+
+@media (max-width: 576px) {
+    .pair-calculator {
+        --calculator-scale: 0.7;
+    }
+}
+
+@media (max-width: 480px) {
+    .pair-calculator {
+        --calculator-scale: 0.65;
+    }
+}
+
+@media (max-width: 380px) {
+    .pair-calculator {
+        --calculator-scale: 0.6;
+    }
+}
+
+.result-addresses {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 2px;
+    width: fit-content;
+}
+
+.mini-contract-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 9px;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    width: fit-content;
+}
+
+.mini-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 8px;
+    width: fit-content;
+}
+
+.mini-address {
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+    font-size: 8px;
+    width: fit-content;
+}
+
+@media (max-width: 768px) {
+    .mini-contract-info {
+        font-size: 8px;
+        padding: 1px 3px;
+    }
+    
+    .mini-label,
+    .mini-address {
+        font-size: 7px;
+    }
+}
