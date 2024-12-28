@@ -80,33 +80,10 @@ document.querySelectorAll('.timeframe-btn').forEach(btn => {
         
         // Reload widget with new interval
         const container = document.getElementById('tradingview_solana');
-        const containerParent = container.parentElement;
-
+        const symbol = container.getAttribute('data-symbol') || 'BINANCE:SOLUSDT';
         container.style.height = 'calc(100% - 10px)';
         container.innerHTML = '';
-        new TradingView.widget({
-            "width": "100%",
-            "height": "100%",
-            "symbol": "BINANCE:SOLUSDT",
-            "interval": interval,
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#131722",
-            "enable_publishing": false,
-            "hide_side_toolbar": false,
-            "allow_symbol_change": true,
-            "save_image": false,
-            "container_id": "tradingview_solana",
-            "hide_top_toolbar": true,
-            "studies": [],
-            "show_popup_button": false,
-            "popup_width": "1000",
-            "popup_height": "650",
-            "backgroundColor": "#0a0a0f",
-            "hide_volume": false
-        });
+        initTradingViewWidget(container, symbol, interval);
     });
 });
 
@@ -126,16 +103,15 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
         item.classList.add('active');
         
         // Get the trading pair from the clicked item
-        const symbol = item.querySelector('.watchlist-symbol span:last-child').textContent;
-        const pairName = symbol.split('/')[0];
+        const symbol = item.querySelector('.watchlist-symbol span:last-child').textContent.split('/')[0];
         
         // Get pair data from DexScreener
         let pairData = null;
-        if (pairName === 'WIF' || pairName === 'POPCAT' || pairName === 'JUP' || pairName === 'PENGU') {
+        if (symbol === 'WIF' || symbol === 'POPCAT' || symbol === 'JUP' || symbol === 'PENGU') {
             try {
-                const pairAddress = pairName === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
-                                  pairName === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
-                                  pairName === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
+                const pairAddress = symbol === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
+                                  symbol === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
+                                  symbol === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
                                   'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV';
                                   
                 const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
@@ -155,7 +131,7 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
         sectionHeader.innerHTML = `
             <div class="section-title">
                 <span class="material-icons-round">candlestick_chart</span>
-                ${symbol} Chart
+                ${symbol}/SOL Chart
                 <button class="icon-btn" onclick="showTrendingView()">
                     <span class="material-icons-round">close</span>
                 </button>
@@ -169,12 +145,19 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
                 // Use real data from DexScreener
                 const shortContractAddress = pairData.baseToken.address.slice(0, 6) + '...' + pairData.baseToken.address.slice(-4);
                 const shortPairAddress = pairData.pairAddress.slice(0, 6) + '...' + pairData.pairAddress.slice(-4);
+                const volume24h = formatNumber(parseFloat(pairData.volume.h24));
+                const mcap = formatNumber(parseFloat(pairData.fdv));
+                const priceChange24h = parseFloat(pairData.priceChange.h24);
                 
                 chartTitle.innerHTML = `
                     <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
                     <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
                         <div style="display: flex; align-items: center;">
                             <span>${pairData.baseToken.name}</span>
+                            <div class="volume-info">
+                                <span class="volume-label">Vol:</span>
+                                <span class="volume-value">$${volume24h}</span>
+                            </div>
                             <div class="contract-info">
                                 <span class="contract-label">Contract:</span>
                                 <span class="contract-address">${shortContractAddress}</span>
@@ -185,6 +168,12 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <div style="font-size: 12px; color: var(--text-secondary);">${pairData.baseToken.symbol}/${pairData.quoteToken.symbol}</div>
+                            <div class="market-info">
+                                <span class="mcap-label">MCap:</span>
+                                <span class="mcap-value">$${mcap}</span>
+                                <span class="change-label">24h:</span>
+                                <span class="change-value ${priceChange24h >= 0 ? 'positive' : 'negative'}">${priceChange24h > 0 ? '+' : ''}${priceChange24h.toFixed(2)}%</span>
+                            </div>
                             <div class="pair-address-info">
                                 <span class="pair-label">Pair:</span>
                                 <span class="pair-address">${shortPairAddress}</span>
@@ -223,7 +212,7 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
                 chartTitle.innerHTML = `
                     <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
                     <div>
-                        <div style="font-weight: 600;">${symbol}</div>
+                        <div style="font-weight: 600;">${symbol}/SOL</div>
                         <div style="font-size: 12px; color: var(--text-secondary);">Solana</div>
                     </div>
                 `;
@@ -231,7 +220,7 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
         }
 
         // Update webpage title
-        document.title = `Zinc | ${pairName}/SOL`;
+        document.title = `Zinc | ${symbol}/SOL`;
         
         // Handle chart controls and calculator based on pair type
         const chartControls = document.querySelector('.chart-controls');
@@ -269,29 +258,7 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
         } else {
             // Use TradingView for other pairs
             container.style = ''; // Reset any custom styles
-            new TradingView.widget({
-                "width": "100%",
-                "height": "100%",
-                "symbol": `BINANCE:${pairName}USDT`,
-                "interval": "15",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "1",
-                "locale": "en",
-                "toolbar_bg": "#131722",
-                "enable_publishing": false,
-                "hide_side_toolbar": false,
-                "allow_symbol_change": true,
-                "save_image": false,
-                "container_id": "tradingview_solana",
-                "hide_top_toolbar": true,
-                "studies": [],
-                "show_popup_button": false,
-                "popup_width": "1000",
-                "popup_height": "650",
-                "backgroundColor": "#0a0a0f",
-                "hide_volume": false
-            });
+            initTradingViewWidget(container, `BINANCE:${symbol}USDT`, '15');
         }
     });
 });
@@ -343,29 +310,7 @@ function showTrendingView() {
     const container = document.getElementById('tradingview_solana');
     container.innerHTML = '';
     container.style = ''; // Reset any custom styles
-    new TradingView.widget({
-        "width": "100%",
-        "height": "100%",
-        "symbol": "BINANCE:SOLUSDC",
-        "interval": "15",
-        "timezone": "Etc/UTC",
-        "theme": "dark",
-        "style": "1",
-        "locale": "en",
-        "toolbar_bg": "#131722",
-        "enable_publishing": false,
-        "hide_side_toolbar": false,
-        "allow_symbol_change": true,
-        "save_image": false,
-        "container_id": "tradingview_solana",
-        "hide_top_toolbar": true,
-        "studies": [],
-        "show_popup_button": false,
-        "popup_width": "1000",
-        "popup_height": "650",
-        "backgroundColor": "#0a0a0f",
-        "hide_volume": false
-    });
+    initTradingViewWidget(container, 'BINANCE:SOLUSDC', '15');
 }
 
 // Quick Trade Amount Input Formatting
@@ -759,12 +704,19 @@ function showPairChart(pair) {
     if (chartTitle) {
         const shortContractAddress = pair.baseToken.address.slice(0, 6) + '...' + pair.baseToken.address.slice(-4);
         const shortPairAddress = pair.pairAddress.slice(0, 6) + '...' + pair.pairAddress.slice(-4);
+        const volume24h = formatNumber(parseFloat(pair.volume.h24));
+        const mcap = formatNumber(parseFloat(pair.fdv));
+        const priceChange24h = parseFloat(pair.priceChange.h24);
         
         chartTitle.innerHTML = `
             <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
             <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
                 <div style="display: flex; align-items: center;">
                     <span>${pair.baseToken.name || pair.baseToken.symbol}</span>
+                    <div class="volume-info">
+                        <span class="volume-label">Vol:</span>
+                        <span class="volume-value">$${volume24h}</span>
+                    </div>
                     <div class="contract-info">
                         <span class="contract-label">Contract:</span>
                         <span class="contract-address">${shortContractAddress}</span>
@@ -775,6 +727,12 @@ function showPairChart(pair) {
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <div style="font-size: 12px; color: var(--text-secondary);">${pair.baseToken.symbol}/${pair.quoteToken.symbol}</div>
+                    <div class="market-info">
+                        <span class="mcap-label">MCap:</span>
+                        <span class="mcap-value">$${mcap}</span>
+                        <span class="change-label">24h:</span>
+                        <span class="change-value ${priceChange24h >= 0 ? 'positive' : 'negative'}">${priceChange24h > 0 ? '+' : ''}${priceChange24h.toFixed(2)}%</span>
+                    </div>
                     <div class="pair-address-info">
                         <span class="pair-label">Pair:</span>
                         <span class="pair-address">${shortPairAddress}</span>
@@ -1032,9 +990,10 @@ async function updateWIFData() {
                 const statsElement = wifItem.querySelector('.watchlist-stats');
                 if (statsElement) {
                     const volume = parseFloat(pair.volume.h24);
+                    const mcap = parseFloat(pair.fdv);
                     statsElement.innerHTML = `
                         <span>Vol ${formatNumber(volume)}</span>
-                        <span>24h: ${pair.priceChange.h24 > 0 ? '+' : ''}${parseFloat(pair.priceChange.h24).toFixed(2)}</span>
+                        <span>MCap: $${formatNumber(mcap)}</span>
                     `;
                 }
             }
@@ -1097,9 +1056,10 @@ async function updatePOPCATData() {
                 const statsElement = popcatItem.querySelector('.watchlist-stats');
                 if (statsElement) {
                     const volume = parseFloat(pair.volume.h24);
+                    const mcap = parseFloat(pair.fdv);
                     statsElement.innerHTML = `
                         <span>Vol ${formatNumber(volume)}</span>
-                        <span>24h: ${pair.priceChange.h24 > 0 ? '+' : ''}${parseFloat(pair.priceChange.h24).toFixed(2)}</span>
+                        <span>MCap: $${formatNumber(mcap)}</span>
                     `;
                 }
             }
@@ -1154,9 +1114,10 @@ async function updateJUPData() {
                 const statsElement = jupItem.querySelector('.watchlist-stats');
                 if (statsElement) {
                     const volume = parseFloat(pair.volume.h24);
+                    const mcap = parseFloat(pair.fdv);
                     statsElement.innerHTML = `
                         <span>Vol ${formatNumber(volume)}</span>
-                        <span>24h: ${pair.priceChange.h24 > 0 ? '+' : ''}${parseFloat(pair.priceChange.h24).toFixed(2)}</span>
+                        <span>MCap: $${formatNumber(mcap)}</span>
                     `;
                 }
             }
@@ -1211,9 +1172,10 @@ async function updatePENGUData() {
                 const statsElement = penguItem.querySelector('.watchlist-stats');
                 if (statsElement) {
                     const volume = parseFloat(pair.volume.h24);
+                    const mcap = parseFloat(pair.fdv);
                     statsElement.innerHTML = `
                         <span>Vol ${formatNumber(volume)}</span>
-                        <span>24h: ${pair.priceChange.h24 > 0 ? '+' : ''}${parseFloat(pair.priceChange.h24).toFixed(2)}</span>
+                        <span>MCap: $${formatNumber(mcap)}</span>
                     `;
                 }
             }
@@ -1258,9 +1220,10 @@ function updateMarketCard(symbol, pair) {
         const statsElement = marketCard.querySelector('.market-stats');
         if (statsElement) {
             const volume = parseFloat(pair.volume.h24);
+            const mcap = parseFloat(pair.fdv);
             statsElement.innerHTML = `
                 <span>Vol ${formatNumber(volume)}</span>
-                <span>24h: ${pair.priceChange.h24 > 0 ? '+' : ''}${parseFloat(pair.priceChange.h24).toFixed(2)}</span>
+                <span>MCap: $${formatNumber(mcap)}</span>
             `;
         }
     }
@@ -1425,12 +1388,19 @@ document.querySelectorAll('.market-card').forEach(card => {
                 // Use real data from DexScreener
                 const shortContractAddress = pairData.baseToken.address.slice(0, 6) + '...' + pairData.baseToken.address.slice(-4);
                 const shortPairAddress = pairData.pairAddress.slice(0, 6) + '...' + pairData.pairAddress.slice(-4);
+                const volume24h = formatNumber(parseFloat(pairData.volume.h24));
+                const mcap = formatNumber(parseFloat(pairData.fdv));
+                const priceChange24h = parseFloat(pairData.priceChange.h24);
                 
                 chartTitle.innerHTML = `
                     <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
                     <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
                         <div style="display: flex; align-items: center;">
                             <span>${pairData.baseToken.name}</span>
+                            <div class="volume-info">
+                                <span class="volume-label">Vol:</span>
+                                <span class="volume-value">$${volume24h}</span>
+                            </div>
                             <div class="contract-info">
                                 <span class="contract-label">Contract:</span>
                                 <span class="contract-address">${shortContractAddress}</span>
@@ -1441,6 +1411,12 @@ document.querySelectorAll('.market-card').forEach(card => {
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <div style="font-size: 12px; color: var(--text-secondary);">${pairData.baseToken.symbol}/${pairData.quoteToken.symbol}</div>
+                            <div class="market-info">
+                                <span class="mcap-label">MCap:</span>
+                                <span class="mcap-value">$${mcap}</span>
+                                <span class="change-label">24h:</span>
+                                <span class="change-value ${priceChange24h >= 0 ? 'positive' : 'negative'}">${priceChange24h > 0 ? '+' : ''}${priceChange24h.toFixed(2)}%</span>
+                            </div>
                             <div class="pair-address-info">
                                 <span class="pair-label">Pair:</span>
                                 <span class="pair-address">${shortPairAddress}</span>
@@ -1526,29 +1502,111 @@ document.querySelectorAll('.market-card').forEach(card => {
         } else {
             // Use TradingView for other pairs
             container.style = ''; // Reset any custom styles
-            new TradingView.widget({
-                "width": "100%",
-                "height": "100%",
-                "symbol": `BINANCE:${symbol}USDT`,
-                "interval": "15",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "1",
-                "locale": "en",
-                "toolbar_bg": "#131722",
-                "enable_publishing": false,
-                "hide_side_toolbar": false,
-                "allow_symbol_change": true,
-                "save_image": false,
-                "container_id": "tradingview_solana",
-                "hide_top_toolbar": true,
-                "studies": [],
-                "show_popup_button": false,
-                "popup_width": "1000",
-                "popup_height": "650",
-                "backgroundColor": "#0a0a0f",
-                "hide_volume": false
-            });
+            initTradingViewWidget(container, `BINANCE:${symbol}USDT`, '15');
         }
     });
 });
+
+// Chart Style Toggle functionality
+let currentChartStyle = 1; // 1 for candles, 3 for bars
+let sideToolbarVisible = false; // Track side toolbar visibility state
+
+function updateChartStyle(style) {
+    currentChartStyle = style;
+    const container = document.getElementById('tradingview_solana');
+    const symbol = container.getAttribute('data-symbol') || 'BINANCE:SOLUSDT';
+    const interval = container.getAttribute('data-interval') || '15';
+    
+    container.innerHTML = '';
+    new TradingView.widget({
+        "width": "100%",
+        "height": "100%",
+        "symbol": symbol,
+        "interval": interval,
+        "timezone": "Etc/UTC",
+        "theme": "dark",
+        "style": style,
+        "locale": "en",
+        "toolbar_bg": "#131722",
+        "enable_publishing": false,
+        "hide_side_toolbar": !sideToolbarVisible, // Sync with toolbar state
+        "allow_symbol_change": true,
+        "save_image": false,
+        "container_id": "tradingview_solana",
+        "hide_top_toolbar": true,
+        "studies": [],
+        "show_popup_button": false,
+        "popup_width": "1000",
+        "popup_height": "650",
+        "backgroundColor": "#0a0a0f",
+        "hide_volume": false
+    });
+}
+
+// Add click handler for chart style toggle
+document.querySelector('.chart-controls .icon-btn:first-child').addEventListener('click', () => {
+    const styleButton = document.querySelector('.chart-controls .icon-btn:first-child');
+    const icon = styleButton.querySelector('.material-icons-round');
+    
+    // Toggle between styles: Candles (1) <-> Line (3)
+    if (currentChartStyle === 1) {
+        currentChartStyle = 3;
+        icon.textContent = 'show_chart';
+    } else {
+        currentChartStyle = 1;
+        icon.textContent = 'candlestick_chart';
+    }
+    
+    updateChartStyle(currentChartStyle);
+});
+
+// Add click handler for drawing tools toggle
+document.querySelector('.chart-controls .icon-btn:nth-child(2)').addEventListener('click', () => {
+    const drawButton = document.querySelector('.chart-controls .icon-btn:nth-child(2)');
+    const icon = drawButton.querySelector('.material-icons-round');
+    
+    // Toggle drawing tools visibility
+    sideToolbarVisible = !sideToolbarVisible;
+    
+    // Update button appearance
+    if (sideToolbarVisible) {
+        drawButton.classList.add('active');
+        icon.style.color = 'var(--primary-color)';
+    } else {
+        drawButton.classList.remove('active');
+        icon.style.color = '';
+    }
+    
+    // Update chart with new toolbar visibility
+    updateChartStyle(currentChartStyle);
+});
+
+// Update initTradingViewWidget to use sideToolbarVisible
+function initTradingViewWidget(container, symbol = 'BINANCE:SOLUSDT', interval = '15') {
+    container.setAttribute('data-symbol', symbol);
+    container.setAttribute('data-interval', interval);
+    
+    new TradingView.widget({
+        "width": "100%",
+        "height": "100%",
+        "symbol": symbol,
+        "interval": interval,
+        "timezone": "Etc/UTC",
+        "theme": "dark",
+        "style": currentChartStyle,
+        "locale": "en",
+        "toolbar_bg": "#131722",
+        "enable_publishing": false,
+        "hide_side_toolbar": !sideToolbarVisible, // Sync with toolbar state
+        "allow_symbol_change": true,
+        "save_image": false,
+        "container_id": "tradingview_solana",
+        "hide_top_toolbar": true,
+        "studies": [],
+        "show_popup_button": false,
+        "popup_width": "1000",
+        "popup_height": "650",
+        "backgroundColor": "#0a0a0f",
+        "hide_volume": false
+    });
+}
