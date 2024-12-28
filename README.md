@@ -5,6 +5,7 @@ A modern, sleek trading interface for Solana tokens with DexScreener integration
 ## Features
 
 - Real-time token price tracking
+- Market cap and volume display
 - DexScreener chart integration
 - Token pair calculator
 - Watchlist functionality
