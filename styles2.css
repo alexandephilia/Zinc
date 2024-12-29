@@ -873,20 +873,17 @@
     }
 
     .chart-content {
-        height: 600px;
+        height: 600px !important;
         position: relative;
         overflow: visible;
     }
 
-    #tradingview_solana {
-        height: 600px !important;
-        position: relative;
-    }
-
-    /* Specific height for DexScreener iframe */
+    #tradingview_solana,
+    .tradingview-widget-container,
     .chart-content iframe {
         height: 600px !important;
         width: 100% !important;
+        min-height: 600px !important;
     }
 
     .market-grid-container {
@@ -913,6 +910,7 @@
 
     .chart-content,
     #tradingview_solana,
+    .tradingview-widget-container,
     .chart-content iframe,
     .chart-section {
         height: 500px !important;
