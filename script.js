@@ -1388,13 +1388,9 @@ function initTradingViewWidget(container, symbol = 'BINANCE:SOLUSDT', interval =
     container.setAttribute('data-symbol', symbol);
     container.setAttribute('data-interval', interval);
     
-    const isMobile = window.innerWidth <= 768;
-    const isSmallMobile = window.innerWidth <= 480;
-    const chartHeight = isSmallMobile ? '700' : (isMobile ? '800' : '100%');
-    
     new TradingView.widget({
         "width": "100%",
-        "height": chartHeight,
+        "height": "100%",
         "symbol": symbol,
         "interval": interval,
         "timezone": "Etc/UTC",
@@ -1403,7 +1399,7 @@ function initTradingViewWidget(container, symbol = 'BINANCE:SOLUSDT', interval =
         "locale": "en",
         "toolbar_bg": "#131722",
         "enable_publishing": false,
-        "hide_side_toolbar": !sideToolbarVisible,
+        "hide_side_toolbar": !sideToolbarVisible, // Sync with toolbar state
         "allow_symbol_change": true,
         "save_image": false,
         "container_id": "tradingview_solana",
@@ -1416,16 +1412,6 @@ function initTradingViewWidget(container, symbol = 'BINANCE:SOLUSDT', interval =
         "hide_volume": false
     });
 }
-
-// Add resize handler to update chart height
-window.addEventListener('resize', () => {
-    const container = document.getElementById('tradingview_solana');
-    if (container) {
-        const symbol = container.getAttribute('data-symbol') || 'BINANCE:SOLUSDT';
-        const interval = container.getAttribute('data-interval') || '15';
-        initTradingViewWidget(container, symbol, interval);
-    }
-});
 
 // Market Cards Animation and Real-time Updates
 function initMarketCardsAnimation() {
