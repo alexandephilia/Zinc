@@ -1734,14 +1734,19 @@ function handleAppLoaded() {
         const loadingOverlay = document.querySelector('.app-loading');
         const mainContent = document.querySelector('.main-content');
         
-        // Add loaded classes to trigger transitions
-        loadingOverlay.classList.add('loaded');
-        mainContent.classList.add('loaded');
-        
-        // Remove loading overlay after transition
-        setTimeout(() => {
-            loadingOverlay.style.display = 'none';
-        }, 300);
+        // Set final text before fade out
+        textScramble.setText('ZINC').then(() => {
+            // Add loaded classes to trigger transitions
+            setTimeout(() => {
+                loadingOverlay.classList.add('loaded');
+                mainContent.classList.add('loaded');
+                
+                // Remove loading overlay after transition
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 300);
+            }, 500);
+        });
     }
 }
 
@@ -1750,3 +1755,92 @@ document.fonts.ready.then(() => {
     fontsLoaded = true;
     handleAppLoaded();
 });
+
+// Text Scramble Effect
+class TextScramble {
+    constructor(el) {
+        this.el = el;
+        this.chars = '!<>-_\\/[]{}—=+*^?#________';
+        this.update = this.update.bind(this);
+    }
+    
+    setText(newText) {
+        const oldText = this.el.innerText;
+        const length = Math.max(oldText.length, newText.length);
+        const promise = new Promise((resolve) => (this.resolve = resolve));
+        this.queue = [];
+        for (let i = 0; i < length; i++) {
+            const from = oldText[i] || '';
+            const to = newText[i] || '';
+            const start = Math.floor(Math.random() * 40);
+            const end = start + Math.floor(Math.random() * 40);
+            this.queue.push({ from, to, start, end });
+        }
+        cancelAnimationFrame(this.frameRequest);
+        this.frame = 0;
+        this.update();
+        return promise;
+    }
+    
+    update() {
+        let output = '';
+        let complete = 0;
+        
+        for (let i = 0, n = this.queue.length; i < n; i++) {
+            let { from, to, start, end, char } = this.queue[i];
+            
+            if (this.frame >= end) {
+                complete++;
+                output += to;
+            } else if (this.frame >= start) {
+                if (!char || Math.random() < 0.28) {
+                    char = this.randomChar();
+                    this.queue[i].char = char;
+                }
+                output += `<span class="glitch" data-char="${char}">${char}</span>`;
+            } else {
+                output += from;
+            }
+        }
+        
+        this.el.innerHTML = output;
+        
+        if (complete === this.queue.length) {
+            this.resolve();
+        } else {
+            this.frameRequest = requestAnimationFrame(this.update);
+            this.frame++;
+        }
+    }
+    
+    randomChar() {
+        return this.chars[Math.floor(Math.random() * this.chars.length)];
+    }
+}
+
+// Initialize text scramble
+const textScramble = new TextScramble(document.querySelector('.text-scramble'));
+const phrases = ['ZINC', 'DEGEN', 'ZINC'];
+let counter = 0;
+
+const next = () => {
+    textScramble.setText(phrases[counter]).then(() => {
+        // Add finished class for glow effect
+        textScramble.el.classList.add('finished');
+        
+        // Remove the finished class after animation completes
+        setTimeout(() => {
+            textScramble.el.classList.remove('finished');
+            // Proceed to next phrase after a short delay
+            setTimeout(() => {
+                counter = (counter + 1) % phrases.length;
+                if (!appLoaded || !fontsLoaded || !contentLoaded) {
+                    next();
+                }
+            }, 300);
+        }, 600); // Match this with the bgGlow animation duration
+    });
+};
+
+// Start text scramble animation
+next();
