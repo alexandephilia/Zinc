@@ -268,8 +268,8 @@ function showTrendingView() {
     // Hide calculator for TradingView
     window.hideCalculator();
     
-    // Show market grid
-    const marketGrid = document.querySelector('.market-grid');
+    // Show market grid container
+    const marketGridContainer = document.querySelector('.market-grid-container');
     const chartSection = document.querySelector('.chart-section');
     const sectionHeader = document.querySelector('.section-header');
     
@@ -282,7 +282,7 @@ function showTrendingView() {
     // Restore original header
     sectionHeader.innerHTML = `
         <div class="section-title">
-            <span class="material-icons-round">trending_up</span>
+            <span class="material-icons-round" style="animation: glowPulse 2s ease-in-out infinite;">trending_up</span>
             Trending
         </div>
     `;
@@ -302,9 +302,9 @@ function showTrendingView() {
         `;
     }
     
-    // Show market grid and adjust chart height
-    marketGrid.style.display = 'grid';
-    chartSection.style.height = `calc(100vh - var(--navbar-height) - ${marketGrid.offsetHeight}px - var(--spacing) * 2)`;
+    // Show market grid container and adjust chart height
+    marketGridContainer.style.display = 'block';
+    chartSection.style.height = `calc(100vh - var(--navbar-height) - ${marketGridContainer.offsetHeight}px - var(--spacing) * 2)`;
     
     // Reset to TradingView widget
     const container = document.getElementById('tradingview_solana');
@@ -1190,43 +1190,49 @@ async function updatePENGUData() {
 
 // Function to update market card data
 function updateMarketCard(symbol, pair) {
-    const marketCard = document.querySelector(`.market-card[data-symbol="${symbol}"]`);
-    if (marketCard) {
-        // Update price
-        const priceElement = marketCard.querySelector('.market-price');
-        if (priceElement) {
-            priceElement.textContent = `$${parseFloat(pair.priceUsd).toFixed(8)}`;
-        }
+    const marketCards = document.querySelectorAll(`.market-card[data-symbol="${symbol}"]`);
+    marketCards.forEach(marketCard => {
+        if (marketCard) {
+            // Update price
+            const priceElement = marketCard.querySelector('.market-price');
+            if (priceElement) {
+                const newPrice = `$${parseFloat(pair.priceUsd).toFixed(8)}`;
+                if (priceElement.textContent !== newPrice) {
+                    priceElement.textContent = newPrice;
+                    priceElement.classList.add('price-update');
+                    setTimeout(() => priceElement.classList.remove('price-update'), 1000);
+                }
+            }
 
-        // Update 24h change
-        const percentageElement = marketCard.querySelector('.title-percentage');
-        if (percentageElement) {
-            const priceChange = parseFloat(pair.priceChange.h24);
-            percentageElement.textContent = `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%`;
-            percentageElement.className = `title-percentage ${priceChange >= 0 ? 'positive' : 'negative'}`;
-            
-            // Update card class for styling
-            marketCard.className = `market-card ${priceChange >= 0 ? 'positive' : 'negative'}`;
-            
-            // Update trend icon
-            const trendIcon = marketCard.querySelector('.material-icons-round');
-            if (trendIcon) {
-                trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
-                trendIcon.style.color = `var(--${priceChange >= 0 ? 'success' : 'danger'}-color)`;
+            // Update 24h change and card state
+            const percentageElement = marketCard.querySelector('.title-percentage');
+            if (percentageElement) {
+                const priceChange = parseFloat(pair.priceChange.h24);
+                percentageElement.textContent = `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%`;
+                percentageElement.className = `title-percentage ${priceChange >= 0 ? 'positive' : 'negative'}`;
+                
+                // Update card class for styling
+                marketCard.className = `market-card ${priceChange >= 0 ? 'positive' : 'negative'}`;
+                
+                // Update trend icon
+                const trendIcon = marketCard.querySelector('.material-icons-round');
+                if (trendIcon) {
+                    trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
+                }
+            }
+
+            // Update volume and 24h stats
+            const statsElement = marketCard.querySelector('.market-stats');
+            if (statsElement) {
+                const volume = parseFloat(pair.volume.h24);
+                const mcap = parseFloat(pair.fdv);
+                statsElement.innerHTML = `
+                    <span>Vol ${formatNumber(volume)}</span>
+                    <span>MCap: $${formatNumber(mcap)}</span>
+                `;
             }
         }
-
-        // Update volume and 24h stats
-        const statsElement = marketCard.querySelector('.market-stats');
-        if (statsElement) {
-            const volume = parseFloat(pair.volume.h24);
-            const mcap = parseFloat(pair.fdv);
-            statsElement.innerHTML = `
-                <span>Vol ${formatNumber(volume)}</span>
-                <span>MCap: $${formatNumber(mcap)}</span>
-            `;
-        }
-    }
+    });
 }
 
 // Update all data every 10 seconds
@@ -1409,7 +1415,7 @@ document.querySelectorAll('.market-card').forEach(card => {
                                 </button>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
                             <div style="font-size: 12px; color: var(--text-secondary);">${pairData.baseToken.symbol}/${pairData.quoteToken.symbol}</div>
                             <div class="market-info">
                                 <span class="mcap-label">MCap:</span>
@@ -1432,7 +1438,7 @@ document.querySelectorAll('.market-card').forEach(card => {
                 const copyButtons = chartTitle.querySelectorAll('.copy-btn');
                 copyButtons.forEach(button => {
                     button.addEventListener('click', async (e) => {
-                        e.stopPropagation(); // Prevent triggering card click
+                        e.stopPropagation();
                         const textToCopy = button.getAttribute('data-copy');
                         try {
                             await navigator.clipboard.writeText(textToCopy);
@@ -1610,3 +1616,131 @@ function initTradingViewWidget(container, symbol = 'BINANCE:SOLUSDT', interval =
         "hide_volume": false
     });
 }
+
+// Market Cards Animation and Real-time Updates
+function initMarketCardsAnimation() {
+    // Function to update a single card's data
+    async function updateCardData(card) {
+        const symbol = card.getAttribute('data-symbol');
+        const pairAddress = symbol === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
+                          symbol === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
+                          symbol === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
+                          'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV';
+
+        try {
+            const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
+            const data = await response.json();
+            const pair = data.pair;
+
+            if (pair) {
+                // Update price with animation
+                const priceElement = card.querySelector('.market-price');
+                if (priceElement) {
+                    const newPrice = `$${parseFloat(pair.priceUsd).toFixed(8)}`;
+                    if (priceElement.textContent !== newPrice) {
+                        priceElement.textContent = newPrice;
+                        priceElement.classList.add('price-update');
+                        setTimeout(() => priceElement.classList.remove('price-update'), 1000);
+                    }
+                }
+
+                // Update other elements
+                const percentageElement = card.querySelector('.title-percentage');
+                if (percentageElement) {
+                    const priceChange = parseFloat(pair.priceChange.h24);
+                    const newPercentage = `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%`;
+                    if (percentageElement.textContent !== newPercentage) {
+                        percentageElement.textContent = newPercentage;
+                        percentageElement.className = `title-percentage ${priceChange >= 0 ? 'positive' : 'negative'}`;
+                    }
+                }
+
+                // Update stats
+                const statsElement = card.querySelector('.market-stats');
+                if (statsElement) {
+                    const volume = parseFloat(pair.volume.h24);
+                    const mcap = parseFloat(pair.fdv);
+                    statsElement.innerHTML = `
+                        <span>Vol ${formatNumber(volume)}</span>
+                        <span>MCap: $${formatNumber(mcap)}</span>
+                    `;
+                }
+
+                // Update trend icon
+                const trendIcon = card.querySelector('.material-icons-round');
+                if (trendIcon) {
+                    const priceChange = parseFloat(pair.priceChange.h24);
+                    trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
+                    trendIcon.style.color = `var(--${priceChange >= 0 ? 'success' : 'danger'}-color)`;
+                }
+
+                // Update all duplicate cards with the same symbol
+                const allCardsWithSymbol = document.querySelectorAll(`.market-card[data-symbol="${symbol}"]`);
+                allCardsWithSymbol.forEach(duplicateCard => {
+                    if (duplicateCard !== card) {
+                        duplicateCard.innerHTML = card.innerHTML;
+                    }
+                });
+            }
+        } catch (error) {
+            console.error(`Error updating ${symbol} data:`, error);
+        }
+    }
+
+    // Function to update all unique cards
+    async function updateAllCards() {
+        const uniqueSymbols = new Set();
+        const cards = document.querySelectorAll('.market-card');
+        const uniqueCards = Array.from(cards).filter(card => {
+            const symbol = card.getAttribute('data-symbol');
+            if (!uniqueSymbols.has(symbol)) {
+                uniqueSymbols.add(symbol);
+                return true;
+            }
+            return false;
+        });
+
+        const promises = uniqueCards.map(card => updateCardData(card));
+        await Promise.all(promises);
+    }
+
+    // Initial update
+    updateAllCards();
+
+    // Set up real-time updates (every 2 seconds)
+    const updateInterval = setInterval(updateAllCards, 2000);
+
+    // Clean up interval when needed
+    window.addEventListener('beforeunload', () => {
+        clearInterval(updateInterval);
+    });
+
+    // Add click handlers for market cards
+    document.addEventListener('click', async (e) => {
+        const card = e.target.closest('.market-card');
+        if (card) {
+            const symbol = card.getAttribute('data-symbol');
+            // ... rest of the click handler code ...
+        }
+    });
+}
+
+// Initialize animations when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initMarketCardsAnimation();
+});
+
+// Add CSS animation for price updates
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes priceUpdate {
+        0% { color: inherit; }
+        50% { color: #FFFFFF; }
+        100% { color: inherit; }
+    }
+
+    .price-update {
+        animation: priceUpdate 0.5s ease;
+    }
+`;
+document.head.appendChild(style);

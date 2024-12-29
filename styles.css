@@ -870,8 +870,8 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    height: 32px;
-    width: 32px;
+    height: 25px;
+    width: 25px;
 }
 
 .icon-btn:hover {
@@ -1060,60 +1060,71 @@ body {
     background: linear-gradient(
         45deg,
         var(--tertiary-bg),
-        rgba(0, 200, 83, 0.02)
+        rgba(0, 200, 83, 0.05)
     );
     border: 1px solid rgba(0, 200, 83, 0.1);
+    box-shadow: 0 0 20px rgba(0, 200, 83, 0.02);
 }
 
 .watchlist-item.negative {
     background: linear-gradient(
         45deg,
         var(--tertiary-bg),
-        rgba(255, 61, 0, 0.02)
+        rgba(255, 61, 0, 0.05)
     );
     border: 1px solid rgba(255, 61, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 61, 0, 0.02);
 }
 
 .watchlist-item.positive:hover {
     background: linear-gradient(
         45deg,
         var(--tertiary-bg),
-        rgba(0, 200, 83, 0.05)
+        rgba(0, 200, 83, 0.1)
     );
-    border: 1px solid rgba(0, 200, 83, 0.15);
-    box-shadow: 0px 8px 16px 0px rgba(0, 200, 83, 0.03);
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 200, 83, 0.05);
 }
 
 .watchlist-item.negative:hover {
     background: linear-gradient(
         45deg,
         var(--tertiary-bg),
-        rgba(255, 61, 0, 0.05)
+        rgba(255, 61, 0, 0.1)
     );
-    border: 1px solid rgba(255, 61, 0, 0.15);
-    box-shadow: 0px 8px 16px 0px rgba(255, 61, 0, 0.03);
+    border: 1px solid rgba(255, 61, 0, 0.2);
+    box-shadow: 0px 8px 16px 0px rgba(255, 61, 0, 0.05);
 }
 
 .watchlist-item.positive.active {
     background: linear-gradient(
         45deg,
         var(--tertiary-bg),
-        rgba(0, 200, 83, 0.1)
+        rgba(0, 200, 83, 0.15)
     );
-    border: 1px solid rgba(0, 200, 83, 0.2);
+    border: 1px solid rgba(0, 200, 83, 0.25);
     box-shadow: 0px -16px 24px 0px rgba(255, 255, 255, 0.05) inset,
-                0px 8px 16px 0px rgba(0, 200, 83, 0.05);
+                0px 8px 16px 0px rgba(0, 200, 83, 0.08);
 }
 
 .watchlist-item.negative.active {
     background: linear-gradient(
         45deg,
         var(--tertiary-bg),
-        rgba(255, 61, 0, 0.1)
+        rgba(255, 61, 0, 0.15)
     );
-    border: 1px solid rgba(255, 61, 0, 0.2);
+    border: 1px solid rgba(255, 61, 0, 0.25);
     box-shadow: 0px -16px 24px 0px rgba(255, 255, 255, 0.05) inset,
-                0px 8px 16px 0px rgba(255, 61, 0, 0.05);
+                0px 8px 16px 0px rgba(255, 61, 0, 0.08);
+}
+
+/* Add price color states */
+.watchlist-item.positive .watchlist-price {
+    color: var(--success-color);
+}
+
+.watchlist-item.negative .watchlist-price {
+    color: var(--danger-color);
 }
 
 .watchlist-header {
@@ -1404,56 +1415,88 @@ body {
     flex: 0 0 280px;
     background: linear-gradient(
         45deg,
-        var(--secondary-bg),
-        var(--tertiary-bg)
+        var(--tertiary-bg),
+        rgba(41, 98, 255, 0.02)
     );
     border: 1px solid var(--border-color);
     transition: all 0.3s ease;
+    padding: clamp(10px, 1.2vw, 12px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .market-grid-scroll .market-card.positive {
     background: linear-gradient(
         45deg,
-        var(--secondary-bg),
+        var(--tertiary-bg),
         rgba(0, 200, 83, 0.05)
     );
-    border-color: rgba(0, 200, 83, 0.1);
-    box-shadow: 0 0 20px rgba(0, 200, 83, 0.05);
+    border: 1px solid rgba(0, 200, 83, 0.1);
+    box-shadow: 0 0 20px rgba(0, 200, 83, 0.02);
 }
 
 .market-grid-scroll .market-card.negative {
     background: linear-gradient(
         45deg,
-        var(--secondary-bg),
+        var(--tertiary-bg),
         rgba(255, 61, 0, 0.05)
     );
-    border-color: rgba(255, 61, 0, 0.1);
-    box-shadow: 0 0 20px rgba(255, 61, 0, 0.05);
+    border: 1px solid rgba(255, 61, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 61, 0, 0.02);
 }
 
 .market-grid-scroll .market-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .market-grid-scroll .market-card.positive:hover {
     background: linear-gradient(
         45deg,
-        var(--secondary-bg),
+        var(--tertiary-bg),
         rgba(0, 200, 83, 0.1)
     );
-    border-color: rgba(0, 200, 83, 0.2);
-    box-shadow: 0 8px 24px rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 200, 83, 0.05);
 }
 
 .market-grid-scroll .market-card.negative:hover {
     background: linear-gradient(
         45deg,
-        var(--secondary-bg),
+        var(--tertiary-bg),
         rgba(255, 61, 0, 0.1)
     );
-    border-color: rgba(255, 61, 0, 0.2);
-    box-shadow: 0 8px 24px rgba(255, 61, 0, 0.1);
+    border: 1px solid rgba(255, 61, 0, 0.2);
+    box-shadow: 0px 8px 16px 0px rgba(255, 61, 0, 0.05);
+}
+
+/* Add price color states for market cards */
+.market-grid-scroll .market-card.positive .market-price {
+    color: var(--success-color);
+}
+
+.market-grid-scroll .market-card.negative .market-price {
+    color: var(--danger-color);
+}
+
+/* Add trend icon color states for market cards */
+.market-grid-scroll .market-card.positive .material-icons-round {
+    color: var(--success-color);
+}
+
+.market-grid-scroll .market-card.negative .material-icons-round {
+    color: var(--danger-color);
+}
+
+/* Add percentage color states for market cards */
+.market-grid-scroll .market-card .title-percentage.positive {
+    color: var(--success-color);
+    background: rgba(0, 200, 83, 0.1);
+}
+
+.market-grid-scroll .market-card .title-percentage.negative {
+    color: var(--danger-color);
+    background: rgba(255, 61, 0, 0.1);
 }
 
 /* Smooth infinite scroll animation */
@@ -1471,17 +1514,119 @@ body {
     animation-play-state: paused;
 }
 
-/* Price update animation */
+/* Price update animation - CONSISTENT WHITE FLASH */
 @keyframes priceUpdate {
-    0% { color: var(--text-primary); }
-    50% { color: var(--accent-color); }
-    100% { color: var(--text-primary); }
+    0% { color: inherit; }
+    50% { color: #FFFFFF; }
+    100% { color: inherit; }
 }
 
 .price-update {
-    animation: priceUpdate 1s ease;
+    animation: priceUpdate 0.5s ease;
 }
 
+/* Ensure price colors are maintained after animation */
+.watchlist-item.positive .watchlist-price,
+.market-grid-scroll .market-card.positive .market-price {
+    color: var(--success-color);
+}
+
+.watchlist-item.negative .watchlist-price,
+.market-grid-scroll .market-card.negative .market-price {
+    color: var(--danger-color);
+}
+
+/* Remove any other color transitions that might interfere */
+.watchlist-price,
 .market-price {
-    transition: color 0.3s ease;
+    transition: none;
+}
+
+/* Trending Title Animations */
+@keyframes shimmer {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+/* Only apply to trending title, not chart title or close button */
+.section-header .section-title:not(.chart-title) {
+    background: linear-gradient(
+        90deg,
+        var(--text-primary) 0%,
+        #ffffff 20%,
+        var(--text-primary) 40%,
+        var(--text-primary) 100%
+    );
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+}
+
+/* Only apply to trending icon, not close button */
+.section-header .section-title:not(.chart-title) > .material-icons-round:first-child {
+    background: linear-gradient(
+        90deg,
+        var(--accent-color) 0%,
+        #5c8fff 20%,
+        var(--accent-color) 40%,
+        var(--accent-color) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: 
+        shimmer 4s linear infinite,
+        iconPulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 4px rgba(41, 98, 255, 0.4));
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        filter: drop-shadow(0 0 4px rgba(41, 98, 255, 0.3));
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        filter: drop-shadow(0 0 12px rgba(41, 98, 255, 0.6));
+        transform: scale(1.1) rotate(5deg);
+    }
+}
+
+/* Chart Close Button Styling */
+.section-title .icon-btn {
+    background: rgba(255, 61, 0, 0.05);
+    border: 1px solid rgba(255, 61, 0, 0.1);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 0 1px rgba(255, 61, 0, 0.05);
+}
+
+.section-title .icon-btn:hover {
+    background: rgba(255, 61, 0, 0.1);
+    border-color: rgba(255, 61, 0, 0.2);
+}
+
+.section-title .icon-btn .material-icons-round {
+    color: var(--danger-color);
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+.section-title .icon-btn:hover .material-icons-round {
+    color: #ff4d1a;
 }
