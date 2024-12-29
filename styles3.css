@@ -1,4 +1,28 @@
 /* Dynamic Sidebar Styling */
+/* FORCE HIDE ON MOBILE FIRST - NO FUCKING AROUND */
+@media (max-width: 768px) {
+    .sidebar {
+        display: none !important;
+    }
+    
+    .sidebar.init-complete {
+        display: flex !important;
+        width: 100%;
+        max-width: none;
+        position: fixed;
+        left: 0;
+        top: var(--navbar-height);
+        height: calc(100% - var(--navbar-height));
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: var(--secondary-bg);
+        will-change: transform;
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
 .sidebar {
     width: clamp(240px, 20vw, 400px);
     background: var(--secondary-bg);

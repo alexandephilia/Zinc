@@ -376,6 +376,11 @@ const checkMobileView = () => {
     const existingBtn = navbar.querySelector('.mobile-menu-btn');
     const sidebar = document.querySelector('.sidebar');
     
+    // FORCE add init-complete class to enable transitions
+    if (!sidebar.classList.contains('init-complete')) {
+        sidebar.classList.add('init-complete');
+    }
+    
     if (window.innerWidth <= 768) {
         // Ensure sidebar is hidden by default on mobile
         sidebar.classList.remove('active');
@@ -415,19 +420,20 @@ document.addEventListener('click', (e) => {
     }
 }, { passive: false });
 
-// Update the event listeners
+// CRITICAL: Initialize mobile view IMMEDIATELY
 document.addEventListener('DOMContentLoaded', () => {
+    // Force immediate check before any rendering
     checkMobileView();
-    initMarketCardsAnimation();
-    setupPairCalculator();
+    
+    // Delay non-critical initializations
+    requestAnimationFrame(() => {
+        initMarketCardsAnimation();
+        setupPairCalculator();
+    });
 }, { passive: true });
 
-window.addEventListener('resize', () => {
-    checkMobileView();
-    if (window.innerWidth > 768) {
-        unlockBodyScroll();
-    }
-}, { passive: true });
+// Also check on load to be extra fucking sure
+window.addEventListener('load', checkMobileView, { passive: true });
 
 // Smooth scroll behavior for sidebar
 const sidebarContent = document.querySelector('.sidebar-content');
