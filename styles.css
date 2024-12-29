@@ -33,8 +33,7 @@ body {
     font-family: 'Roboto Mono', monospace;
     background: var(--primary-bg);
     color: var(--text-primary);
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
     font-size: 14px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -44,7 +43,7 @@ body {
 .app-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .navbar {
@@ -60,7 +59,7 @@ body {
 .main-content {
     flex: 1;
     display: flex;
-    overflow: hidden;
+    position: relative;
 }
 
 .sidebar {
@@ -196,7 +195,8 @@ body {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .market-grid {
@@ -459,9 +459,20 @@ body {
 
 .chart-section {
     flex: 1;
-    transition: all 0.3s ease;
-    background: var(--primary-bg);
-    position: relative;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-container {
+    flex: 1;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+    overflow: hidden;
 }
 
 /* Component Styles */
@@ -704,18 +715,6 @@ body {
 .change-badge.negative {
     color: var(--danger-color);
     background: rgba(255, 61, 0, 0.1);
-}
-
-.chart-container {
-    flex: 1;
-    background: var(--secondary-bg);
-    border: none;
-    border-radius: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-height: 0;
-    height: 100%;
 }
 
 .chart-header {
