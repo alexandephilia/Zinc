@@ -1405,10 +1405,10 @@ body {
     background: linear-gradient(
         45deg,
         var(--secondary-bg),
-        rgba(41, 98, 255, 0.02)
+        var(--tertiary-bg)
     );
-    border: 1px solid transparent;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 .market-grid-scroll .market-card.positive {
@@ -1433,8 +1433,7 @@ body {
 
 .market-grid-scroll .market-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .market-grid-scroll .market-card.positive:hover {
@@ -1444,8 +1443,7 @@ body {
         rgba(0, 200, 83, 0.1)
     );
     border-color: rgba(0, 200, 83, 0.2);
-    box-shadow: 0 8px 24px rgba(0, 200, 83, 0.1),
-                0 0 0 1px rgba(0, 200, 83, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 200, 83, 0.1);
 }
 
 .market-grid-scroll .market-card.negative:hover {
@@ -1455,8 +1453,7 @@ body {
         rgba(255, 61, 0, 0.1)
     );
     border-color: rgba(255, 61, 0, 0.2);
-    box-shadow: 0 8px 24px rgba(255, 61, 0, 0.1),
-                0 0 0 1px rgba(255, 61, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(255, 61, 0, 0.1);
 }
 
 /* Smooth infinite scroll animation */
