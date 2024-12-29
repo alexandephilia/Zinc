@@ -267,6 +267,12 @@ window.showTrendingView = function() {
     marketGridContainer.style.display = 'block';
     chartSection.style.height = `calc(100vh - var(--navbar-height) - ${marketGridContainer.offsetHeight}px - var(--spacing) * 2)`;
     
+    // Hide calculator
+    const calculator = document.querySelector('.pair-calculator');
+    if (calculator) {
+        calculator.style.display = 'none';
+    }
+    
     // Reset to TradingView widget with preserved settings
     const container = document.getElementById('tradingview_solana');
     container.innerHTML = '';
