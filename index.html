@@ -226,98 +226,9 @@
                             </button>
                         </div>
                         
-                        <!-- Watchlist Items -->
-                        <div class="watchlist-item active" data-symbol="JUP">
-                            <div class="watchlist-header">
-                                <div class="watchlist-symbol">
-                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
-                                    <span>JUP/SOL</span>
-                                </div>
-                                <span class="title-percentage positive">0.00%</span>
-                            </div>
-                            <div class="watchlist-price">$0.00000000</div>
-                            <div class="watchlist-stats">
-                                <span>Vol $0.00</span>
-                                <span>MCap: $0.00</span>
-                            </div>
-                        </div>
-
-                        <div class="watchlist-item" data-symbol="POPCAT">
-                            <div class="watchlist-header">
-                                <div class="watchlist-symbol">
-                                    <span class="material-icons-round" style="font-size: 16px; color: var(--danger-color);">trending_down</span>
-                                    <span>POPCAT/SOL</span>
-                                </div>
-                                <span class="title-percentage negative">-1.24%</span>
-                            </div>
-                            <div class="watchlist-price">$0.00000000</div>
-                            <div class="watchlist-stats">
-                                <span>Vol $0.00</span>
-                                <span>MCap: $0.00</span>
-                            </div>
-                        </div>
-
-                        <!-- WIF Watchlist Item -->
-                        <div class="watchlist-item" data-symbol="WIF">
-                            <div class="watchlist-header">
-                                <div class="watchlist-symbol">
-                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
-                                    <span>WIF/SOL</span>
-                                </div>
-                                <span class="title-percentage">0.00%</span>
-                            </div>
-                            <div class="watchlist-price">$0.00000000</div>
-                            <div class="watchlist-stats">
-                                <span>Vol $0.00</span>
-                                <span>MCap: $0.00</span>
-                            </div>
-                        </div>
-
-                        <div class="watchlist-item" data-symbol="PENGU">
-                            <div class="watchlist-header">
-                                <div class="watchlist-symbol">
-                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
-                                    <span>PENGU/SOL</span>
-                                </div>
-                                <span class="title-percentage positive">0.00%</span>
-                            </div>
-                            <div class="watchlist-price">$0.00000000</div>
-                            <div class="watchlist-stats">
-                                <span>Vol $0.00</span>
-                                <span>MCap: $0.00</span>
-                            </div>
-                        </div>
-
-                        <!-- Add ZEUS watchlist item after existing items -->
-                        <div class="watchlist-item" data-symbol="ZEUS">
-                            <div class="watchlist-header">
-                                <div class="watchlist-symbol">
-                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
-                                    <span>ZEUS/SOL</span>
-                                </div>
-                                <span class="title-percentage positive">0.00%</span>
-                            </div>
-                            <div class="watchlist-price">$0.00000000</div>
-                            <div class="watchlist-stats">
-                                <span>Vol $0.00</span>
-                                <span>MCap: $0.00</span>
-                            </div>
-                        </div>
-
-                        <!-- Add NOSANA watchlist item -->
-                        <div class="watchlist-item" data-symbol="NOS">
-                            <div class="watchlist-header">
-                                <div class="watchlist-symbol">
-                                    <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
-                                    <span>NOS/SOL</span>
-                                </div>
-                                <span class="title-percentage positive">0.00%</span>
-                            </div>
-                            <div class="watchlist-price">$0.00000000</div>
-                            <div class="watchlist-stats">
-                                <span>Vol $0.00</span>
-                                <span>MCap: $0.00</span>
-                            </div>
+                        <!-- Watchlist Items Container -->
+                        <div class="watchlist-content">
+                            <!-- Items will be dynamically generated by watchlist.js -->
                         </div>
                     </div>
 
@@ -462,6 +373,8 @@
         </footer>
     </div>
     <script src="dexscreener.js"></script>
+    <script src="watchlist.js"></script>
+    <script src="dexscreener-spa.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

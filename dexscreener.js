@@ -1,5 +1,5 @@
-// Token configuration for easy maintenance
-window.DEXSCREENER_TOKENS = {
+// Token configuration for trending cards
+window.TRENDING_TOKENS = {
     WIF: {
         address: 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx',
         name: 'Wif',
@@ -30,22 +30,22 @@ window.DEXSCREENER_TOKENS = {
         name: 'Nosana',
         symbol: 'NOS'
     }
+    // Add more trending tokens here
 };
 
-// Helper function to get token by symbol
-window.getTokenBySymbol = function(symbol) {
-    return window.DEXSCREENER_TOKENS[symbol];
+// Helper function to get token by symbol from trending list
+window.getTrendingToken = function(symbol) {
+    return window.TRENDING_TOKENS[symbol];
 }
 
-// Function to get pair address for a token symbol
-window.getPairAddress = function(symbol) {
-    const token = window.getTokenBySymbol(symbol);
+// Function to get pair address for a trending token symbol
+window.getTrendingPairAddress = function(symbol) {
+    const token = window.getTrendingToken(symbol);
     return token ? token.address : null;
 }
 
-// Function to fetch pair data from DexScreener
-window.fetchPairData = async function(symbol) {
-    const pairAddress = window.getPairAddress(symbol);
+// Function to fetch pair data from DexScreener (shared functionality)
+window.fetchPairData = async function(symbol, pairAddress) {
     if (!pairAddress) {
         console.error(`No pair address found for symbol: ${symbol}`);
         return null;
@@ -58,50 +58,6 @@ window.fetchPairData = async function(symbol) {
     } catch (error) {
         console.error(`Error fetching pair data for ${symbol}:`, error);
         return null;
-    }
-}
-
-// Function to update watchlist item
-window.updateWatchlistItem = function(symbol, pair) {
-    const watchlistItem = document.querySelector(`.watchlist-item[data-symbol="${symbol}"]`);
-    if (!watchlistItem || !pair) return;
-
-    // Update price with USD value
-    const priceElement = watchlistItem.querySelector('.watchlist-price');
-    if (priceElement) {
-        priceElement.textContent = `$${parseFloat(pair.priceUsd).toFixed(8)}`;
-    }
-
-    // Update 24h change
-    const percentageElement = watchlistItem.querySelector('.title-percentage');
-    if (percentageElement) {
-        const priceChange = parseFloat(pair.priceChange.h24);
-        percentageElement.textContent = `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%`;
-        percentageElement.className = `title-percentage ${priceChange >= 0 ? 'positive' : 'negative'}`;
-        
-        // Update item class for glow effect
-        watchlistItem.className = `watchlist-item ${priceChange >= 0 ? 'positive' : 'negative'}`;
-        if (watchlistItem.classList.contains('active')) {
-            watchlistItem.classList.add('active');
-        }
-        
-        // Update trend icon
-        const trendIcon = watchlistItem.querySelector('.material-icons-round');
-        if (trendIcon) {
-            trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
-            trendIcon.style.color = `var(--${priceChange >= 0 ? 'success' : 'danger'}-color)`;
-        }
-    }
-
-    // Update volume and 24h change in stats
-    const statsElement = watchlistItem.querySelector('.watchlist-stats');
-    if (statsElement) {
-        const volume = parseFloat(pair.volume.h24);
-        const mcap = parseFloat(pair.fdv);
-        statsElement.innerHTML = `
-            <span>Vol ${formatNumber(volume)}</span>
-            <span>MCap: $${formatNumber(mcap)}</span>
-        `;
     }
 }
 
@@ -132,10 +88,11 @@ window.updateMarketCard = function(symbol, pair) {
             // Update card class for styling
             marketCard.className = `market-card ${priceChange >= 0 ? 'positive' : 'negative'}`;
             
-            // Update trend icon
+            // Update trend icon and its color
             const trendIcon = marketCard.querySelector('.material-icons-round');
             if (trendIcon) {
                 trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
+                trendIcon.style.color = `var(--${priceChange >= 0 ? 'success' : 'danger'}-color)`;
             }
         }
 
@@ -152,7 +109,7 @@ window.updateMarketCard = function(symbol, pair) {
     });
 }
 
-// Function to show pair chart
+// Function to show pair chart (unified DexScreener functionality)
 window.showPairChart = function(pair) {
     // Hide market grid and show full chart
     const marketGridContainer = document.querySelector('.market-grid-container');
@@ -254,14 +211,6 @@ window.showPairChart = function(pair) {
     `;
 }
 
-// Helper function to format numbers
-function formatNumber(num) {
-    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
-    return num.toFixed(2);
-}
-
 // Helper function to copy to clipboard
 async function copyToClipboard(text) {
     try {
@@ -286,30 +235,38 @@ async function copyToClipboard(text) {
     }
 }
 
-// Function to update all token data
-window.updateAllTokenData = async function() {
-    for (const symbol of Object.keys(window.DEXSCREENER_TOKENS)) {
-        const pair = await window.fetchPairData(symbol);
+// Function to update trending cards data only
+window.updateTrendingData = async function() {
+    for (const symbol of Object.keys(window.TRENDING_TOKENS)) {
+        const pairAddress = window.getTrendingPairAddress(symbol);
+        const pair = await window.fetchPairData(symbol, pairAddress);
         if (pair) {
-            window.updateWatchlistItem(symbol, pair);
             window.updateMarketCard(symbol, pair);
         }
     }
 }
 
+// Helper function to format numbers
+function formatNumber(num) {
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+    return num.toFixed(2);
+}
+
 // Function to generate market card HTML
 function generateMarketCard(token) {
     return `
-        <div class="market-card positive" data-symbol="${token.symbol}">
+        <div class="market-card" data-symbol="${token.symbol}">
             <div class="market-header">
                 <div class="market-title-group">
                     <div class="market-title">
-                        <span class="material-icons-round" style="font-size: 16px; color: var(--success-color);">trending_up</span>
+                        <span class="material-icons-round" style="font-size: 16px;">trending_up</span>
                         <span class="market-pair">${token.symbol}/SOL</span>
                     </div>
                     <div class="market-subtitle">${token.name}</div>
                 </div>
-                <span class="title-percentage positive">0.00%</span>
+                <span class="title-percentage">0.00%</span>
             </div>
             <div class="market-price">$0.00000000</div>
             <div class="market-stats">
@@ -326,13 +283,37 @@ window.initializeMarketCards = function() {
     if (!marketGridScroll) return;
 
     // Generate HTML for all cards (original + two duplicates for seamless scroll)
-    const tokens = Object.values(window.DEXSCREENER_TOKENS);
+    const tokens = Object.values(window.TRENDING_TOKENS);
     const cardsHTML = tokens.map(token => generateMarketCard(token)).join('') +
                      tokens.map(token => generateMarketCard(token)).join('') +
                      tokens.map(token => generateMarketCard(token)).join('');
     
     marketGridScroll.innerHTML = cardsHTML;
+
+    // Initial trending update
+    window.updateTrendingData();
+    
+    // Set up trending update interval (every 2 seconds)
+    const trendingInterval = setInterval(window.updateTrendingData, 2000);
+    
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => {
+        clearInterval(trendingInterval);
+    });
+
+    // Add click handlers for market cards
+    document.addEventListener('click', async (e) => {
+        const card = e.target.closest('.market-card');
+        if (card) {
+            const symbol = card.getAttribute('data-symbol');
+            const pairAddress = window.getTrendingPairAddress(symbol);
+            const pair = await window.fetchPairData(symbol, pairAddress);
+            if (pair) {
+                window.showPairChart(pair);
+            }
+        }
+    });
 }
 
-// Add this to the end of the file
+// Initialize market cards when DOM is loaded
 window.addEventListener('DOMContentLoaded', window.initializeMarketCards);
