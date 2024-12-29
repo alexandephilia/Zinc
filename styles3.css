@@ -11,8 +11,6 @@
     min-width: 240px;
     max-width: min(400px, 30vw);
     flex-shrink: 0;
-    visibility: hidden;
-    opacity: 0;
 }
 
 .sidebar-content {
@@ -165,11 +163,9 @@
         height: calc(100% - var(--navbar-height));
         z-index: 1000;
         transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                    visibility 0s linear 0.3s,
-                    opacity 0.3s ease;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         background: var(--secondary-bg);
-        will-change: transform, visibility, opacity;
+        will-change: transform;
         visibility: visible;
         opacity: 1;
     }
