@@ -111,7 +111,6 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
         const symbol = item.querySelector('.watchlist-symbol span:last-child').textContent.split('/')[0];
         
         // Get pair data from DexScreener
-        let pairData = null;
         if (symbol === 'WIF' || symbol === 'POPCAT' || symbol === 'JUP' || symbol === 'PENGU') {
             try {
                 const pairAddress = symbol === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
@@ -121,150 +120,23 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
                                   
                 const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
                 const data = await response.json();
-                pairData = data.pair;
+                if (data.pair) {
+                    showPairChart(data.pair);
+                }
             } catch (error) {
                 console.error('Error fetching pair data:', error);
             }
+            return;
         }
         
-        // Hide trending section and adjust chart section
-        const marketGrid = document.querySelector('.market-grid');
-        const chartSection = document.querySelector('.chart-section');
-        const sectionHeader = document.querySelector('.section-header');
-        
-        // Update section header with the selected pair
-        sectionHeader.innerHTML = `
-            <div class="section-title">
-                <span class="material-icons-round">candlestick_chart</span>
-                ${symbol}/SOL Chart
-                <button class="icon-btn" onclick="showTrendingView()">
-                    <span class="material-icons-round">close</span>
-                </button>
-            </div>
-        `;
-
-        // Update chart title
-        const chartTitle = document.querySelector('.chart-title');
-        if (chartTitle) {
-            if (pairData) {
-                // Use real data from DexScreener
-                const shortContractAddress = pairData.baseToken.address.slice(0, 6) + '...' + pairData.baseToken.address.slice(-4);
-                const shortPairAddress = pairData.pairAddress.slice(0, 6) + '...' + pairData.pairAddress.slice(-4);
-                const volume24h = formatNumber(parseFloat(pairData.volume.h24));
-                const mcap = formatNumber(parseFloat(pairData.fdv));
-                const priceChange24h = parseFloat(pairData.priceChange.h24);
-                
-                chartTitle.innerHTML = `
-                    <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
-                    <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
-                        <div style="display: flex; align-items: center;">
-                            <span>${pairData.baseToken.name}</span>
-                            <div class="volume-info">
-                                <span class="volume-label">Vol:</span>
-                                <span class="volume-value">$${volume24h}</span>
-                            </div>
-                            <div class="contract-info">
-                                <span class="contract-label">Contract:</span>
-                                <span class="contract-address">${shortContractAddress}</span>
-                                <button class="icon-btn copy-btn contract-copy" data-copy="${pairData.baseToken.address}">
-                                    <span class="material-icons-round">content_copy</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <div style="font-size: 12px; color: var(--text-secondary);">${pairData.baseToken.symbol}/${pairData.quoteToken.symbol}</div>
-                            <div class="market-info">
-                                <span class="mcap-label">MCap:</span>
-                                <span class="mcap-value">$${mcap}</span>
-                                <span class="change-label">24h:</span>
-                                <span class="change-value ${priceChange24h >= 0 ? 'positive' : 'negative'}">${priceChange24h > 0 ? '+' : ''}${priceChange24h.toFixed(2)}%</span>
-                            </div>
-                            <div class="pair-address-info">
-                                <span class="pair-label">Pair:</span>
-                                <span class="pair-address">${shortPairAddress}</span>
-                                <button class="icon-btn copy-btn pair-copy" data-copy="${pairData.pairAddress}">
-                                    <span class="material-icons-round">content_copy</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                // Add click handlers for copy buttons
-                const copyButtons = chartTitle.querySelectorAll('.copy-btn');
-                copyButtons.forEach(button => {
-                    button.addEventListener('click', async (e) => {
-                        const textToCopy = button.getAttribute('data-copy');
-                        try {
-                            await navigator.clipboard.writeText(textToCopy);
-                            const icon = button.querySelector('.material-icons-round');
-                            const originalText = icon.textContent;
-                            
-                            icon.textContent = 'check';
-                            button.style.color = 'var(--success-color)';
-                            
-                            setTimeout(() => {
-                                icon.textContent = originalText;
-                                button.style.color = '';
-                            }, 2000);
-                        } catch (err) {
-                            console.error('Failed to copy text: ', err);
-                        }
-                    });
-                });
-            } else {
-                // Default TradingView token display
-                chartTitle.innerHTML = `
-                    <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
-                    <div>
-                        <div style="font-weight: 600;">${symbol}/SOL</div>
-                        <div style="font-size: 12px; color: var(--text-secondary);">Solana</div>
-                    </div>
-                `;
-            }
-        }
-
-        // Update webpage title
-        document.title = `Zinc | ${symbol}/SOL`;
-        
-        // Handle chart controls and calculator based on pair type
-        const chartControls = document.querySelector('.chart-controls');
-        if (chartControls) {
-            if (pairData) {
-                // For DexScreener pairs, hide controls and show calculator
-                chartControls.style.display = 'none';
-                window.showCalculatorForPair(pairData.pairAddress, pairData.baseToken.symbol);
-            } else {
-                // For TradingView pairs, show controls and hide calculator
-                chartControls.style.display = 'flex';
-                window.hideCalculator();
-            }
-        }
-        
-        // Hide market grid for full chart view
-        marketGrid.style.display = 'none';
-        chartSection.style.height = 'calc(100vh - var(--navbar-height) - 64px)';
-        
-        // Update chart based on pair
+        // For non-DexScreener pairs, continue with existing TradingView logic
         const container = document.getElementById('tradingview_solana');
         container.innerHTML = '';
+        container.style = ''; // Reset any custom styles
+        initTradingViewWidget(container, `BINANCE:${symbol}USDT`, '15');
         
-        if (pairData) {
-            // Use DexScreener for supported pairs
-            container.style.position = 'relative';
-            container.style.width = '100%';
-            container.style.height = '100%';
-            container.innerHTML = `
-                <iframe 
-                    src="https://dexscreener.com/solana/${pairData.pairAddress}?embed=1&loadChartSettings=0&tabs=0&info=0&chartLeftToolbar=0&chartTheme=dark&theme=dark&chartStyle=1&chartType=usd&interval=15"
-                    style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: 0;"
-                ></iframe>
-            `;
-        } else {
-            // Use TradingView for other pairs
-            container.style = ''; // Reset any custom styles
-            initTradingViewWidget(container, `BINANCE:${symbol}USDT`, '15');
-        }
+        // Update webpage title
+        document.title = `Zinc | ${symbol}/SOL`;
     });
 });
 
@@ -1334,9 +1206,9 @@ document.querySelectorAll('.market-card').forEach(card => {
 // Function to show TradingView chart
 function showTradingViewChart(symbol) {
     // Hide market grid and show full chart
-    const marketGrid = document.querySelector('.market-grid-container');
+    const marketGridContainer = document.querySelector('.market-grid-container');
     const chartSection = document.querySelector('.chart-section');
-    marketGrid.style.display = 'none';
+    marketGridContainer.style.display = 'none';
     chartSection.style.height = 'calc(100vh - var(--navbar-height) - 64px)';
 
     // Update section header
@@ -1615,9 +1487,9 @@ document.head.appendChild(style);
 // Function to show pair chart
 function showPairChart(pair) {
     // Hide market grid and show full chart
-    const marketGrid = document.querySelector('.market-grid-container');
+    const marketGridContainer = document.querySelector('.market-grid-container');
     const chartSection = document.querySelector('.chart-section');
-    marketGrid.style.display = 'none';
+    marketGridContainer.style.display = 'none';
     chartSection.style.height = 'calc(100vh - var(--navbar-height) - 64px)';
 
     // Update section header
