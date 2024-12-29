@@ -338,10 +338,36 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
     }
 });
 
-// Mobile Sidebar Toggle
-const toggleSidebar = () => {
+// Add these functions to handle body scroll locking
+function lockBodyScroll() {
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+}
+
+function unlockBodyScroll() {
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+}
+
+// Mobile Sidebar Toggle with scroll lock
+const toggleSidebar = (e) => {
+    e?.preventDefault(); // Prevent any default behavior
     const sidebar = document.querySelector('.sidebar');
-    sidebar.classList.toggle('active');
+    const isActive = sidebar.classList.contains('active');
+    
+    // Toggle with a slight delay to ensure smooth animation
+    requestAnimationFrame(() => {
+        sidebar.classList.toggle('active');
+        
+        // Lock/unlock body scroll when sidebar is opened/closed
+        if (!isActive) {
+            lockBodyScroll();
+        } else {
+            unlockBodyScroll();
+        }
+    });
 };
 
 // Add mobile menu button to navbar if screen is small
@@ -353,18 +379,15 @@ const checkMobileView = () => {
         const menuBtn = document.createElement('button');
         menuBtn.className = 'icon-btn mobile-menu-btn';
         menuBtn.innerHTML = '<span class="material-icons-round">menu</span>';
-        menuBtn.addEventListener('click', toggleSidebar);
+        menuBtn.addEventListener('click', toggleSidebar, { passive: false });
         navbar.insertBefore(menuBtn, navbar.firstChild);
     } else if (window.innerWidth > 768 && existingBtn) {
         existingBtn.remove();
+        unlockBodyScroll();
     }
 };
 
-// Check on load and resize
-window.addEventListener('load', checkMobileView);
-window.addEventListener('resize', checkMobileView);
-
-// Close sidebar when clicking outside on mobile
+// Close sidebar when clicking outside
 document.addEventListener('click', (e) => {
     const sidebar = document.querySelector('.sidebar');
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
@@ -372,10 +395,21 @@ document.addEventListener('click', (e) => {
     if (window.innerWidth <= 768 && 
         sidebar.classList.contains('active') && 
         !sidebar.contains(e.target) && 
-        e.target !== mobileMenuBtn) {
-        sidebar.classList.remove('active');
+        e.target !== mobileMenuBtn && 
+        !e.target.closest('.mobile-menu-btn')) {
+        
+        toggleSidebar();
     }
-});
+}, { passive: false });
+
+// Update the event listeners
+window.addEventListener('load', checkMobileView, { passive: true });
+window.addEventListener('resize', () => {
+    checkMobileView();
+    if (window.innerWidth > 768) {
+        unlockBodyScroll();
+    }
+}, { passive: true });
 
 // Smooth scroll behavior for sidebar
 const sidebarContent = document.querySelector('.sidebar-content');
