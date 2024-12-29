@@ -33,18 +33,21 @@ body {
     font-family: 'Roboto Mono', monospace;
     background: var(--primary-bg);
     color: var(--text-primary);
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-y: auto;
     font-size: 14px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    position: relative;
 }
 
 /* Layout Structure */
 .app-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
 }
 
 .navbar {

@@ -868,13 +868,49 @@
     .chart-container {
         height: auto;
         min-height: 400px;
+        position: relative;
+        overflow: visible;
     }
 
     .chart-content {
         height: 400px;
+        position: relative;
+        overflow: visible;
     }
 
     #tradingview_solana {
         height: 400px !important;
+        position: relative;
+    }
+
+    .market-grid-container {
+        overflow: visible;
+        height: auto;
+    }
+
+    .market-grid-scroll {
+        overflow: visible;
+    }
+}
+
+/* Ensure content is scrollable on mobile */
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .app-container,
+    .main-content,
+    .content-area {
+        overflow: visible !important;
+        height: auto !important;
+        min-height: unset !important;
+    }
+
+    .chart-section {
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 400px !important;
     }
 }
