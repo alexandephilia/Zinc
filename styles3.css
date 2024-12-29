@@ -106,6 +106,48 @@
     opacity: 1;
 }
 
+/* Add remove button styles - ONLY FOR WATCHLIST */
+.watchlist-content .watchlist-item .watchlist-x-close {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: rgba(255, 61, 0, 0.1);
+    border: 1px solid rgba(255, 61, 0, 0.2);
+    color: var(--danger-color);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 2;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.watchlist-content .watchlist-item:hover .watchlist-x-close {
+    display: flex;
+}
+
+.watchlist-content .watchlist-item .watchlist-x-close:hover {
+    background: rgba(255, 61, 0, 0.2);
+    border-color: rgba(255, 61, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.watchlist-content .watchlist-item .watchlist-x-close:active {
+    transform: scale(0.95);
+}
+
+/* Remove these styles to remove add to watchlist button */
+.market-card .add-to-watchlist {
+    display: none !important;
+}
+
 /* Adaptive Quick Trade Section */
 .quick-trade {
     background: linear-gradient(
@@ -1375,4 +1417,152 @@ body.scroll-locked {
 .watchlist-price,
 .market-price {
     transition: none;
+}
+
+/* Add styles for the add to watchlist popup */
+.watchlist-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.watchlist-popup.active {
+    display: block;
+    animation: popupFadeIn 0.3s ease;
+}
+
+.watchlist-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.watchlist-popup-title {
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.watchlist-popup-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.watchlist-popup-close:hover {
+    background: rgba(255, 61, 0, 0.1);
+    border-color: rgba(255, 61, 0, 0.2);
+    color: var(--danger-color);
+}
+
+.watchlist-popup-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.watchlist-popup-input {
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text-primary);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+.watchlist-popup-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.1);
+}
+
+.watchlist-popup-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.watchlist-popup-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.watchlist-popup-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.watchlist-popup-btn.cancel {
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.watchlist-popup-btn.add {
+    background: rgba(41, 98, 255, 0.1);
+    border: 1px solid rgba(41, 98, 255, 0.2);
+    color: var(--accent-color);
+}
+
+.watchlist-popup-btn:hover {
+    transform: translateY(-1px);
+}
+
+.watchlist-popup-btn:active {
+    transform: translateY(1px);
+}
+
+.watchlist-popup-btn.cancel:hover {
+    background: rgba(255, 61, 0, 0.1);
+    border-color: rgba(255, 61, 0, 0.2);
+    color: var(--danger-color);
+}
+
+.watchlist-popup-btn.add:hover {
+    background: rgba(41, 98, 255, 0.15);
+    border-color: rgba(41, 98, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.1);
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
 }

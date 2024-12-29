@@ -1,9 +1,9 @@
 // Token configuration for trending cards
 window.TRENDING_TOKENS = {
-    WIF: {
-        address: 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx',
-        name: 'Wif',
-        symbol: 'WIF'
+    SPX: {
+        address: '9t1H1uDJ558iMPNkEPSN1fqkpC4XSPQ6cqSf6uEsTfTR',
+         name: 'SPX6900 (Wormhole)',
+        symbol: 'SPX'
     },
     POPCAT: {
         address: 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo',
@@ -85,11 +85,12 @@ window.updateMarketCard = function(symbol, pair) {
             percentageElement.textContent = `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%`;
             percentageElement.className = `title-percentage ${priceChange >= 0 ? 'positive' : 'negative'}`;
             
-            // Update card class for styling
-            marketCard.className = `market-card ${priceChange >= 0 ? 'positive' : 'negative'}`;
+            // Update card class for styling while preserving other classes
+            marketCard.classList.remove('positive', 'negative');
+            marketCard.classList.add(priceChange >= 0 ? 'positive' : 'negative');
             
             // Update trend icon and its color
-            const trendIcon = marketCard.querySelector('.material-icons-round');
+            const trendIcon = marketCard.querySelector('.market-trend-icon');
             if (trendIcon) {
                 trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
                 trendIcon.style.color = `var(--${priceChange >= 0 ? 'success' : 'danger'}-color)`;
@@ -256,17 +257,21 @@ function formatNumber(num) {
 
 // Function to generate market card HTML
 function generateMarketCard(token) {
+    const isInWatchlist = window.WATCHLIST_TOKENS[token.symbol];
     return `
-        <div class="market-card" data-symbol="${token.symbol}">
+        <div class="market-card negative" data-symbol="${token.symbol}">
+            <button class="add-to-watchlist ${isInWatchlist ? 'added' : ''}" title="${isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}">
+                <span class="material-icons-round">${isInWatchlist ? 'done' : 'add'}</span>
+            </button>
             <div class="market-header">
                 <div class="market-title-group">
                     <div class="market-title">
-                        <span class="material-icons-round" style="font-size: 16px;">trending_up</span>
+                        <span class="material-icons-round market-trend-icon" style="font-size: 16px; color: var(--danger-color);">trending_down</span>
                         <span class="market-pair">${token.symbol}/SOL</span>
                     </div>
                     <div class="market-subtitle">${token.name}</div>
                 </div>
-                <span class="title-percentage">0.00%</span>
+                <span class="title-percentage negative">0.00%</span>
             </div>
             <div class="market-price">$0.00000000</div>
             <div class="market-stats">
@@ -293,17 +298,44 @@ window.initializeMarketCards = function() {
     // Initial trending update
     window.updateTrendingData();
     
-    // Set up trending update interval (every 2 seconds)
-    const trendingInterval = setInterval(window.updateTrendingData, 2000);
+    // Set up trending update interval (every 1 second)
+    const trendingInterval = setInterval(window.updateTrendingData, 1000);
     
     // Clean up on page unload
     window.addEventListener('beforeunload', () => {
         clearInterval(trendingInterval);
     });
 
-    // Add click handlers for market cards
+    // Add click handlers for market cards and watchlist buttons
     document.addEventListener('click', async (e) => {
         const card = e.target.closest('.market-card');
+        const addToWatchlistBtn = e.target.closest('.add-to-watchlist');
+
+        if (addToWatchlistBtn && card) {
+            e.stopPropagation(); // Prevent card click
+            const symbol = card.getAttribute('data-symbol');
+            const token = window.TRENDING_TOKENS[symbol];
+            
+            if (addToWatchlistBtn.classList.contains('added')) {
+                window.removeFromWatchlist(symbol);
+                // Update all instances of this card in the scrolling list
+                document.querySelectorAll(`.market-card[data-symbol="${symbol}"] .add-to-watchlist`).forEach(btn => {
+                    btn.classList.remove('added');
+                    btn.innerHTML = '<span class="material-icons-round">add</span>';
+                    btn.title = 'Add to watchlist';
+                });
+            } else {
+                window.addToWatchlist(token);
+                // Update all instances of this card in the scrolling list
+                document.querySelectorAll(`.market-card[data-symbol="${symbol}"] .add-to-watchlist`).forEach(btn => {
+                    btn.classList.add('added');
+                    btn.innerHTML = '<span class="material-icons-round">done</span>';
+                    btn.title = 'Remove from watchlist';
+                });
+            }
+            return;
+        }
+
         if (card) {
             const symbol = card.getAttribute('data-symbol');
             const pairAddress = window.getTrendingPairAddress(symbol);

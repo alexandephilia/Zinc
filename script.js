@@ -9,6 +9,10 @@ let appLoaded = false;
 let fontsLoaded = false;
 let contentLoaded = false;
 
+// Chart Style Toggle functionality
+let currentChartStyle = 1; // 1 for candles, 3 for bars
+let sideToolbarVisible = false; // Track side toolbar visibility state
+
 resizer.addEventListener('mousedown', initResize);
 document.addEventListener('mousemove', resize);
 document.addEventListener('mouseup', stopResize);
@@ -60,6 +64,37 @@ document.addEventListener('selectstart', (e) => {
     if (isResizing) e.preventDefault();
 });
 
+// Initialize TradingView widget with consistent settings
+function initTradingViewWidget(container, symbol, interval) {
+    // Hide calculator for TradingView
+    window.hideCalculator();
+    
+    container.innerHTML = '';
+    new TradingView.widget({
+        "width": "100%",
+        "height": "100%",
+        "symbol": symbol,
+        "interval": interval,
+        "timezone": "Etc/UTC",
+        "theme": "dark",
+        "style": currentChartStyle,
+        "locale": "en",
+        "toolbar_bg": "#131722",
+        "enable_publishing": false,
+        "hide_side_toolbar": !sideToolbarVisible,
+        "allow_symbol_change": true,
+        "save_image": false,
+        "container_id": "tradingview_solana",
+        "hide_top_toolbar": true,
+        "studies": [],
+        "show_popup_button": false,
+        "popup_width": "1000",
+        "popup_height": "650",
+        "backgroundColor": "#0a0a0f",
+        "hide_volume": false
+    });
+}
+
 // Timeframe button functionality
 document.querySelectorAll('.timeframe-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -92,40 +127,13 @@ document.querySelectorAll('.timeframe-btn').forEach(btn => {
     });
 });
 
-// Chart Style Toggle functionality
-let currentChartStyle = 1; // 1 for candles, 3 for bars
-let sideToolbarVisible = false; // Track side toolbar visibility state
-
+// Update chart style function now uses initTradingViewWidget
 function updateChartStyle(style) {
     currentChartStyle = style;
     const container = document.getElementById('tradingview_solana');
     const symbol = container.getAttribute('data-symbol') || 'BINANCE:SOLUSDT';
     const interval = container.getAttribute('data-interval') || '15';
-    
-    container.innerHTML = '';
-    new TradingView.widget({
-        "width": "100%",
-        "height": "100%",
-        "symbol": symbol,
-        "interval": interval,
-        "timezone": "Etc/UTC",
-        "theme": "dark",
-        "style": style,
-        "locale": "en",
-        "toolbar_bg": "#131722",
-        "enable_publishing": false,
-        "hide_side_toolbar": !sideToolbarVisible, // Sync with toolbar state
-        "allow_symbol_change": true,
-        "save_image": false,
-        "container_id": "tradingview_solana",
-        "hide_top_toolbar": true,
-        "studies": [],
-        "show_popup_button": false,
-        "popup_width": "1000",
-        "popup_height": "650",
-        "backgroundColor": "#0a0a0f",
-        "hide_volume": false
-    });
+    initTradingViewWidget(container, symbol, interval);
 }
 
 // Add click handler for chart style toggle
@@ -201,6 +209,8 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
         const container = document.getElementById('tradingview_solana');
         container.innerHTML = '';
         container.style = ''; // Reset any custom styles
+        // Hide calculator before showing TradingView
+        window.hideCalculator();
         initTradingViewWidget(container, `BINANCE:${symbol}USDT`, '15');
         
         // Update webpage title
@@ -267,12 +277,6 @@ window.showTrendingView = function() {
     marketGridContainer.style.display = 'block';
     chartSection.style.height = `calc(100vh - var(--navbar-height) - ${marketGridContainer.offsetHeight}px - var(--spacing) * 2)`;
     
-    // Hide calculator
-    const calculator = document.querySelector('.pair-calculator');
-    if (calculator) {
-        calculator.style.display = 'none';
-    }
-    
     // Reset to TradingView widget with preserved settings
     const container = document.getElementById('tradingview_solana');
     container.innerHTML = '';
@@ -302,6 +306,9 @@ window.showTrendingView = function() {
         "backgroundColor": "#0a0a0f",
         "hide_volume": false
     });
+    
+    // Hide calculator for initial TradingView
+    window.hideCalculator();
 }
 
 // Quick Trade Amount Input Formatting
@@ -419,6 +426,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mark content as loaded
     contentLoaded = true;
     handleAppLoaded();
+    
+    // Hide calculator for initial TradingView
+    window.hideCalculator();
     
     // Delay non-critical initializations
     requestAnimationFrame(() => {
