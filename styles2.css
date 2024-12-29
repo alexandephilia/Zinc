@@ -867,20 +867,26 @@
 @media (max-width: 768px) {
     .chart-container {
         height: auto;
-        min-height: 400px;
+        min-height: 600px;
         position: relative;
         overflow: visible;
     }
 
     .chart-content {
-        height: 400px;
+        height: 600px;
         position: relative;
         overflow: visible;
     }
 
     #tradingview_solana {
-        height: 400px !important;
+        height: 600px !important;
         position: relative;
+    }
+
+    /* Specific height for DexScreener iframe */
+    .chart-content iframe {
+        height: 600px !important;
+        width: 100% !important;
     }
 
     .market-grid-container {
@@ -890,6 +896,27 @@
 
     .market-grid-scroll {
         overflow: visible;
+    }
+
+    .chart-section {
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 600px !important;
+    }
+}
+
+/* Additional adjustments for smaller screens */
+@media (max-width: 480px) {
+    .chart-container {
+        min-height: 500px;
+    }
+
+    .chart-content,
+    #tradingview_solana,
+    .chart-content iframe,
+    .chart-section {
+        height: 500px !important;
+        min-height: 500px !important;
     }
 }
 
