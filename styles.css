@@ -1630,3 +1630,29 @@ body {
 .section-title .icon-btn:hover .material-icons-round {
     color: #ff4d1a;
 }
+
+@media (max-width: 768px) {
+    .app-container {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .main-content {
+        height: auto;
+        min-height: calc(100vh - var(--navbar-height));
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .content-area {
+        height: auto;
+        min-height: calc(100vh - var(--navbar-height));
+        overflow-y: auto;
+        padding-bottom: 60px;
+    }
+
+    .chart-section {
+        height: auto !important;
+        min-height: 400px;
+    }
+}

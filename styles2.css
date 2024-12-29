@@ -863,3 +863,18 @@
         padding: 1px 4px;
     }
 }
+
+@media (max-width: 768px) {
+    .chart-container {
+        height: auto;
+        min-height: 400px;
+    }
+
+    .chart-content {
+        height: 400px;
+    }
+
+    #tradingview_solana {
+        height: 400px !important;
+    }
+}
