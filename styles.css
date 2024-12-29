@@ -762,6 +762,28 @@ body {
     border-radius: 6px;
     padding: 1px;
     gap: 4px;
+    position: relative;
+    overflow: hidden;
+    mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 30px,
+        black calc(100% - 30px),
+        transparent
+    );
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 30px,
+        black calc(100% - 30px),
+        transparent
+    );
+}
+
+/* Remove any existing fade implementations */
+.timeframe-group::before,
+.timeframe-group::after {
+    display: none;
 }
 
 .timeframe-btn {
@@ -776,6 +798,8 @@ body {
     font-size: clamp(11px, 0.9vw, 13px);
     min-width: clamp(32px, 3vw, 40px);
     text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
 .timeframe-btn:hover {
@@ -1628,4 +1652,50 @@ body {
 
 .section-title .icon-btn:hover .material-icons-round {
     color: #ff4d1a;
+}
+
+@media (max-width: 768px) {
+    .timeframe-group {
+        mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 20px,
+            black calc(100% - 20px),
+            transparent
+        );
+        -webkit-mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 20px,
+            black calc(100% - 20px),
+            transparent
+        );
+        padding: 2px;
+        gap: 2px;
+    }
+
+    .timeframe-btn {
+        padding: 4px 8px;
+        min-width: 30px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .timeframe-group {
+        mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 15px,
+            black calc(100% - 15px),
+            transparent
+        );
+        -webkit-mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 15px,
+            black calc(100% - 15px),
+            transparent
+        );
+    }
 }
