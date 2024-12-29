@@ -13,6 +13,9 @@ A modern, sleek trading interface for Solana tokens with DexScreener integration
 - Contract and pair address display
 - Modern, responsive UI
 - Wallet connection support
+- Chart style toggle (Candlestick/Line)
+- Drawing tools toggle with persistent state
+- Persistent chart preferences across views
 
 ## Tech Stack
 
