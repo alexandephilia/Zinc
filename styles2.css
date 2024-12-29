@@ -867,13 +867,13 @@
 @media (max-width: 768px) {
     .chart-container {
         height: auto;
-        min-height: 600px;
+        min-height: 800px;
         position: relative;
         overflow: visible;
     }
 
     .chart-content {
-        height: 600px !important;
+        height: 800px !important;
         position: relative;
         overflow: visible;
     }
@@ -881,9 +881,9 @@
     #tradingview_solana,
     .tradingview-widget-container,
     .chart-content iframe {
-        height: 600px !important;
+        height: 800px !important;
         width: 100% !important;
-        min-height: 600px !important;
+        min-height: 800px !important;
     }
 
     .market-grid-container {
@@ -898,14 +898,14 @@
     .chart-section {
         overflow: visible !important;
         height: auto !important;
-        min-height: 600px !important;
+        min-height: 800px !important;
     }
 }
 
 /* Additional adjustments for smaller screens */
 @media (max-width: 480px) {
     .chart-container {
-        min-height: 500px;
+        min-height: 700px;
     }
 
     .chart-content,
@@ -913,8 +913,8 @@
     .tradingview-widget-container,
     .chart-content iframe,
     .chart-section {
-        height: 500px !important;
-        min-height: 500px !important;
+        height: 700px !important;
+        min-height: 700px !important;
     }
 }
 

@@ -1389,7 +1389,8 @@ function initTradingViewWidget(container, symbol = 'BINANCE:SOLUSDT', interval =
     container.setAttribute('data-interval', interval);
     
     const isMobile = window.innerWidth <= 768;
-    const chartHeight = isMobile ? '600' : '100%';
+    const isSmallMobile = window.innerWidth <= 480;
+    const chartHeight = isSmallMobile ? '700' : (isMobile ? '800' : '100%');
     
     new TradingView.widget({
         "width": "100%",
