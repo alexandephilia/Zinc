@@ -166,7 +166,7 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
                                 </button>
                             </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
                             <div style="font-size: 12px; color: var(--text-secondary);">${pairData.baseToken.symbol}/${pairData.quoteToken.symbol}</div>
                             <div class="market-info">
                                 <span class="mcap-label">MCap:</span>
@@ -725,7 +725,7 @@ function showPairChart(pair) {
                         </button>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
                     <div style="font-size: 12px; color: var(--text-secondary);">${pair.baseToken.symbol}/${pair.quoteToken.symbol}</div>
                     <div class="market-info">
                         <span class="mcap-label">MCap:</span>

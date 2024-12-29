@@ -254,7 +254,7 @@
     font-family: 'Roboto Mono', monospace;
     font-size: 11px;
     color: var(--text-secondary);
-    margin-left: 12px;
+    margin-left: 6px;
     height: 25px;
     width: fit-content;
     background: rgba(255, 255, 255, 0.05);
@@ -287,14 +287,13 @@
     font-family: 'Roboto Mono', monospace;
     font-size: 11px;
     color: var(--text-secondary);
-    height: 20px;
+    height: 25px;
     width: fit-content;
     background: rgba(255, 255, 255, 0.05);
     padding: 1px 6px;
     border-radius: 4px;
     white-space: nowrap;
     margin-left: 0;
-    margin-top: 3px;
 }
 
 .pair-label {
@@ -649,5 +648,99 @@
     .mini-label,
     .mini-address {
         font-size: 7px;
+    }
+}
+
+/* Volume Info Styles */
+.volume-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-left: 12px;
+    height: 25px;
+    width: fit-content;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.volume-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.volume-value {
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+}
+
+/* Market Info Styles */
+.market-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    height: 25px;
+    width: fit-content;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.mcap-label, .change-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 11px;
+}
+
+.mcap-value {
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+    font-size: 11px;
+    margin-right: 8px;
+}
+
+.change-value {
+    letter-spacing: 0.3px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.change-value.positive {
+    color: var(--success-color);
+}
+
+.change-value.negative {
+    color: var(--danger-color);
+}
+
+@media (max-width: 768px) {
+    .volume-info, .market-info {
+        font-size: 10px;
+        gap: 3px;
+        padding: 2px 5px;
+    }
+    
+    .mcap-label, .change-label, .mcap-value, .change-value {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .volume-info, .market-info {
+        font-size: 9px;
+        gap: 2px;
+        padding: 1px 4px;
+    }
+    
+    .mcap-label, .change-label, .mcap-value, .change-value {
+        font-size: 9px;
     }
 }
