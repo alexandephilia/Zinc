@@ -108,27 +108,21 @@ document.querySelectorAll('.watchlist-item').forEach(item => {
         item.classList.add('active');
         
         // Get the trading pair from the clicked item
-        const symbol = item.querySelector('.watchlist-symbol span:last-child').textContent.split('/')[0];
+        const symbol = item.getAttribute('data-symbol');
         
         // Get pair data from DexScreener
-        if (symbol === 'WIF' || symbol === 'POPCAT' || symbol === 'JUP' || symbol === 'PENGU') {
+        if (window.DEXSCREENER_TOKENS[symbol] || symbol === 'NOS') {
             try {
-                const pairAddress = symbol === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
-                                  symbol === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
-                                  symbol === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
-                                  'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV';
-                                  
-                const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
-                const data = await response.json();
-                if (data.pair) {
-                    showPairChart(data.pair);
+                const pair = await window.fetchPairData(symbol);
+                if (pair) {
+                    window.showPairChart(pair);
                 }
             } catch (error) {
                 console.error('Error fetching pair data:', error);
             }
             return;
         }
-        
+
         // For non-DexScreener pairs, continue with existing TradingView logic
         const container = document.getElementById('tradingview_solana');
         container.innerHTML = '';
@@ -202,6 +196,8 @@ if (amountInput) {
         }
     });
 }
+
+
 
 // Dynamic Watchlist Item Coloring
 document.querySelectorAll('.watchlist-item').forEach(item => {
@@ -1014,6 +1010,122 @@ async function updatePENGUData() {
     }
 }
 
+// Function to fetch ZEUS data from DexScreener
+async function updateZEUSData() {
+    try {
+        const response = await fetch('https://api.dexscreener.com/latest/dex/pairs/solana/e5x7mwprg8pdaqbt5hj1ehu4crasgukux5mwcjutuszu');
+        const data = await response.json();
+        const pair = data.pair;
+
+        if (pair) {
+            // Update watchlist item
+            const zeusItem = document.querySelector('.watchlist-item[data-symbol="ZEUS"]');
+            if (zeusItem) {
+                // Update price with USD value
+                const priceElement = zeusItem.querySelector('.watchlist-price');
+                if (priceElement) {
+                    priceElement.textContent = `$${parseFloat(pair.priceUsd).toFixed(8)}`;
+                }
+
+                // Update 24h change
+                const percentageElement = zeusItem.querySelector('.title-percentage');
+                if (percentageElement) {
+                    const priceChange = parseFloat(pair.priceChange.h24);
+                    percentageElement.textContent = `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%`;
+                    percentageElement.className = `title-percentage ${priceChange >= 0 ? 'positive' : 'negative'}`;
+                    
+                    // Update item class for glow effect
+                    zeusItem.className = `watchlist-item ${priceChange >= 0 ? 'positive' : 'negative'}`;
+                    if (zeusItem.classList.contains('active')) {
+                        zeusItem.classList.add('active');
+                    }
+                    
+                    // Update trend icon
+                    const trendIcon = zeusItem.querySelector('.material-icons-round');
+                    if (trendIcon) {
+                        trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
+                        trendIcon.style.color = `var(--${priceChange >= 0 ? 'success' : 'danger'}-color)`;
+                    }
+                }
+
+                // Update volume and 24h change in stats
+                const statsElement = zeusItem.querySelector('.watchlist-stats');
+                if (statsElement) {
+                    const volume = parseFloat(pair.volume.h24);
+                    const mcap = parseFloat(pair.fdv);
+                    statsElement.innerHTML = `
+                        <span>Vol ${formatNumber(volume)}</span>
+                        <span>MCap: $${formatNumber(mcap)}</span>
+                    `;
+                }
+            }
+            
+            // Update market card
+            updateMarketCard('ZEUS', pair);
+        }
+    } catch (error) {
+        console.error('Error fetching ZEUS data:', error);
+    }
+}
+
+// Function to fetch NOSANA data from DexScreener
+async function updateNOSANAData() {
+    try {
+        const response = await fetch('https://api.dexscreener.com/latest/dex/pairs/solana/dx76uas2ckv4f13kb5zkivd5rlevjyjrsxhnharaujvb');
+        const data = await response.json();
+        const pair = data.pair;
+
+        if (pair) {
+            // Update watchlist item
+            const nosanaItem = document.querySelector('.watchlist-item[data-symbol="NOSANA"]');
+            if (nosanaItem) {
+                // Update price with USD value
+                const priceElement = nosanaItem.querySelector('.watchlist-price');
+                if (priceElement) {
+                    priceElement.textContent = `$${parseFloat(pair.priceUsd).toFixed(8)}`;
+                }
+
+                // Update 24h change
+                const percentageElement = nosanaItem.querySelector('.title-percentage');
+                if (percentageElement) {
+                    const priceChange = parseFloat(pair.priceChange.h24);
+                    percentageElement.textContent = `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%`;
+                    percentageElement.className = `title-percentage ${priceChange >= 0 ? 'positive' : 'negative'}`;
+                    
+                    // Update item class for glow effect
+                    nosanaItem.className = `watchlist-item ${priceChange >= 0 ? 'positive' : 'negative'}`;
+                    if (nosanaItem.classList.contains('active')) {
+                        nosanaItem.classList.add('active');
+                    }
+                    
+                    // Update trend icon
+                    const trendIcon = nosanaItem.querySelector('.material-icons-round');
+                    if (trendIcon) {
+                        trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
+                        trendIcon.style.color = `var(--${priceChange >= 0 ? 'success' : 'danger'}-color)`;
+                    }
+                }
+
+                // Update volume and 24h change in stats
+                const statsElement = nosanaItem.querySelector('.watchlist-stats');
+                if (statsElement) {
+                    const volume = parseFloat(pair.volume.h24);
+                    const mcap = parseFloat(pair.fdv);
+                    statsElement.innerHTML = `
+                        <span>Vol ${formatNumber(volume)}</span>
+                        <span>MCap: $${formatNumber(mcap)}</span>
+                    `;
+                }
+            }
+            
+            // Update market card
+            updateMarketCard('NOSANA', pair);
+        }
+    } catch (error) {
+        console.error('Error fetching NOSANA data:', error);
+    }
+}
+
 // Function to update market card data
 function updateMarketCard(symbol, pair) {
     const marketCards = document.querySelectorAll(`.market-card[data-symbol="${symbol}"]`);
@@ -1067,6 +1179,8 @@ setInterval(() => {
     updatePOPCATData();
     updateJUPData();
     updatePENGUData();
+    updateZEUSData();
+    updateNOSANAData();
 }, 10000);
 
 // Initial updates
@@ -1074,6 +1188,8 @@ updateWIFData();
 updatePOPCATData();
 updateJUPData();
 updatePENGUData();
+updateZEUSData();
+updateNOSANAData();
 
 // Function to copy text to clipboard
 async function copyToClipboard(text) {
@@ -1181,17 +1297,22 @@ document.querySelectorAll('.market-card').forEach(card => {
         const symbol = card.getAttribute('data-symbol');
         
         // Get pair data from DexScreener
-        if (symbol === 'WIF' || symbol === 'POPCAT' || symbol === 'JUP' || symbol === 'PENGU') {
+        if (symbol === 'WIF' || symbol === 'POPCAT' || symbol === 'JUP' || symbol === 'PENGU' || symbol === 'ZEUS' || symbol === 'NOSANA' || symbol === 'NOS') {
             try {
                 const pairAddress = symbol === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
                                   symbol === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
                                   symbol === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
-                                  'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV';
+                                  symbol === 'PENGU' ? 'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV' :
+                                  symbol === 'ZEUS' ? 'e5x7mwprg8pdaqbt5hj1ehu4crasgukux5mwcjutuszu' :
+                                  symbol === 'NOSANA' || symbol === 'NOS' ? 'dx76uas2ckv4f13kb5zkivd5rlevjyjrsxhnharaujvb' :
+                                  null;
                                   
-                const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
-                const data = await response.json();
-                if (data.pair) {
-                    showPairChart(data.pair);
+                if (pairAddress) {
+                    const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
+                    const data = await response.json();
+                    if (data.pair) {
+                        showPairChart(data.pair);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching pair data:', error);
@@ -1211,12 +1332,36 @@ function showTradingViewChart(symbol) {
     marketGridContainer.style.display = 'none';
     chartSection.style.height = 'calc(100vh - var(--navbar-height) - 64px)';
 
+    // For DexScreener pairs, fetch and show their data
+    if (symbol === 'WIF' || symbol === 'POPCAT' || symbol === 'JUP' || symbol === 'PENGU' || symbol === 'ZEUS' || symbol === 'NOSANA' || symbol === 'NOS') {
+        const pairAddress = symbol === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
+                          symbol === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
+                          symbol === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
+                          symbol === 'PENGU' ? 'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV' :
+                          symbol === 'ZEUS' ? 'e5x7mwprg8pdaqbt5hj1ehu4crasgukux5mwcjutuszu' :
+                          symbol === 'NOSANA' || symbol === 'NOS' ? 'dx76uas2ckv4f13kb5zkivd5rlevjyjrsxhnharaujvb' :
+                          null;
+
+        if (pairAddress) {
+            fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.pair) {
+                        showPairChart(data.pair);
+                    }
+                })
+                .catch(error => console.error('Error fetching pair data:', error));
+            return;
+        }
+    }
+
+    // For non-DexScreener pairs, show TradingView chart
     // Update section header
     const sectionHeader = document.querySelector('.section-header');
     sectionHeader.innerHTML = `
         <div class="section-title">
             <span class="material-icons-round">candlestick_chart</span>
-            ${symbol}/SOL Chart
+            ${symbol}/USDT Chart
             <button class="icon-btn" onclick="showTrendingView()">
                 <span class="material-icons-round">close</span>
             </button>
@@ -1229,14 +1374,14 @@ function showTradingViewChart(symbol) {
         chartTitle.innerHTML = `
             <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
             <div>
-                <div style="font-weight: 600;">${symbol}/SOL</div>
-                <div style="font-size: 12px; color: var(--text-secondary);">Solana</div>
+                <div style="font-weight: 600;">${symbol}/USDT</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Binance</div>
             </div>
         `;
     }
 
     // Update webpage title
-    document.title = `Zinc | ${symbol}/SOL`;
+    document.title = `Zinc | ${symbol}/USDT`;
 
     // Show TradingView controls and hide calculator
     const chartControls = document.querySelector('.chart-controls');
@@ -1358,96 +1503,11 @@ function initTradingViewWidget(container, symbol = 'BINANCE:SOLUSDT', interval =
 
 // Market Cards Animation and Real-time Updates
 function initMarketCardsAnimation() {
-    // Function to update a single card's data
-    async function updateCardData(card) {
-        const symbol = card.getAttribute('data-symbol');
-        const pairAddress = symbol === 'WIF' ? 'EP2ib6dYdEeqD8MfE2ezHCxX3kP3K2eLKkirfPm5eyMx' :
-                          symbol === 'POPCAT' ? 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo' :
-                          symbol === 'JUP' ? 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz' :
-                          'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV';
-
-        try {
-            const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
-            const data = await response.json();
-            const pair = data.pair;
-
-            if (pair) {
-                // Update price with animation
-                const priceElement = card.querySelector('.market-price');
-                if (priceElement) {
-                    const newPrice = `$${parseFloat(pair.priceUsd).toFixed(8)}`;
-                    if (priceElement.textContent !== newPrice) {
-                        priceElement.textContent = newPrice;
-                        priceElement.classList.add('price-update');
-                        setTimeout(() => priceElement.classList.remove('price-update'), 1000);
-                    }
-                }
-
-                // Update other elements
-                const percentageElement = card.querySelector('.title-percentage');
-                if (percentageElement) {
-                    const priceChange = parseFloat(pair.priceChange.h24);
-                    const newPercentage = `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%`;
-                    if (percentageElement.textContent !== newPercentage) {
-                        percentageElement.textContent = newPercentage;
-                        percentageElement.className = `title-percentage ${priceChange >= 0 ? 'positive' : 'negative'}`;
-                    }
-                }
-
-                // Update stats
-                const statsElement = card.querySelector('.market-stats');
-                if (statsElement) {
-                    const volume = parseFloat(pair.volume.h24);
-                    const mcap = parseFloat(pair.fdv);
-                    statsElement.innerHTML = `
-                        <span>Vol ${formatNumber(volume)}</span>
-                        <span>MCap: $${formatNumber(mcap)}</span>
-                    `;
-                }
-
-                // Update trend icon
-                const trendIcon = card.querySelector('.material-icons-round');
-                if (trendIcon) {
-                    const priceChange = parseFloat(pair.priceChange.h24);
-                    trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
-                    trendIcon.style.color = `var(--${priceChange >= 0 ? 'success' : 'danger'}-color)`;
-                }
-
-                // Update all duplicate cards with the same symbol
-                const allCardsWithSymbol = document.querySelectorAll(`.market-card[data-symbol="${symbol}"]`);
-                allCardsWithSymbol.forEach(duplicateCard => {
-                    if (duplicateCard !== card) {
-                        duplicateCard.innerHTML = card.innerHTML;
-                    }
-                });
-            }
-        } catch (error) {
-            console.error(`Error updating ${symbol} data:`, error);
-        }
-    }
-
-    // Function to update all unique cards
-    async function updateAllCards() {
-        const uniqueSymbols = new Set();
-        const cards = document.querySelectorAll('.market-card');
-        const uniqueCards = Array.from(cards).filter(card => {
-            const symbol = card.getAttribute('data-symbol');
-            if (!uniqueSymbols.has(symbol)) {
-                uniqueSymbols.add(symbol);
-                return true;
-            }
-            return false;
-        });
-
-        const promises = uniqueCards.map(card => updateCardData(card));
-        await Promise.all(promises);
-    }
-
     // Initial update
-    updateAllCards();
+    window.updateAllTokenData();
 
     // Set up real-time updates (every 2 seconds)
-    const updateInterval = setInterval(updateAllCards, 2000);
+    const updateInterval = setInterval(window.updateAllTokenData, 2000);
 
     // Clean up interval when needed
     window.addEventListener('beforeunload', () => {
@@ -1459,7 +1519,10 @@ function initMarketCardsAnimation() {
         const card = e.target.closest('.market-card');
         if (card) {
             const symbol = card.getAttribute('data-symbol');
-            // ... rest of the click handler code ...
+            const pair = await window.fetchPairData(symbol);
+            if (pair) {
+                window.showPairChart(pair);
+            }
         }
     });
 }
@@ -1504,7 +1567,7 @@ function showPairChart(pair) {
         </div>
     `;
 
-    // Update chart title with pair info
+    // Update chart title
     const chartTitle = document.querySelector('.chart-title');
     if (chartTitle) {
         const shortContractAddress = pair.baseToken.address.slice(0, 6) + '...' + pair.baseToken.address.slice(-4);
