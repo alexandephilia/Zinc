@@ -374,16 +374,29 @@ const toggleSidebar = (e) => {
 const checkMobileView = () => {
     const navbar = document.querySelector('.navbar');
     const existingBtn = navbar.querySelector('.mobile-menu-btn');
+    const sidebar = document.querySelector('.sidebar');
     
-    if (window.innerWidth <= 768 && !existingBtn) {
-        const menuBtn = document.createElement('button');
-        menuBtn.className = 'icon-btn mobile-menu-btn';
-        menuBtn.innerHTML = '<span class="material-icons-round">menu</span>';
-        menuBtn.addEventListener('click', toggleSidebar, { passive: false });
-        navbar.insertBefore(menuBtn, navbar.firstChild);
-    } else if (window.innerWidth > 768 && existingBtn) {
-        existingBtn.remove();
-        unlockBodyScroll();
+    if (window.innerWidth <= 768) {
+        // Ensure sidebar is hidden by default on mobile
+        sidebar.classList.remove('active');
+        
+        if (!existingBtn) {
+            const menuBtn = document.createElement('button');
+            menuBtn.className = 'icon-btn mobile-menu-btn';
+            menuBtn.innerHTML = '<span class="material-icons-round">menu</span>';
+            menuBtn.addEventListener('click', toggleSidebar, { passive: false });
+            navbar.insertBefore(menuBtn, navbar.firstChild);
+        }
+    } else {
+        if (existingBtn) {
+            existingBtn.remove();
+            unlockBodyScroll();
+        }
+        // Show sidebar by default on desktop
+        sidebar.classList.remove('active');
+        sidebar.style.visibility = 'visible';
+        sidebar.style.opacity = '1';
+        sidebar.style.transform = 'translateX(0)';
     }
 };
 
@@ -403,7 +416,12 @@ document.addEventListener('click', (e) => {
 }, { passive: false });
 
 // Update the event listeners
-window.addEventListener('load', checkMobileView, { passive: true });
+document.addEventListener('DOMContentLoaded', () => {
+    checkMobileView();
+    initMarketCardsAnimation();
+    setupPairCalculator();
+}, { passive: true });
+
 window.addEventListener('resize', () => {
     checkMobileView();
     if (window.innerWidth > 768) {

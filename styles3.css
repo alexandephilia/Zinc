@@ -166,12 +166,17 @@
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         background: var(--secondary-bg);
         will-change: transform;
-        visibility: visible;
-        opacity: 1;
+        visibility: hidden;
+        opacity: 0;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    visibility 0.3s ease,
+                    opacity 0.3s ease;
     }
 
     .sidebar.active {
         transform: translateX(0);
+        visibility: visible;
+        opacity: 1;
     }
 
     .sidebar-content {
@@ -1158,15 +1163,4 @@ body.scroll-locked {
 /* Ensure navbar stays fixed when body scroll is locked */
 .navbar {
     padding-right: var(--scrollbar-width, 0px);
-}
-
-/* Desktop styles */
-@media (min-width: 769px) {
-    .sidebar {
-        visibility: visible;
-        opacity: 1;
-        transform: none;
-        position: relative;
-        transition: none;
-    }
 }
