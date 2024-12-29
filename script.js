@@ -4,6 +4,11 @@ const resizer = document.querySelector('.sidebar-resizer');
 let isResizing = false;
 let lastX = 0;
 
+// Initialize loading state
+let appLoaded = false;
+let fontsLoaded = false;
+let contentLoaded = false;
+
 resizer.addEventListener('mousedown', initResize);
 document.addEventListener('mousemove', resize);
 document.addEventListener('mouseup', stopResize);
@@ -425,6 +430,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Force immediate check before any rendering
     checkMobileView();
     
+    // Mark content as loaded
+    contentLoaded = true;
+    handleAppLoaded();
+    
     // Delay non-critical initializations
     requestAnimationFrame(() => {
         initMarketCardsAnimation();
@@ -432,8 +441,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 }, { passive: true });
 
-// Also check on load to be extra fucking sure
-window.addEventListener('load', checkMobileView, { passive: true });
+// Handle window load completion
+window.addEventListener('load', () => {
+    appLoaded = true;
+    handleAppLoaded();
+    checkMobileView();
+}, { passive: true });
 
 // Smooth scroll behavior for sidebar
 const sidebarContent = document.querySelector('.sidebar-content');
@@ -1714,3 +1727,26 @@ function showPairChart(pair) {
         ></iframe>
     `;
 }
+
+// Function to handle complete app loading
+function handleAppLoaded() {
+    if (appLoaded && fontsLoaded && contentLoaded) {
+        const loadingOverlay = document.querySelector('.app-loading');
+        const mainContent = document.querySelector('.main-content');
+        
+        // Add loaded classes to trigger transitions
+        loadingOverlay.classList.add('loaded');
+        mainContent.classList.add('loaded');
+        
+        // Remove loading overlay after transition
+        setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+        }, 300);
+    }
+}
+
+// Check if fonts are loaded
+document.fonts.ready.then(() => {
+    fontsLoaded = true;
+    handleAppLoaded();
+});
