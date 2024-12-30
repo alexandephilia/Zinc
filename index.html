@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zinc | Degen </title>
     <link rel="icon" type="image/png" href="/asterisk-mark-symbol-design-blue-600nw-2310398637.webp">
-    
+    <link rel="stylesheet" href="jup_swap.css">
     <!-- Critical CSS to prevent FOUC -->
     <style>
         .app-loading {
@@ -239,27 +239,18 @@
                                 <span class="material-icons-round">bolt</span>
                                 Quick Trade
                             </div>
-                            <div class="trade-input-group blurred">
-                                <div class="dex-buttons blurred">
-                                    <button class="trade-btn jupiter-btn" disabled>
+                            <div class="trade-input-group">
+                                <div class="dex-buttons">
+                                    <button class="trade-btn jupiter-btn">
                                         <img src="https://jup.ag/favicon.ico" alt="Jupiter" style="width: 16px; height: 16px; margin-right: 4px;">
                                         Jupiter
                                     </button>
-                                    <button class="trade-btn meteora-btn" disabled>
+                                    <button class="trade-btn meteora-btn">
                                         <img src="https://meteora.ag/logo.svg" alt="Meteora" style="width: 16px; height: 16px; margin-right: 4px;">
                                         Meteora
                                     </button>
                                 </div>
-                                <div class="blur-overlay">
-                                    <span class="lock-icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                                        <span class="material-icons-round" style="font-size: 32px;">lock</span>
-                                    </span>
-                                </div>
                             </div>
-                            <button class="trade-btn connect-btn" id="quickTradeConnect">
-                                <span class="material-icons-round">account_balance_wallet</span>
-                                Connect
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -375,6 +366,7 @@
     <script src="watchlist.js"></script>
     <script src="dexscreener-spa.js"></script>
     <script src="dexscreener.js"></script>
+    <script src="jupiter-swap.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
