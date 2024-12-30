@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zinc | Degen </title>
     <link rel="icon" type="image/png" href="/asterisk-mark-symbol-design-blue-600nw-2310398637.webp">
-    <link rel="stylesheet" href="jup_swap.css">
     <!-- Critical CSS to prevent FOUC -->
     <style>
         .app-loading {
@@ -122,6 +121,17 @@
     <!-- Loading Overlay -->
     <div class="app-loading">
         <div class="text-scramble"></div>
+    </div>
+
+    <!-- Jupiter Terminal Bottom Sheet -->
+    <div class="jupiter-bottom-sheet">
+        <div class="bottom-sheet-header">
+            <span>Jupiter Swap</span>
+            <button class="close-bottom-sheet">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div id="integrated-terminal"></div>
     </div>
 
     <div class="app-container">
@@ -366,7 +376,9 @@
     <script src="watchlist.js"></script>
     <script src="dexscreener-spa.js"></script>
     <script src="dexscreener.js"></script>
-    <script src="jupiter-swap.js"></script>
     <script src="script.js"></script>
+    <!-- Load Jupiter Terminal script -->
+    <script src="https://terminal.jup.ag/main-v3.js" defer></script>
+    <script src="jupiter-swap.js" defer></script>
 </body>
 </html>
