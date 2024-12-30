@@ -30,16 +30,70 @@ window.getWatchlistPairAddress = function(symbol) {
 }
 
 // Function to add token to watchlist
-window.addToWatchlist = function(token) {
-    if (!window.WATCHLIST_TOKENS[token.symbol]) {
-        window.WATCHLIST_TOKENS[token.symbol] = token;
+window.addToWatchlist = async function(token) {
+    // If token is just an address string, create a token object
+    if (typeof token === 'string') {
+        token = {
+            address: token,
+            name: null,
+            symbol: null
+        };
+    }
+
+    // Ensure we have an address
+    if (!token.address) {
+        showWatchlistMessage('error', 'Token address is required');
+        return null;
+    }
+
+    // Clean the address
+    token.address = token.address.trim();
+
+    try {
+        // Check if token already exists by address
+        const existingByAddress = Object.values(window.WATCHLIST_TOKENS).find(t => t.address.toLowerCase() === token.address.toLowerCase());
+        if (existingByAddress) {
+            showWatchlistMessage('warning', `Token already exists as ${existingByAddress.symbol}`);
+            return null;
+        }
+
+        // Try to fetch token info from DexScreener
+        const pair = await window.fetchPairData(token.address, token.address);
+        if (pair && pair.baseToken) {
+            // Use the fetched token information
+            token = {
+                address: token.address,
+                name: token.name || `${pair.baseToken.name}`,
+                symbol: token.symbol || pair.baseToken.symbol
+            };
+        } else {
+            showWatchlistMessage('error', 'Invalid token address or token data not found');
+            return null;
+        }
+
+        // Check if token already exists by symbol
+        if (window.WATCHLIST_TOKENS[token.symbol]) {
+            showWatchlistMessage('warning', `Token with symbol ${token.symbol} already exists`);
+            return null;
+        }
+
+        // Add to watchlist object in the same format as existing tokens
+        window.WATCHLIST_TOKENS[token.symbol] = {
+            address: token.address,
+            name: token.name,
+            symbol: token.symbol
+        };
+
+        // Add to watchlist UI
         const watchlistContainer = document.querySelector('.watchlist-content');
         if (watchlistContainer) {
             const newItem = generateWatchlistItem(token);
             watchlistContainer.insertAdjacentHTML('beforeend', newItem);
             attachWatchlistItemHandlers(watchlistContainer.lastElementChild);
+            showWatchlistMessage('success', `Added ${token.symbol} to watchlist`);
         }
-        // Update add button state in market card
+
+        // Update add button state in market card if it exists
         const marketCard = document.querySelector(`.market-card[data-symbol="${token.symbol}"]`);
         if (marketCard) {
             const addBtn = marketCard.querySelector('.add-to-watchlist');
@@ -48,6 +102,18 @@ window.addToWatchlist = function(token) {
                 addBtn.innerHTML = '<span class="material-icons-round">done</span>';
             }
         }
+
+        // Immediately fetch and update the token's data
+        const pairData = await window.fetchPairData(token.symbol, token.address);
+        if (pairData) {
+            window.updateWatchlistItem(token.symbol, pairData);
+        }
+
+        return token;
+    } catch (error) {
+        console.error('Error adding token to watchlist:', error);
+        showWatchlistMessage('error', 'Failed to add token. Please try again.');
+        return null;
     }
 }
 
@@ -110,9 +176,7 @@ function showAddToWatchlistPopup() {
                 </button>
             </div>
             <div class="watchlist-popup-content">
-                <input type="text" class="watchlist-popup-input" placeholder="Enter contract address" />
-                <input type="text" class="watchlist-popup-input" placeholder="Token name (optional)" />
-                <input type="text" class="watchlist-popup-input" placeholder="Token symbol (optional)" />
+                <input type="text" class="watchlist-popup-input" placeholder="Enter contract address" required />
                 <div class="watchlist-popup-actions">
                     <button class="watchlist-popup-btn cancel">Cancel</button>
                     <button class="watchlist-popup-btn add">
@@ -128,25 +192,54 @@ function showAddToWatchlistPopup() {
         const closeBtn = popup.querySelector('.watchlist-popup-close');
         const cancelBtn = popup.querySelector('.watchlist-popup-btn.cancel');
         const addBtn = popup.querySelector('.watchlist-popup-btn.add');
+        const addressInput = popup.querySelector('.watchlist-popup-input');
 
         [closeBtn, cancelBtn].forEach(btn => {
             btn.addEventListener('click', () => {
                 popup.classList.remove('active');
+                // Remove any existing message when closing
+                const message = popup.querySelector('.watchlist-message');
+                if (message) message.remove();
             });
         });
 
-        addBtn.addEventListener('click', () => {
-            const [address, name, symbol] = [...popup.querySelectorAll('.watchlist-popup-input')].map(input => input.value.trim());
+        addBtn.addEventListener('click', async () => {
+            const address = addressInput.value.trim();
             if (address) {
-                const token = {
-                    address,
-                    name: name || symbol || 'Unknown Token',
-                    symbol: symbol || address.slice(0, 6)
-                };
-                window.addToWatchlist(token);
-                popup.classList.remove('active');
-                // Clear inputs
-                popup.querySelectorAll('.watchlist-popup-input').forEach(input => input.value = '');
+                addBtn.disabled = true;
+                addBtn.innerHTML = '<span class="material-icons-round loading">sync</span>Adding...';
+                const addedToken = await window.addToWatchlist(address);
+                addBtn.disabled = false;
+                addBtn.innerHTML = '<span class="material-icons-round">add</span>Add Token';
+                
+                if (addedToken) {
+                    addressInput.value = '';
+                    setTimeout(() => popup.classList.remove('active'), 1000);
+                }
+            } else {
+                showWatchlistMessage('error', 'Please enter a contract address');
+            }
+        });
+
+        // Add enter key support
+        addressInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const address = addressInput.value.trim();
+                if (address) {
+                    const addBtn = popup.querySelector('.watchlist-popup-btn.add');
+                    addBtn.disabled = true;
+                    addBtn.innerHTML = '<span class="material-icons-round loading">sync</span>Adding...';
+                    const addedToken = await window.addToWatchlist(address);
+                    addBtn.disabled = false;
+                    addBtn.innerHTML = '<span class="material-icons-round">add</span>Add Token';
+                    
+                    if (addedToken) {
+                        addressInput.value = '';
+                        setTimeout(() => popup.classList.remove('active'), 1000);
+                    }
+                } else {
+                    showWatchlistMessage('error', 'Please enter a contract address');
+                }
             }
         });
     }
@@ -285,6 +378,46 @@ function formatNumber(num) {
     if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
     if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
     return num.toFixed(2);
+}
+
+// Function to show watchlist messages
+function showWatchlistMessage(type, message) {
+    const popup = document.querySelector('.watchlist-popup');
+    if (!popup) return;
+
+    // Remove any existing message
+    const existingMessage = popup.querySelector('.watchlist-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+
+    // Create new message
+    const messageElement = document.createElement('div');
+    messageElement.className = `watchlist-message ${type}`;
+    messageElement.innerHTML = `
+        <span class="material-icons-round">${getMessageIcon(type)}</span>
+        <span>${message}</span>
+    `;
+
+    // Insert message after the input
+    const input = popup.querySelector('.watchlist-popup-input');
+    input.parentNode.insertBefore(messageElement, input.nextSibling);
+
+    // Auto remove message after 3 seconds
+    setTimeout(() => {
+        messageElement.classList.add('fade-out');
+        setTimeout(() => messageElement.remove(), 300);
+    }, 3000);
+}
+
+// Helper function to get message icon
+function getMessageIcon(type) {
+    switch (type) {
+        case 'success': return 'check_circle';
+        case 'warning': return 'warning';
+        case 'error': return 'error';
+        default: return 'info';
+    }
 }
 
 // Initialize watchlist functionality
