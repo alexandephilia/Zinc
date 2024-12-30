@@ -1283,7 +1283,7 @@ body {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(80px, 100px);
     gap: 8px;
-    min-height: 80px; /* Match watchlist item height */
+    min-height: 20px; /* Match watchlist item height */
     margin-bottom: 8px;
     transition: all 0.2s ease;
     width: 100%;
