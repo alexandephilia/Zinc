@@ -12,10 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
             defaultExplorer: "Solscan",
             containerStyles: {
                 width: '100%',
-                height: '100%',
+                height: '100vh',
+                minHeight: '540px',
                 border: 'none',
                 borderRadius: '0',
-                background: 'transparent'
+                background: 'transparent',
+                display: 'flex',
+                flexDirection: 'column'
             },
             containerClassName: 'jupiter-terminal-container',
             theme: {
@@ -100,13 +103,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (jupiterBtn) {
         jupiterBtn.addEventListener('click', toggleBottomSheet);
     }
-
-    // Close bottom sheet when clicking outside
-    document.addEventListener('click', (e) => {
-        if (bottomSheet.classList.contains('active') && 
-            !bottomSheet.contains(e.target) && 
-            !jupiterBtn.contains(e.target)) {
-            bottomSheet.classList.remove('active');
-        }
-    });
 });

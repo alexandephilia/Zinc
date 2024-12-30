@@ -1550,11 +1550,12 @@ body {
 
 .jupiter-bottom-sheet {
     position: fixed;
-    bottom: -600px; /* Start hidden below the viewport */
+    bottom: -100vh;
     left: 50%;
     transform: translateX(-50%);
     width: 400px;
-    height: 600px;
+    height: 100vh;
+    min-height: 540px;
     background: #0a0a0f;
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2);
@@ -1595,9 +1596,19 @@ body {
 
 #integrated-terminal {
     width: 100%;
-    height: calc(100% - 60px);
+    height: 100vh;
+    min-height: 540px;
     overflow: hidden;
     background: #0a0a0f;
+    display: flex;
+    flex-direction: column;
+}
+
+.jupiter-terminal-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 /* Jupiter Terminal Wallet Modal Customization */
@@ -1620,6 +1631,22 @@ body {
     bottom: 0 !important;
     z-index: 9999 !important;
 }
+
+
+
+
+/* Override for Jupiter Terminal container */
+.css-f47xmg {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+/* Override Jupiter Terminal grid layout */
+.css-1rigx3j {
+    grid-template-columns: repeat(1, minmax(0px, 1fr)) !important;
+}
+
 
 .css-1pt1vl2 {
     background: var(--secondary-bg) !important;
@@ -1645,6 +1672,12 @@ body {
     color: var(--text-secondary) !important;
     margin-top: 4px !important;
 }
+
+.css-bjoanw {
+    background: var(--tertiary-bg) !important;
+    color: var(--text-primary) !important;
+}
+
 
 .css-11b5aec {
     background: var(--tertiary-bg) !important;
@@ -1737,4 +1770,110 @@ body {
     width: 28px !important;
     height: 28px !important;
     object-fit: contain !important;
+}
+
+/* Jupiter Token Search Menu Customization */
+.css-g53se3 {
+    background: transparent !important;
+}
+
+/* Token Search Input */
+.flex.px-5.mt-4 {
+    background: var(--tertiary-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+}
+
+/* Token List Container */
+.flex.flex-col.h-full.w-full.py-4.px-2 {
+    background: var(--secondary-bg) !important;
+}
+
+/* Token List Items */
+.py-2.px-3.rounded-2xl.flex.items-center {
+    background: var(--tertiary-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    transition: all 0.2s ease !important;
+}
+
+.py-2.px-3.rounded-2xl.flex.items-center:hover {
+    background: linear-gradient(45deg, var(--tertiary-bg), rgba(41, 98, 255, 0.1)) !important;
+    border-color: var(--accent-color) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Back Button */
+.text-white.fill-current.w-6.h-6 {
+    opacity: 0.5;
+    transition: all 0.2s ease;
+}
+
+.text-white.fill-current.w-6.h-6:hover {
+    opacity: 1;
+}
+
+/* Search Input */
+.w-full.rounded-xl.ml-4.truncate {
+    color: var(--text-primary) !important;
+    font-family: 'Roboto Mono', monospace !important;
+}
+
+.w-full.rounded-xl.ml-4.truncate::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 0.5;
+}
+
+/* Token List Scroll Container */
+.mt-2[style*="flex-grow: 1"] {
+    background: var(--secondary-bg) !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+}
+
+/* Token List Items */
+.flex.items-center.text-white.fill-current {
+    color: var(--text-secondary) !important;
+}
+
+/* Token Selection Header */
+.flex.w-full.justify-between {
+    border-bottom: 1px solid var(--border-color) !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 12px !important;
+}
+
+.text-white {
+    font-family: 'Roboto Mono', monospace !important;
+    font-weight: 600 !important;
+}
+
+/* Token List Hover States */
+.py-2.px-3.rounded-2xl.flex.items-center:hover {
+    background: var(--accent-color) !important;
+    color: white !important;
+}
+
+/* Search Icon */
+.flex.items-center.text-white.fill-current svg {
+    opacity: 0.5;
+}
+
+/* Token List Scrollbar */
+.mt-2[style*="flex-grow: 1"]::-webkit-scrollbar {
+    width: 6px;
+    display: block;
+}
+
+.mt-2[style*="flex-grow: 1"]::-webkit-scrollbar-track {
+    background: var(--tertiary-bg);
+    border-radius: 3px;
+}
+
+.mt-2[style*="flex-grow: 1"]::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.mt-2[style*="flex-grow: 1"]::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color);
 }
