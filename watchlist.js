@@ -1,22 +1,18 @@
 // Token configuration for watchlist
-window.WATCHLIST_TOKENS = {
-    SPX: {
-        address: '9t1H1uDJ558iMPNkEPSN1fqkpC4XSPQ6cqSf6uEsTfTR',
-        name: 'SPX6900 (Wormhole)',
-        symbol: 'SPX'
-    },
-    ZEUS: {
-        address: 'e5x7mwprg8pdaqbt5hj1ehu4crasgukux5mwcjutuszu',
-        name: 'Zeus',
-        symbol: 'ZEUS'
-    },
-    NOS: {
-        address: 'dx76uas2ckv4f13kb5zkivd5rlevjyjrsxhnharaujvb',
-        name: 'Nosana',
-        symbol: 'NOS'
+window.WATCHLIST_TOKENS = {};
+
+// Load watchlist from localStorage
+window.loadWatchlist = function() {
+    const savedWatchlist = localStorage.getItem('watchlist');
+    if (savedWatchlist) {
+        window.WATCHLIST_TOKENS = JSON.parse(savedWatchlist);
     }
-    // Add more watchlist tokens here
-};
+}
+
+// Save watchlist to localStorage
+window.saveWatchlist = function() {
+    localStorage.setItem('watchlist', JSON.stringify(window.WATCHLIST_TOKENS));
+}
 
 // Helper function to get token by symbol from watchlist
 window.getWatchlistToken = function(symbol) {
@@ -84,6 +80,9 @@ window.addToWatchlist = async function(token) {
             symbol: token.symbol
         };
 
+        // Save to localStorage
+        window.saveWatchlist();
+
         // Add to watchlist UI
         const watchlistContainer = document.querySelector('.watchlist-content');
         if (watchlistContainer) {
@@ -121,6 +120,9 @@ window.addToWatchlist = async function(token) {
 window.removeFromWatchlist = function(symbol) {
     if (window.WATCHLIST_TOKENS[symbol]) {
         delete window.WATCHLIST_TOKENS[symbol];
+        // Save changes to localStorage
+        window.saveWatchlist();
+        
         const watchlistItem = document.querySelector(`.watchlist-item[data-symbol="${symbol}"]`);
         if (watchlistItem) {
             watchlistItem.remove();
@@ -422,6 +424,9 @@ function getMessageIcon(type) {
 
 // Initialize watchlist functionality
 document.addEventListener('DOMContentLoaded', () => {
+    // Load watchlist from localStorage
+    window.loadWatchlist();
+    
     // Initialize watchlist items
     initializeWatchlistItems();
     
