@@ -69,7 +69,7 @@ window.showPairChart = function(pair) {
             button.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const textToCopy = button.getAttribute('data-copy');
-                await copyToClipboard(textToCopy);
+                await copyToClipboard(textToCopy, button);
             });
         });
     }
@@ -101,28 +101,21 @@ window.showPairChart = function(pair) {
 }
 
 // Helper function to copy to clipboard
-async function copyToClipboard(text) {
+async function copyToClipboard(text, clickedButton) {
     try {
         await navigator.clipboard.writeText(text);
         
-        // Get all copy buttons
-        const copyButtons = document.querySelectorAll('.copy-btn');
-        
-        // Find the button that has this text as data-copy
-        const clickedButton = Array.from(copyButtons).find(btn => btn.getAttribute('data-copy') === text);
-        
         if (clickedButton) {
             const icon = clickedButton.querySelector('.material-icons-round');
-            const originalText = icon.textContent;
             
-            // Visual feedback
+            // Add transition class
+            clickedButton.classList.add('copy-success');
             icon.textContent = 'check';
-            clickedButton.style.color = 'var(--success-color)';
             
-            // Reset after 2 seconds
+            // Reset after animation
             setTimeout(() => {
-                icon.textContent = originalText;
-                clickedButton.style.color = '';
+                clickedButton.classList.remove('copy-success');
+                icon.textContent = 'content_copy';
             }, 2000);
         }
     } catch (err) {
