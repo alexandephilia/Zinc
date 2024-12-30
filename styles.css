@@ -1547,7 +1547,6 @@ body {
         );
     }
 }
-
 .jupiter-bottom-sheet {
     position: fixed;
     bottom: -100vh;
@@ -1556,7 +1555,9 @@ body {
     width: 400px;
     height: 85vh;
     min-height: 500px;
-    background: #0a0a0f;
+    background: linear-gradient( 45deg, rgba(18, 18, 26, 0.95), rgba(41, 98, 255, 0.048) );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2);
     z-index: 9999;
@@ -1566,6 +1567,40 @@ body {
 
 .jupiter-bottom-sheet.active {
     bottom: 0;
+}
+#jupiter-terminal-instance .bg-\[\#212128\],
+#jupiter-terminal-instance .bg-\[\#191B1F\],
+#jupiter-terminal-instance .flex.flex-col.h-full.w-full.py-4.px-2.bg-v3-modal {
+    --tw-bg-opacity: 1 !important;
+    background-color: rgba(10, 10, 15, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    transition: border-color 0.2s ease !important;
+}
+
+#jupiter-terminal-instance .bg-\[\#191B1F\]:hover,
+#jupiter-terminal-instance .flex.flex-col.h-full.w-full.py-4.px-2.bg-v3-modal:hover {
+    border: 1px solid rgba(18, 233, 204, 0.6) !important;
+    box-shadow: 0 0 10px rgba(18, 233, 204, 0.4),
+                0 0 2px rgba(18, 233, 204, 0.8) !important;
+}
+
+#jupiter-terminal-instance .py-2.px-3.h-7.flex.items-center.rounded-2xl.text-xs.bg-\[\#191B1F\].text-white {
+    padding: 8px 12px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    border-radius: 16px !important;
+    font-size: 12px !important;
+    color: white !important;
+    background-color: rgb(10, 10, 15) !important;
+    transition: border-color 0.2s ease !important;
+}
+
+#jupiter-terminal-instance .py-2.px-3.h-7.flex.items-center.rounded-2xl.text-xs.bg-\[\#191B1F\].text-white:hover {
+    border: 1px solid rgba(18, 233, 204, 0.6) !important;
+    box-shadow: 0 0 10px rgba(18, 233, 204, 0.4),
+                0 0 2px rgba(18, 233, 204, 0.8) !important;
 }
 
 .bottom-sheet-header {
@@ -1599,7 +1634,7 @@ body {
     height: 85vh;
     min-height: 500px;
     overflow: hidden;
-    background: #0a0a0f;
+    background: #0a0a0f2d;
     display: flex;
     flex-direction: column;
 }
