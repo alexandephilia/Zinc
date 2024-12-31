@@ -1939,3 +1939,101 @@ body {
         min-height: 450px;
     }
 }
+/* Floating Jupiter Button for Mobile */
+.floating-jupiter-btn {
+    display: none;  /* Hidden by default */
+    position: fixed;
+    bottom: 27px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    background: linear-gradient(45deg, 
+        rgba(41, 98, 255, 0.18), 
+        rgba(41, 98, 255, 0.25)
+    );
+    border: 1px solid rgba(98, 98, 98, 0.15);
+    box-shadow: 0 2px 8px rgba(41, 98, 255, 0.1);
+    z-index: 999;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+.floating-jupiter-btn::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(45deg, 
+        rgba(255, 255, 255, 0.08), 
+        rgba(255, 255, 255, 0.03)
+    );
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.floating-jupiter-btn .material-icons-round {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.2s ease;
+}
+
+.floating-jupiter-btn:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(45deg, 
+        rgba(41, 98, 255, 0.25), 
+        rgba(41, 98, 255, 0.35)
+    );
+    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.15);
+}
+
+.floating-jupiter-btn:hover .material-icons-round {
+    color: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+}
+
+.floating-jupiter-btn:hover::before {
+    opacity: 1;
+}
+
+.floating-jupiter-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(41, 98, 255, 0.1);
+}
+
+.floating-jupiter-btn:active .material-icons-round {
+    transform: scale(0.95);
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    .floating-jupiter-btn {
+        display: flex;  /* Show on mobile */
+    }
+
+    .sidebar-section .quick-trade {
+        display: none;  /* Hide Quick Trade in sidebar on mobile */
+    }
+}
+
+/* Additional mobile adjustments */
+@media (max-width: 480px) {
+    .floating-jupiter-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 36px;
+        height: 36px;
+    }
+    
+    .floating-jupiter-btn .material-icons-round {
+        font-size: 18px;
+    }
+}

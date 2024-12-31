@@ -98,9 +98,15 @@ document.addEventListener('DOMContentLoaded', () => {
         bottomSheet.classList.remove('active');
     });
 
-    // Add click handler to Quick Trade Jupiter button
+    // Add click handler to Quick Trade Jupiter button (sidebar)
     const jupiterBtn = document.querySelector('.jupiter-btn');
     if (jupiterBtn) {
         jupiterBtn.addEventListener('click', toggleBottomSheet);
+    }
+
+    // Add click handler to Floating Jupiter button (mobile)
+    const floatingJupiterBtn = document.querySelector('.floating-jupiter-btn');
+    if (floatingJupiterBtn) {
+        floatingJupiterBtn.addEventListener('click', toggleBottomSheet);
     }
 });
