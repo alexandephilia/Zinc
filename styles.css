@@ -1920,7 +1920,7 @@ body {
     .jupiter-bottom-sheet {
         height: 0%;
         width: 100%;
-        min-height: 42em;
+        min-height: 38em;
         border-radius: 20px 20px 0 0;
     }
 
@@ -1933,7 +1933,7 @@ body {
 @media (max-width: 480px) {
     .jupiter-bottom-sheet {
         height: 0%;
-        min-height: 42em;
+        min-height: 38em;
         width: 100%;
     }
 
