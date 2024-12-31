@@ -368,6 +368,9 @@ const toggleSidebar = (e) => {
     });
 };
 
+// Expose toggleSidebar to window object
+window.toggleSidebar = toggleSidebar;
+
 // Add mobile menu button to navbar if screen is small
 const checkMobileView = () => {
     const navbar = document.querySelector('.navbar');
@@ -407,6 +410,12 @@ const checkMobileView = () => {
 document.addEventListener('click', (e) => {
     const sidebar = document.querySelector('.sidebar');
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const watchlistPopup = document.querySelector('.watchlist-popup');
+    
+    // Don't close sidebar if clicking inside watchlist popup
+    if (watchlistPopup && watchlistPopup.contains(e.target)) {
+        return;
+    }
     
     if (window.innerWidth <= 768 && 
         sidebar.classList.contains('active') && 

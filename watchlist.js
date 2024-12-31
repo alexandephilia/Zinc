@@ -196,13 +196,15 @@ function showAddToWatchlistPopup() {
         const addBtn = popup.querySelector('.watchlist-popup-btn.add');
         const addressInput = popup.querySelector('.watchlist-popup-input');
 
+        const closePopup = () => {
+            popup.classList.remove('active');
+            // Remove any existing message when closing
+            const message = popup.querySelector('.watchlist-message');
+            if (message) message.remove();
+        };
+
         [closeBtn, cancelBtn].forEach(btn => {
-            btn.addEventListener('click', () => {
-                popup.classList.remove('active');
-                // Remove any existing message when closing
-                const message = popup.querySelector('.watchlist-message');
-                if (message) message.remove();
-            });
+            btn.addEventListener('click', closePopup);
         });
 
         addBtn.addEventListener('click', async () => {
@@ -216,7 +218,9 @@ function showAddToWatchlistPopup() {
                 
                 if (addedToken) {
                     addressInput.value = '';
-                    setTimeout(() => popup.classList.remove('active'), 1000);
+                    setTimeout(() => {
+                        popup.classList.remove('active');
+                    }, 1000);
                 }
             } else {
                 showWatchlistMessage('error', 'Please enter a contract address');
@@ -237,7 +241,9 @@ function showAddToWatchlistPopup() {
                     
                     if (addedToken) {
                         addressInput.value = '';
-                        setTimeout(() => popup.classList.remove('active'), 1000);
+                        setTimeout(() => {
+                            popup.classList.remove('active');
+                        }, 1000);
                     }
                 } else {
                     showWatchlistMessage('error', 'Please enter a contract address');
