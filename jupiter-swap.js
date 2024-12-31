@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
             defaultExplorer: "Solscan",
             containerStyles: {
                 width: '100%',
-                minHeight: window.innerWidth <= 768 ? '40em' : '35em',
+                minHeight: window.innerWidth <= 768 ? '60em' : '35em',
                 border: 'none', 
                 borderRadius: '0',
                 background: 'transparent',
