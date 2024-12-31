@@ -1553,7 +1553,8 @@ body {
     left: 50%;
     transform: translateX(-50%);
     width: 400px;
-   
+    height: 85vh;
+    min-height: 500px;
     background: linear-gradient( 45deg, rgba(18, 18, 26, 0.95), rgba(41, 98, 255, 0.048) );
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -1577,8 +1578,7 @@ body {
     transition: border-color 0.2s ease !important;
 }
 
-#jupiter-terminal-instance .bg-\[\#191B1F\]:hover,
-#jupiter-terminal-instance .flex.flex-col.h-full.w-full.py-4.px-2.bg-v3-modal:hover {
+#jupiter-terminal-instance .bg-\[\#191B1F\]:hover {
     border: 1px solid rgba(18, 233, 204, 0.6) !important;
     box-shadow: 0 0 10px rgba(18, 233, 204, 0.4),
                 0 0 2px rgba(18, 233, 204, 0.8) !important;
@@ -1630,7 +1630,8 @@ body {
 
 #integrated-terminal {
     width: 100%;
-    
+    height: 85vh;
+    min-height: 500px;
     overflow: hidden;
     background: #0a0a0f2d;
     display: flex;
@@ -1915,11 +1916,28 @@ body {
 @media (max-width: 768px) {
     .jupiter-bottom-sheet {
         width: 100%;
+        height: 80vh;
+        min-height: 480px;
         border-radius: 20px 20px 0 0;
+    }
+
+    #integrated-terminal {
+        height: 80vh;
+        min-height: 480px;
     }
 }
 
+@media (max-width: 480px) {
+    .jupiter-bottom-sheet {
+        height: 75vh;
+        min-height: 450px;
+    }
 
+    #integrated-terminal {
+        height: 75vh;
+        min-height: 450px;
+    }
+}
 /* Floating Jupiter Button for Mobile */
 .floating-jupiter-btn {
     display: none;  /* Hidden by default */
@@ -2050,6 +2068,7 @@ body {
     .sidebar-section .quick-trade {
         display: none;  /* Hide Quick Trade in sidebar on mobile */
     }
+
 }
 
 /* Additional mobile adjustments */
