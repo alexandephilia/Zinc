@@ -12,9 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
             defaultExplorer: "Solscan",
             containerStyles: {
                 width: '100%',
-                height: '100vh',
-                minHeight: '540px',
-                border: 'none',
+                minHeight: window.innerWidth <= 768 ? '520px' : '600px',
+                border: 'none', 
                 borderRadius: '0',
                 background: 'transparent',
                 display: 'flex',

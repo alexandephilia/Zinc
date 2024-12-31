@@ -1950,24 +1950,24 @@ body {
     padding: 0;
     border-radius: 50%;
     background: linear-gradient(
-        150deg,
-        rgba(41, 98, 255, 0.15) 0%,
-        rgba(41, 98, 255, 0.25) 50%,
-        rgba(41, 98, 255, 0.15) 100%
+        135deg,
+        rgba(41, 98, 255, 0.12),
+        rgba(41, 98, 255, 0.24),
+        rgba(41, 98, 255, 0.12)
     );
-    background-size: 200% 200%;
+    background-size: 400% 400%;
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 2px 12px rgba(41, 98, 255, 0.15);
     z-index: 999;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    transform: translateZ(0) perspective(1000px);
-    will-change: transform;
-    animation: shimmer-rotate 8s infinite linear;
+    transform: translateZ(0);
+    will-change: transform, background-position;
+    animation: shimmer-move 3s ease infinite;
 }
 
 .floating-jupiter-btn::before {
@@ -1975,7 +1975,7 @@ body {
     position: absolute;
     inset: -1px;
     background: linear-gradient(
-        150deg,
+        135deg,
         transparent,
         rgba(255, 255, 255, 0.1),
         transparent
@@ -1985,7 +1985,7 @@ body {
     z-index: 1;
     opacity: 0;
     transition: opacity 0.3s ease;
-    animation: shimmer-rotate 4s infinite linear;
+    animation: shimmer-move 2s ease infinite;
     pointer-events: none;
 }
 
@@ -1995,26 +1995,26 @@ body {
     transition: all 0.3s ease;
     z-index: 2;
     position: relative;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    animation: icon-glow 2s ease-in-out infinite;
 }
 
 .floating-jupiter-btn:hover {
     transform: translateY(-2px) scale(1.05);
     background: linear-gradient(
-        150deg,
-        rgba(41, 98, 255, 0.2) 0%,
-        rgba(41, 98, 255, 0.35) 50%,
-        rgba(41, 98, 255, 0.2) 100%
+        135deg,
+        rgba(41, 98, 255, 0.2),
+        rgba(41, 98, 255, 0.35),
+        rgba(41, 98, 255, 0.2)
     );
-    background-size: 200% 200%;
+    background-size: 400% 400%;
     box-shadow: 0 4px 16px rgba(41, 98, 255, 0.25),
                 0 0 0 1px rgba(255, 255, 255, 0.1);
-    animation: shimmer-rotate 4s infinite linear;
+    animation: shimmer-move 2s ease infinite;
 }
 
 .floating-jupiter-btn:hover .material-icons-round {
-    transform: scale(1.1) rotate(5deg);
-    filter: drop-shadow(0 0 8px rgba(41, 98, 255, 0.4));
+    transform: scale(1.1);
+    animation: icon-glow-hover 1.5s ease-in-out infinite;
 }
 
 .floating-jupiter-btn:hover::before {
@@ -2030,18 +2030,33 @@ body {
     transform: scale(0.9);
 }
 
-@keyframes shimmer-rotate {
+@keyframes shimmer-move {
     0% {
         background-position: 0% 50%;
-        transform: rotate(0deg);
     }
     50% {
         background-position: 100% 50%;
-        transform: rotate(180deg);
     }
     100% {
         background-position: 0% 50%;
-        transform: rotate(360deg);
+    }
+}
+
+@keyframes icon-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 2px rgba(41, 98, 255, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 0 8px rgba(41, 98, 255, 0.6));
+    }
+}
+
+@keyframes icon-glow-hover {
+    0%, 100% {
+        filter: drop-shadow(0 0 4px rgba(41, 98, 255, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 0 12px rgba(41, 98, 255, 0.8));
     }
 }
 
