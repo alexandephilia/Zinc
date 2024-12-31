@@ -1943,18 +1943,21 @@ body {
 .floating-jupiter-btn {
     display: none;  /* Hidden by default */
     position: fixed;
-    bottom: 27px;
-    right: 20px;
-    width: 40px;
-    height: 40px;
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
     padding: 0;
     border-radius: 50%;
-    background: linear-gradient(45deg, 
-        rgba(41, 98, 255, 0.18), 
-        rgba(41, 98, 255, 0.25)
+    background: linear-gradient(
+        150deg,
+        rgba(41, 98, 255, 0.15) 0%,
+        rgba(41, 98, 255, 0.25) 50%,
+        rgba(41, 98, 255, 0.15) 100%
     );
-    border: 1px solid rgba(98, 98, 98, 0.15);
-    box-shadow: 0 2px 8px rgba(41, 98, 255, 0.1);
+    background-size: 200% 200%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px rgba(41, 98, 255, 0.15);
     z-index: 999;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -1962,42 +1965,56 @@ body {
     justify-content: center;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    transform: translateZ(0);
+    transform: translateZ(0) perspective(1000px);
     will-change: transform;
+    animation: shimmer-rotate 8s infinite linear;
 }
 
 .floating-jupiter-btn::before {
     content: '';
     position: absolute;
     inset: -1px;
-    background: linear-gradient(45deg, 
-        rgba(255, 255, 255, 0.08), 
-        rgba(255, 255, 255, 0.03)
+    background: linear-gradient(
+        150deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
     );
+    background-size: 200% 200%;
     border-radius: inherit;
-    z-index: -1;
+    z-index: 1;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s ease;
+    animation: shimmer-rotate 4s infinite linear;
+    pointer-events: none;
 }
 
 .floating-jupiter-btn .material-icons-round {
-    font-size: 20px;
-    color: rgba(255, 255, 255, 0.9);
-    transition: all 0.2s ease;
+    font-size: 24px;
+    color: rgba(255, 255, 255, 1);
+    transition: all 0.3s ease;
+    z-index: 2;
+    position: relative;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .floating-jupiter-btn:hover {
-    transform: translateY(-1px);
-    background: linear-gradient(45deg, 
-        rgba(41, 98, 255, 0.25), 
-        rgba(41, 98, 255, 0.35)
+    transform: translateY(-2px) scale(1.05);
+    background: linear-gradient(
+        150deg,
+        rgba(41, 98, 255, 0.2) 0%,
+        rgba(41, 98, 255, 0.35) 50%,
+        rgba(41, 98, 255, 0.2) 100%
     );
-    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.15);
+    background-size: 200% 200%;
+    box-shadow: 0 4px 16px rgba(41, 98, 255, 0.25),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+    animation: shimmer-rotate 4s infinite linear;
 }
 
 .floating-jupiter-btn:hover .material-icons-round {
-    color: rgba(255, 255, 255, 1);
-    transform: scale(1.1);
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 0 8px rgba(41, 98, 255, 0.4));
 }
 
 .floating-jupiter-btn:hover::before {
@@ -2005,12 +2022,27 @@ body {
 }
 
 .floating-jupiter-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(41, 98, 255, 0.1);
+    transform: translateY(1px) scale(0.95);
+    box-shadow: 0 2px 8px rgba(41, 98, 255, 0.15);
 }
 
 .floating-jupiter-btn:active .material-icons-round {
-    transform: scale(0.95);
+    transform: scale(0.9);
+}
+
+@keyframes shimmer-rotate {
+    0% {
+        background-position: 0% 50%;
+        transform: rotate(0deg);
+    }
+    50% {
+        background-position: 100% 50%;
+        transform: rotate(180deg);
+    }
+    100% {
+        background-position: 0% 50%;
+        transform: rotate(360deg);
+    }
 }
 
 /* Mobile-specific styles */
@@ -2027,13 +2059,13 @@ body {
 /* Additional mobile adjustments */
 @media (max-width: 480px) {
     .floating-jupiter-btn {
-        bottom: 16px;
-        right: 16px;
-        width: 36px;
-        height: 36px;
+        bottom: 20px;
+        right: 20px;
+        width: 44px;
+        height: 44px;
     }
     
     .floating-jupiter-btn .material-icons-round {
-        font-size: 18px;
+        font-size: 22px;
     }
 }
