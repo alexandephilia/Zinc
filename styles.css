@@ -27,6 +27,9 @@
     --market-card-height: 120px;
     --chart-header-height: 48px;
     --spacing: 12px;
+
+    /* Mobile Input Overrides */
+    --mobile-input-font-size: 16px;  /* Prevents zoom on iOS */
 }
 
 body {
@@ -2083,5 +2086,25 @@ body {
     
     .floating-jupiter-btn .material-icons-round {
         font-size: 22px;
+    }
+}
+
+/* Prevent zoom on input focus for mobile */
+@media (max-width: 768px) {
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    input[type="tel"],
+    select,
+    textarea {
+        font-size: var(--mobile-input-font-size) !important;
+        touch-action: manipulation;
+    }
+
+    .search-bar input,
+    #jupiter-terminal-instance input {
+        font-size: var(--mobile-input-font-size) !important;
     }
 }
