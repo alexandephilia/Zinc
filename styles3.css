@@ -1822,9 +1822,8 @@ body.scroll-locked {
 .wallet-card:hover {
     border-color: rgba(41, 98, 255, 0.3);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 0 8px rgba(41, 98, 255, 0.267); /* Added glow effect */
 }
-
 .wallet-address {
     font-family: 'Roboto Mono', monospace;
     font-size: 12px;
@@ -1843,11 +1842,13 @@ body.scroll-locked {
     min-height: 24px;
     width: auto;
     max-width: 140px;
+    box-shadow: 0 0 5px rgba(41, 98, 255, 0.5); /* Added border glow */
 }
 
 .wallet-address:hover {
     background: rgba(41, 98, 255, 0.15);
     color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(41, 98, 255, 0.7); /* Enhanced border glow on hover */
 }
 
 /* Unique classes for wallet address copy success */
