@@ -2136,7 +2136,7 @@ body.scroll-locked {
     bottom: 0;
     left: -16px;  /* Extend beyond the padding */
     right: -16px; /* Extend beyond the padding */
-    height: 125px;
+    height: 60px;
     background: linear-gradient(
         to bottom,
         rgba(10, 10, 15, 0) 0%,
