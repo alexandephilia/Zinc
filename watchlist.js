@@ -178,7 +178,7 @@ function showAddToWatchlistPopup() {
                 </button>
             </div>
             <div class="watchlist-popup-content">
-                <input type="text" class="watchlist-popup-input" placeholder="Enter contract address" required />
+                <input type="text" class="watchlist-popup-input" placeholder="Enter pair address" required />
                 <div class="watchlist-popup-actions">
                     <button class="watchlist-popup-btn cancel">Cancel</button>
                     <button class="watchlist-popup-btn add">
