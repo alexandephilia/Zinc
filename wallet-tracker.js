@@ -251,7 +251,7 @@ class WalletTracker {
                     <span class="material-icons-round">close</span>
                 </button>
             </div>
-            <div class="wallet-address">${this.formatAddress(address)}</div>
+            <div class="wallet-address" title="Click to copy address">${this.formatAddress(address)}</div>
             <div class="wallet-holdings collapsed" id="holdings-${address}">
                 <div class="loading">Loading holdings...</div>
                 <button class="expand-holdings">
@@ -269,6 +269,42 @@ class WalletTracker {
             holdingsContainer.classList.toggle('collapsed');
             const expandText = expandBtn.querySelector('.expand-text');
             expandText.textContent = holdingsContainer.classList.contains('collapsed') ? 'Show More' : 'Show Less';
+        });
+
+        // Add click handler for wallet address copy
+        const addressElement = card.querySelector('.wallet-address');
+        addressElement.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(address);
+                
+                // Save the original content
+                const originalContent = addressElement.innerHTML;
+                
+                // Replace with success message while maintaining exact layout
+                addressElement.innerHTML = `
+                    <div class="copy-success-content">
+                        <div class="token-info">
+                            <span class="material-icons-round">check_circle</span>
+                            <span>Address copied!</span>
+                        </div>
+                        <div class="token-values">
+                            <span class="token-amount">&nbsp;</span>
+                            <span class="token-usd">&nbsp;</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Add the success class for animation
+                addressElement.classList.add('copy-success');
+                
+                // Restore original content after animation
+                setTimeout(() => {
+                    addressElement.innerHTML = originalContent;
+                    addressElement.classList.remove('copy-success');
+                }, 1000);
+            } catch (err) {
+                console.error('Failed to copy address:', err);
+            }
         });
 
         // Add rename functionality with custom modal
@@ -619,11 +655,17 @@ class WalletTracker {
                 // Save the original content
                 const originalContent = element.innerHTML;
                 
-                // Replace with success message
+                // Replace with success message while maintaining exact layout
                 element.innerHTML = `
                     <div class="copy-success-content">
-                        <span class="material-icons-round">check_circle</span>
-                        Address copied!
+                        <div class="token-info">
+                            <span class="material-icons-round">check_circle</span>
+                            <span>Address copied!</span>
+                        </div>
+                        <div class="token-values">
+                            <span class="token-amount">&nbsp;</span>
+                            <span class="token-usd">&nbsp;</span>
+                        </div>
                     </div>
                 `;
                 

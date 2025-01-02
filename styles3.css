@@ -1834,6 +1834,37 @@ body.scroll-locked {
     background: rgba(41, 98, 255, 0.1);
     border-radius: 4px;
     display: inline-block;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.wallet-address:hover {
+    background: rgba(41, 98, 255, 0.15);
+    color: var(--accent-color);
+}
+
+.wallet-address.copy-success {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.2);
+}
+
+.wallet-address .copy-success-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--success-color);
+    font-size: 12px;
+    width: 100%;
+    height: 100%;
+    animation: fadeIn 0.2s ease;
+}
+
+.wallet-address .copy-success-content .material-icons-round {
+    font-size: 14px;
+    color: var(--success-color);
 }
 
 .wallet-holdings {
@@ -1852,6 +1883,7 @@ body.scroll-locked {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     transition: all 0.2s ease;
+    min-height: 52px; /* Increased to account for both states */
 }
 
 .token-holding:hover {
@@ -1859,16 +1891,66 @@ body.scroll-locked {
     background: rgba(41, 98, 255, 0.05);
 }
 
+.token-holding.copy-success {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.2);
+}
+
 .token-info {
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 120px; /* Ensure consistent width */
+}
+
+.token-values {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 100px; /* Ensure consistent width */
 }
 
 .token-amount {
     font-family: 'Roboto Mono', monospace;
     color: var(--text-primary);
     font-weight: 500;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.token-usd {
+    font-size: 11px;
+    font-family: 'Roboto Mono', monospace;
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    color: var(--success-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1.2;
+    min-height: 20px;
+}
+
+/* Copy success content styling */
+.copy-success-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.copy-success-content .token-info {
+    color: var(--success-color);
+}
+
+.copy-success-content .material-icons-round {
+    font-size: 16px;
+    color: var(--success-color);
+}
+
+.copy-success-content .token-values {
+    opacity: 0;
 }
 
 /* Loading state */
@@ -2054,7 +2136,7 @@ body.scroll-locked {
     bottom: 0;
     left: -16px;  /* Extend beyond the padding */
     right: -16px; /* Extend beyond the padding */
-    height: 80px;
+    height: 125px;
     background: linear-gradient(
         to bottom,
         rgba(10, 10, 15, 0) 0%,
@@ -2128,32 +2210,41 @@ body.scroll-locked {
     border-color: rgba(0, 200, 83, 0.2);
 }
 
-.copy-success-content {
+.token-holding .copy-success-content {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: var(--success-color);
-    font-size: 14px;
+    justify-content: space-between;
     width: 100%;
     height: 100%;
     animation: fadeIn 0.2s ease;
+    padding: 0 4px;
 }
 
-.copy-success-content .material-icons-round {
+.token-holding .copy-success-content .success-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--success-color);
+    font-size: 14px;
+}
+
+.token-holding .copy-success-content .success-right {
+    width: 80px; /* Match approximate width of token values */
+    height: 100%;
+}
+
+.token-holding .copy-success-content .material-icons-round {
     font-size: 16px;
     color: var(--success-color);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Update token values to have consistent width */
+.token-values {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 80px; /* Add minimum width to match success message */
 }
 
 /* Wallet Card Header Styles */
@@ -2470,93 +2561,35 @@ body.scroll-locked {
     font-size: 13px;
     font-weight: 500;
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-    filter: blur(10px);
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    filter: blur(8px);
+    transition: all 0.3s ease;
     z-index: 100;
     box-shadow: 0 4px 12px rgba(255, 61, 0, 0.1),
                 0 0 0 1px rgba(255, 61, 0, 0.1);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     pointer-events: none;
-    will-change: transform, opacity, filter;
 }
 
 .custom-error-message.active {
     opacity: 1;
-    transform: translateY(0) scale(1);
     filter: blur(0);
-    animation: errorReveal 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 
-@keyframes errorReveal {
-    0% {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.95);
-        filter: blur(10px);
-    }
-    50% {
-        opacity: 0.5;
-        filter: blur(5px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: blur(0);
-    }
-}
-
-@keyframes errorHide {
-    0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: blur(0);
-    }
-    50% {
-        opacity: 0.5;
-        filter: blur(5px);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.95);
-        filter: blur(10px);
-    }
+.custom-error-message.removing {
+    opacity: 0;
+    filter: blur(8px);
 }
 
 .error-content {
     display: flex;
     align-items: center;
     gap: 8px;
-    transform: translateX(-10px);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.1s;
-}
-
-.custom-error-message.active .error-content {
-    transform: translateX(0);
-    opacity: 1;
-}
-
-.custom-error-message.removing .error-content {
-    transform: translateX(-10px);
-    opacity: 0;
-    transition-delay: 0s;
 }
 
 .error-content .material-icons-round {
     font-size: 18px;
     color: var(--danger-color);
-    transform: scale(0);
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s;
-}
-
-.custom-error-message.active .material-icons-round {
-    transform: scale(1);
-}
-
-.custom-error-message.removing .material-icons-round {
-    transform: scale(0);
-    transition-delay: 0s;
 }
 
 .error-text {
@@ -2571,43 +2604,4 @@ body.scroll-locked {
 /* Make input section relative for error positioning */
 .wallet-input-section {
     position: relative;
-}
-
-/* Add smooth exit animation */
-.custom-error-message.removing {
-    animation: errorHide 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-}
-
-.token-values {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-}
-
-.token-usd {
-    font-size: 11px;
-    font-family: 'Roboto Mono', monospace;
-    background: rgba(0, 200, 83, 0.1);
-    border: 1px solid rgba(0, 200, 83, 0.2);
-    color: var(--success-color);
-    padding: 2px 6px;
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(0, 200, 83, 0.1),
-                0 0 2px rgba(0, 200, 83, 0.2);
-    transition: all 0.2s ease;
-}
-
-.token-holding:hover .token-usd {
-    background: rgba(0, 200, 83, 0.15);
-    border-color: rgba(0, 200, 83, 0.3);
-    box-shadow: 0 0 15px rgba(0, 200, 83, 0.15),
-                0 0 5px rgba(0, 200, 83, 0.3);
-}
-
-.token-amount {
-    font-family: 'Roboto Mono', monospace;
-    color: var(--text-primary);
-    font-weight: 500;
-    font-size: 14px;
 }
