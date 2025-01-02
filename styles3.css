@@ -2605,3 +2605,143 @@ body.scroll-locked {
 .wallet-input-section {
     position: relative;
 }
+
+/* Token Holdings Styling Updates */
+.holdings-list {
+    position: relative;
+    z-index: 1;
+    padding: 8px 0;
+    margin: -1px;
+}
+
+.token-holding {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: rgba(10, 10, 15, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    min-height: 42px;
+    margin-bottom: 6px;
+    position: relative;
+}
+
+.token-holding:hover {
+    border-color: rgba(41, 98, 255, 0.3);
+    background: rgba(41, 98, 255, 0.05);
+    transform: translateY(-1px);
+}
+
+/* Update collapsed state and blur */
+.wallet-holdings.collapsed {
+    max-height: 120px;
+    overflow: hidden;
+    position: relative;
+    isolation: isolate; /* Create new stacking context */
+}
+
+.wallet-holdings.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -16px;
+    right: -16px;
+    height: 80px; /* Increased height for better coverage */
+    background: linear-gradient(
+        to bottom,
+        rgba(10, 10, 15, 0) 0%,
+        rgba(10, 10, 15, 0.9) 40%,
+        rgba(10, 10, 15, 1) 100%
+    );
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: auto; /* Changed to auto */
+    cursor: default; /* Prevent cursor changes */
+    z-index: 10; /* Higher z-index */
+}
+
+/* Update expand button to stay above blur */
+.expand-holdings {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 11; /* Higher than blur */
+    cursor: pointer;
+}
+
+.token-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 80px;
+    font-size: 13px;
+}
+
+.token-values {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    min-width: 80px;
+}
+
+.token-amount {
+    font-family: 'Roboto Mono', monospace;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.token-usd {
+    font-size: 10px;
+    font-family: 'Roboto Mono', monospace;
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    color: var(--success-color);
+    padding: 1px 4px;
+    border-radius: 4px;
+    line-height: 1.2;
+    min-height: 18px;
+}
+
+/* Update holdings container to prevent cutoff */
+.wallet-holdings {
+    position: relative;
+    transition: max-height 0.3s ease;
+    overflow: visible;  /* Changed from hidden to visible */
+    padding: 1px;  /* Add 1px padding to prevent border cutoff */
+}
+
+.holdings-list {
+    padding: 8px 0;  /* Add vertical padding */
+    margin: -1px;  /* Compensate for parent padding */
+}
+
+/* Update collapsed state */
+.wallet-holdings.collapsed {
+    max-height: 120px;
+    overflow: hidden;  /* Only hide overflow when collapsed */
+}
+
+.wallet-holdings.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -16px;
+    right: -16px;
+    height: 60px;
+    background: linear-gradient(
+        to bottom,
+        rgba(10, 10, 15, 0) 0%,
+        rgba(10, 10, 15, 0.8) 40%,
+        rgba(10, 10, 15, 0.95) 100%
+    );
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: none;
+    z-index: 1;
+}
