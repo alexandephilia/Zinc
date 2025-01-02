@@ -98,9 +98,6 @@ window.showPairChart = function(pair) {
             style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: 0;"
         ></iframe>
     `;
-
-    // Initialize touch handlers after chart is shown
-    setTimeout(initChartTouchHandlers, 100);
 }
 
 // Helper function to copy to clipboard
@@ -252,24 +249,4 @@ window.hideCalculator = function() {
     if (window.calculatorInterval) {
         clearInterval(window.calculatorInterval);
     }
-}
-
-// Add touch event handlers for chart interaction
-function initChartTouchHandlers() {
-    const chartContent = document.querySelector('.chart-content');
-    if (!chartContent) return;
-
-    chartContent.addEventListener('touchstart', () => {
-        document.body.classList.add('chart-interaction');
-    }, { passive: true });
-
-    // Listen for touch end on the entire document
-    document.addEventListener('touchend', () => {
-        document.body.classList.remove('chart-interaction');
-    }, { passive: true });
-
-    // Also remove class when touch moves outside chart
-    chartContent.addEventListener('touchcancel', () => {
-        document.body.classList.remove('chart-interaction');
-    }, { passive: true });
 }
