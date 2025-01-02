@@ -93,7 +93,7 @@ class WalletTracker {
         if (!address) return;
 
         if (this.trackedWallets.has(address)) {
-            this.showCustomError('This wallet is already existed!', 'warning');
+            this.showCustomError('Whoa there, This wallet is already fucking existed!', 'warning');
             return;
         }
 
@@ -281,27 +281,21 @@ class WalletTracker {
                 // Save the original content
                 const originalContent = addressElement.innerHTML;
                 
-                // Replace with success message while maintaining exact layout
+                // Replace with success message using new unique classes
                 addressElement.innerHTML = `
-                    <div class="copy-success-content">
-                        <div class="token-info">
-                            <span class="material-icons-round">check_circle</span>
-                            <span>Address copied!</span>
-                        </div>
-                        <div class="token-values">
-                            <span class="token-amount">&nbsp;</span>
-                            <span class="token-usd">&nbsp;</span>
-                        </div>
+                    <div class="wallet-copy-success-content">
+                        <span class="material-icons-round">check_circle</span>
+                        <span class="wallet-copy-success-text">Address copied!</span>
                     </div>
                 `;
                 
-                // Add the success class for animation
-                addressElement.classList.add('copy-success');
+                // Add the success class
+                addressElement.classList.add('wallet-copy-success');
                 
                 // Restore original content after animation
                 setTimeout(() => {
                     addressElement.innerHTML = originalContent;
-                    addressElement.classList.remove('copy-success');
+                    addressElement.classList.remove('wallet-copy-success');
                 }, 1000);
             } catch (err) {
                 console.error('Failed to copy address:', err);
