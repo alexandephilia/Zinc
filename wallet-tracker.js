@@ -93,7 +93,7 @@ class WalletTracker {
         if (!address) return;
 
         if (this.trackedWallets.has(address)) {
-            this.showCustomError('Déjà fucking vu! This wallet\'s already in the system!', 'warning');
+            this.showCustomError('Déjà fucking vu! This wallet\'s already in the list!', 'warning');
             return;
         }
 
