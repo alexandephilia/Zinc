@@ -93,15 +93,15 @@ class WalletTracker {
         if (!address) return;
 
         if (this.trackedWallets.has(address)) {
-            this.showCustomError('Whoa there, This wallet is already fucking existed!', 'warning');
+            this.showCustomError('Déjà fucking vu! This wallet\'s already in the system!', 'warning');
             return;
         }
 
         try {
             // Validate the address format (basic check)
             if (address.length !== 44) {
-                this.showCustomError('Invalid fucking address! Enter a valid 44-character Solana address.', 'error');
-                return;
+                this.showCustomError('For fuck\'s sake, did you just mash random keys? Enter a 44 character Solana address!', 'error');
+                    return;
             }
 
             // Clear no wallets message if it exists
