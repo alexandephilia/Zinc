@@ -93,14 +93,14 @@ class WalletTracker {
         if (!address) return;
 
         if (this.trackedWallets.has(address)) {
-            alert('This wallet is already being tracked');
+            this.showCustomError('This wallet is already existed!', 'warning');
             return;
         }
 
         try {
             // Validate the address format (basic check)
             if (address.length !== 44) {
-                this.showCustomError('Invalid fucking address! Enter a valid 44-character Solana address.');
+                this.showCustomError('Invalid fucking address! Enter a valid 44-character Solana address.', 'error');
                 return;
             }
 
@@ -252,6 +252,7 @@ class WalletTracker {
                 </button>
             </div>
             <div class="wallet-address" title="Click to copy address">${this.formatAddress(address)}</div>
+            <div class="wallet-separator"></div>
             <div class="wallet-holdings collapsed" id="holdings-${address}">
                 <div class="loading">Loading holdings...</div>
                 <button class="expand-holdings">
@@ -683,12 +684,12 @@ class WalletTracker {
         });
     }
 
-    showCustomError(message) {
+    showCustomError(message, type = 'error') {
         const errorDiv = document.createElement('div');
-        errorDiv.className = 'custom-error-message';
+        errorDiv.className = `custom-error-message ${type}`;
         errorDiv.innerHTML = `
             <div class="error-content">
-                <span class="material-icons-round">error</span>
+                <span class="material-icons-round">${type === 'error' ? 'error' : 'warning'}</span>
                 <span class="error-text">${message}</span>
             </div>
         `;
