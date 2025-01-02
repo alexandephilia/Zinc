@@ -6,8 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
             integratedTargetId: "integrated-terminal",
             endpoint: "https://mainnet.helius-rpc.com/?api-key=28ed041d-fd1f-47f3-8217-f87e8c1126a7",
             platformFeeAndAccounts: {
-                feeBps: 50,
+                feeBps: 10,
                 feeAccounts: {}
+            },
+            formProps: {
+                initialAmount: "10000000",
             },
             defaultExplorer: "Solscan",
             containerStyles: {
