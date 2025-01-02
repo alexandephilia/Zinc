@@ -1512,11 +1512,10 @@ body.scroll-locked {
     justify-content: center;
     gap: 8px;
 }
-
 .watchlist-popup-btn.cancel {
-    background: var(--tertiary-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
+    background: rgba(255, 61, 0, 0.1);
+    border: 1px solid rgba(255, 61, 0, 0.2);
+    color: var(--danger-color);
 }
 
 .watchlist-popup-btn.add {
@@ -1537,6 +1536,7 @@ body.scroll-locked {
     background: rgba(255, 61, 0, 0.1);
     border-color: rgba(255, 61, 0, 0.2);
     color: var(--danger-color);
+    box-shadow: 0 4px 12px rgba(255, 61, 0, 0.1);
 }
 
 .watchlist-popup-btn.add:hover {
