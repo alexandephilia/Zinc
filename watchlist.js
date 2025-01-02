@@ -439,8 +439,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial watchlist update
     window.updateWatchlistData();
     
-    // Set up watchlist update interval (every 1 second)
-    const watchlistInterval = setInterval(window.updateWatchlistData, 1000);
+    // Set up watchlist update interval (every 500ms)
+    const watchlistInterval = setInterval(window.updateWatchlistData, 500);
     
     // Clean up on page unload
     window.addEventListener('beforeunload', () => {

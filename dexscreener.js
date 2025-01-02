@@ -297,8 +297,8 @@ window.initializeMarketCards = function() {
     // Initial trending update
     window.updateTrendingData();
     
-    // Set up trending update interval (every 1 second)
-    const trendingInterval = setInterval(window.updateTrendingData, 1000);
+    // Set up trending update interval (every 500ms)
+    const trendingInterval = setInterval(window.updateTrendingData, 500);
     
     // Clean up on page unload
     window.addEventListener('beforeunload', () => {
