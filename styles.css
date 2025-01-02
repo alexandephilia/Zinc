@@ -29,7 +29,7 @@
     --spacing: 12px;
 
     /* Mobile Input Overrides */
-    --mobile-input-font-size: 16px;  /* Prevents zoom on iOS */
+    --mobile-input-font-size: 11px;  /* Prevents zoom on iOS */
 }
 
 body {

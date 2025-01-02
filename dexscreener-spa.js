@@ -138,6 +138,38 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
     let currentPrice = 0;
     let currentPair = null;
 
+    // Create calculator toggle button for mobile if it doesn't exist
+    if (!document.querySelector('.calculator-toggle')) {
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'calculator-toggle';
+        toggleBtn.innerHTML = `
+            <span class="material-icons-round">calculate</span>
+          
+        `;
+        document.body.appendChild(toggleBtn);
+
+        // Create backdrop if it doesn't exist
+        if (!document.querySelector('.calculator-backdrop')) {
+            const backdrop = document.createElement('div');
+            backdrop.className = 'calculator-backdrop';
+            document.body.appendChild(backdrop);
+
+            // Close calculator when clicking backdrop
+            backdrop.addEventListener('click', () => {
+                calculator.classList.remove('expanded');
+                backdrop.classList.remove('visible');
+                toggleBtn.classList.remove('hidden');
+            });
+        }
+
+        // Toggle calculator on button click
+        toggleBtn.addEventListener('click', () => {
+            calculator.classList.add('expanded');
+            document.querySelector('.calculator-backdrop').classList.add('visible');
+            toggleBtn.classList.add('hidden');
+        });
+    }
+
     // Show calculator
     calculator.style.display = 'block';
 
@@ -203,7 +235,17 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
 // Function to hide calculator
 window.hideCalculator = function() {
     const calculator = document.querySelector('.pair-calculator');
+    const calculatorToggle = document.querySelector('.calculator-toggle');
+    const backdrop = document.querySelector('.calculator-backdrop');
+    
     calculator.style.display = 'none';
+    if (calculatorToggle) {
+        calculatorToggle.remove();
+    }
+    if (backdrop) {
+        backdrop.remove();
+    }
+    
     if (window.calculatorInterval) {
         clearInterval(window.calculatorInterval);
     }

@@ -482,7 +482,7 @@
         flex: 1 1 auto;
         min-width: 0;
         max-width: none;
-        margin: 0 8px;
+        margin: 0 0px;
         height: 32px;
         background: var(--tertiary-bg);
         border-radius: 6px;
