@@ -470,12 +470,19 @@ class WalletTracker {
             // First, show SOL balance immediately
             const solToken = sortedHoldings.find(t => t.isNativeSol);
             if (solToken) {
+                const solMetadata = await this.getTokenMetadata(solToken.mint);
+                const solUsdValue = solMetadata?.priceUsd ? 
+                    (solToken.tokenAmount.uiAmount * parseFloat(solMetadata.priceUsd)).toFixed(2) : null;
+                
                 const holdingHTML = `
                     <div class="token-holding" data-address="So11111111111111111111111111111111111111112">
                         <div class="token-info">
                             <span title="Solana">SOL</span>
                         </div>
-                        <span class="token-amount">${this.formatAmount(solToken.tokenAmount.uiAmount)}</span>
+                        <div class="token-values">
+                            <span class="token-amount">${this.formatAmount(solToken.tokenAmount.uiAmount)}</span>
+                            ${solUsdValue ? `<span class="token-usd">$${this.formatUsdValue(solUsdValue)}</span>` : ''}
+                        </div>
                     </div>
                 `;
                 const tempDiv = document.createElement('div');
@@ -497,12 +504,18 @@ class WalletTracker {
                 const metadataResult = tokenMetadataResults[index];
                 if (metadataResult.status === 'fulfilled' && metadataResult.value) {
                     const tokenInfo = metadataResult.value;
+                    const usdValue = tokenInfo.priceUsd ? 
+                        (token.tokenAmount.uiAmount * parseFloat(tokenInfo.priceUsd)).toFixed(2) : null;
+                    
                     const holdingHTML = `
                         <div class="token-holding" data-address="${token.mint}">
                             <div class="token-info">
                                 <span title="${tokenInfo.name}">${tokenInfo.symbol}</span>
                             </div>
-                            <span class="token-amount">${this.formatAmount(token.tokenAmount.uiAmount)}</span>
+                            <div class="token-values">
+                                <span class="token-amount">${this.formatAmount(token.tokenAmount.uiAmount)}</span>
+                                ${usdValue ? `<span class="token-usd">$${this.formatUsdValue(usdValue)}</span>` : ''}
+                            </div>
                         </div>
                     `;
                     const tempDiv = document.createElement('div');
@@ -538,24 +551,40 @@ class WalletTracker {
             // Use DexScreener's API to get token information
             const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${mint}`);
             const data = await response.json();
+            console.log('DexScreener response:', data); // Add logging
             
             let tokenInfo = null;
             
             // If we have valid token data
             if (data.pairs && data.pairs.length > 0) {
-                // Find the first Solana pair
-                const solanaPair = data.pairs.find(pair => pair.chainId === 'solana');
+                // Find the first Solana pair with good liquidity
+                const solanaPair = data.pairs
+                    .filter(pair => pair.chainId === 'solana')
+                    .sort((a, b) => parseFloat(b.liquidity?.usd || 0) - parseFloat(a.liquidity?.usd || 0))[0];
+
                 if (solanaPair) {
-                    tokenInfo = {
-                        symbol: solanaPair.baseToken.symbol,
-                        name: solanaPair.baseToken.name,
-                        address: mint
-                    };
+                    // Special case for SOL
+                    if (mint === 'So11111111111111111111111111111111111111112') {
+                        tokenInfo = {
+                            symbol: 'SOL',
+                            name: 'Solana',
+                            address: mint,
+                            priceUsd: solanaPair.priceUsd
+                        };
+                    } else {
+                        tokenInfo = {
+                            symbol: solanaPair.baseToken.symbol,
+                            name: solanaPair.baseToken.name,
+                            address: mint,
+                            priceUsd: solanaPair.priceUsd
+                        };
+                    }
                 }
             }
             
             // Cache the result (even if null)
             this.tokenMetadataCache.set(mint, tokenInfo);
+            console.log('Token info:', tokenInfo); // Add logging
             
             return tokenInfo;
         } catch (error) {
@@ -570,6 +599,14 @@ class WalletTracker {
             minimumFractionDigits: 0,
             maximumFractionDigits: 9
         });
+    }
+
+    formatUsdValue(value) {
+        const num = parseFloat(value);
+        if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+        if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+        if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+        return num.toFixed(2);
     }
 
     addCopyToClipboardHandler(element) {
