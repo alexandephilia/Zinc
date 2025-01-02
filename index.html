@@ -126,12 +126,35 @@
     <!-- Jupiter Terminal Bottom Sheet -->
     <div class="jupiter-bottom-sheet">
         <div class="bottom-sheet-header">
-            <span>Jupiter Swap</span>
+            <span>Swap</span>
             <button class="close-bottom-sheet">
                 <span class="material-icons-round">close</span>
             </button>
         </div>
         <div id="integrated-terminal"></div>
+    </div>
+
+    <!-- Wallet Tracker Bottom Sheet -->
+    <div class="wallet-tracker-sheet">
+        <div class="bottom-sheet-header">
+            <span>Wallet Tracker</span>
+            <button class="close-wallet-sheet">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="wallet-tracker-content">
+            <div class="wallet-input-section">
+                <div class="input-group">
+                    <input type="text" id="walletAddressInput" placeholder="Enter Solana wallet address">
+                    <button class="add-wallet-btn">
+                        <span class="material-icons-round">add</span>
+                    </button>
+                </div>
+            </div>
+            <div class="tracked-wallets">
+                <!-- Tracked wallets will be added here dynamically -->
+            </div>
+        </div>
     </div>
 
     <div class="app-container">
@@ -263,6 +286,22 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Wallet Tracker Section -->
+                    <div class="sidebar-section">
+                        <div class="wallet-tracker">
+                            <div class="quick-trade-title">
+                                <span class="material-icons-round" style="margin-right: 4px;">account_balance_wallet</span>
+                                Wallet Tracker
+                            </div>
+                            <div class="wallet-tracker-content">
+                                <button class="trade-btn wallet-btn">
+                                    <span class="material-icons-round" style="margin-right: 4px;">assessment</span>
+                                    Portfolio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </aside>
 
@@ -372,6 +411,10 @@
         <footer class="footer">
             &copy; 2024 Zinc. All rights reserved.
         </footer>
+        
+        <!-- Web3.js -->
+        <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+        <script src="https://unpkg.com/@solana/spl-token@latest/lib/index.iife.min.js"></script>
     </div>
     <script src="watchlist.js"></script>
     <script src="dexscreener-spa.js"></script>
@@ -380,6 +423,7 @@
     <!-- Load Jupiter Terminal script -->
     <script src="https://terminal.jup.ag/main-v3.js" defer></script>
     <script src="jupiter-swap.js" defer></script>
+    <script src="wallet-tracker.js"></script>
 
     <!-- Floating Jupiter Button for Mobile -->
     <button class="floating-jupiter-btn">

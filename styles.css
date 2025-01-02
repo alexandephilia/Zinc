@@ -1558,7 +1558,7 @@ body {
     width: 400px;
     height: 0%;
     min-height: 525px;
-    background: linear-gradient( 45deg, rgba(18, 18, 26, 0.95), rgba(41, 98, 255, 0.048) );
+    background: linear-gradient(45deg, rgba(18, 18, 26, 0.95), rgba(41, 98, 255, 0.048));
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 16px 16px 0 0;
@@ -1835,8 +1835,11 @@ body {
 
 .py-2.px-3.rounded-2xl.flex.items-center:hover {
     background: linear-gradient(45deg, var(--tertiary-bg), rgba(41, 98, 255, 0.1)) !important;
-    border-color: var(--accent-color) !important;
+    border: 1px solid rgba(41, 98, 255, 0.4) !important;
     transform: translateY(-1px) !important;
+    box-shadow: 0 0 15px rgba(41, 98, 255, 0.3),
+                0 0 30px rgba(41, 98, 255, 0.2),
+                0 0 45px rgba(41, 98, 255, 0.1) !important;
 }
 
 /* Back Button */
@@ -1886,7 +1889,7 @@ body {
 
 /* Token List Hover States */
 .py-2.px-3.rounded-2xl.flex.items-center:hover {
-    background: var(--accent-color) !important;
+    background: #2962ff2e !important;
     color: white !important;
 }
 
@@ -2069,9 +2072,6 @@ body {
         display: flex;  /* Show on mobile */
     }
 
-    .sidebar-section .quick-trade {
-        display: none;  /* Hide Quick Trade in sidebar on mobile */
-    }
 
 }
 
@@ -2106,5 +2106,42 @@ body {
     .search-bar input,
     #jupiter-terminal-instance input {
         font-size: var(--mobile-input-font-size) !important;
+    }
+}
+
+/* Update close button styles for both sheets */
+.close-bottom-sheet,
+.close-wallet-sheet {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10000; /* Ensure buttons are always clickable */
+}
+
+.close-bottom-sheet:hover,
+.close-wallet-sheet:hover {
+    background: rgba(255, 61, 0, 0.1);
+    color: var(--danger-color);
+}
+
+/* Mobile styles for close buttons */
+@media (max-width: 768px) {
+    .close-bottom-sheet,
+    .close-wallet-sheet {
+        padding: 10px;
+        margin: 4px;
+        border-radius: 8px;
+    }
+
+    .close-bottom-sheet .material-icons-round,
+    .close-wallet-sheet .material-icons-round {
+        font-size: 20px;
     }
 }

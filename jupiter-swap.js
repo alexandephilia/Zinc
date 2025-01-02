@@ -93,7 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Close button handler
-    closeButton.addEventListener('click', () => {
+    closeButton.addEventListener('click', (e) => {
+        e.stopPropagation();  // Prevent event bubbling
         bottomSheet.classList.remove('active');
     });
 
