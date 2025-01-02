@@ -2170,35 +2170,6 @@ body.scroll-locked {
     padding: 0 0 16px 0; /* Add bottom padding for fade out */
 }
 
-/* Update expand button to account for new positioning */
-.expand-holdings {
-    position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-    background: rgba(41, 98, 255, 0.15);
-    border: 1px solid rgba(41, 98, 255, 0.3);
-    color: var(--accent-color);
-    padding: 4px 16px;
-    border-radius: 12px;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    white-space: nowrap;
-}
-
-.expand-holdings:hover {
-    background: rgba(41, 98, 255, 0.2);
-    border-color: rgba(41, 98, 255, 0.4);
-    transform: translateX(-50%) translateY(-1px);
-    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.15);
-}
 
 .expand-holdings .material-icons-round {
     font-size: 16px;
@@ -2725,15 +2696,7 @@ body.scroll-locked {
     z-index: 10; /* Higher z-index */
 }
 
-/* Update expand button to stay above blur */
-.expand-holdings {
-    position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 11; /* Higher than blur */
-    cursor: pointer;
-}
+
 
 .token-info {
     display: flex;
@@ -2807,4 +2770,54 @@ body.scroll-locked {
     -webkit-backdrop-filter: blur(4px);
     pointer-events: none;
     z-index: 1;
+}
+
+/* Update expand button to float */
+.expand-holdings {
+    position: sticky;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 11;
+    background: rgba(41, 98, 255, 0.15);
+    border: 1px solid rgba(41, 98, 255, 0.3);
+    color: var(--accent-color);
+    padding: 4px 16px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    white-space: nowrap;
+    margin: 0 auto;
+    width: fit-content;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.expand-holdings:hover {
+    background: rgba(41, 98, 255, 0.2);
+    border-color: rgba(41, 98, 255, 0.4);
+    transform: translateX(-50%) translateY(-1px);
+    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.15);
+}
+
+/* Update collapsed state for better visibility */
+.wallet-holdings.collapsed {
+    max-height: 120px;
+    overflow: hidden;
+    padding-bottom: 40px; /* Add space for floating button */
+}
+
+
+/* Add container for better button positioning */
+.holdings-list {
+    position: relative;
+    z-index: 1;
+    padding: 8px 0;
+    margin: -1px;
+    padding-bottom: 40px; /* Space for floating button */
 }
