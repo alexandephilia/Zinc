@@ -131,7 +131,7 @@ function formatNumber(num) {
     return num.toFixed(2);
 }
 
-// Calculator functionality
+// Function to show calculator for pair
 window.showCalculatorForPair = function(pairAddress, symbol) {
     const calculator = document.querySelector('.pair-calculator');
     const tokenSymbol = document.querySelector('.calc-symbol');
@@ -144,7 +144,6 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
         toggleBtn.className = 'calculator-toggle';
         toggleBtn.innerHTML = `
             <span class="material-icons-round">calculate</span>
-          
         `;
         document.body.appendChild(toggleBtn);
 
@@ -178,14 +177,38 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
         tokenSymbol.textContent = symbol;
     }
 
-    // Function to update price
+    // Function to update price and recalculate values
     async function updatePrice() {
         try {
             const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
             const data = await response.json();
             if (data.pair) {
-                currentPrice = parseFloat(data.pair.priceUsd);
-                currentPair = data.pair;
+                const newPrice = parseFloat(data.pair.priceUsd);
+                // Only update if price has changed or initial load
+                if (newPrice !== currentPrice || currentPrice === 0) {
+                    currentPrice = newPrice;
+                    currentPair = data.pair;
+                    
+                    // Update calculations if inputs have values
+                    const tokenInput = document.getElementById('tokenAmount');
+                    const usdInput = document.getElementById('usdAmount');
+                    
+                    // Force update both inputs on price change
+                    if (tokenInput.value) {
+                        const tokenAmount = parseFloat(tokenInput.value);
+                        const usdValue = (tokenAmount * currentPrice).toFixed(2);
+                        usdInput.value = usdValue;
+                    } else if (usdInput.value) {
+                        const usdAmount = parseFloat(usdInput.value);
+                        const tokenValue = (usdAmount / currentPrice).toFixed(6);
+                        tokenInput.value = tokenValue;
+                    }
+                }
+            } else {
+                console.warn('No pair data received from DexScreener');
             }
         } catch (error) {
             console.error('Error fetching price:', error);
@@ -194,12 +217,6 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
 
     // Initial price update
     updatePrice();
-
-    // Start price updates
-    if (window.calculatorInterval) {
-        clearInterval(window.calculatorInterval);
-    }
-    window.calculatorInterval = setInterval(updatePrice, 10000);
 
     // Set up input handlers if not already set
     const tokenInput = document.getElementById('tokenAmount');
@@ -230,6 +247,14 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
         });
         usdInput.hasEventListener = true;
     }
+
+    // Clear any existing interval
+    if (window.calculatorInterval) {
+        clearInterval(window.calculatorInterval);
+    }
+    
+    // Start price updates with a shorter interval (500ms) for more responsive updates
+    window.calculatorInterval = setInterval(updatePrice, 500);
 }
 
 // Function to hide calculator
