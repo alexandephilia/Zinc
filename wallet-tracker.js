@@ -3,6 +3,7 @@ class WalletTracker {
         this.walletSheet = document.querySelector('.wallet-tracker-sheet');
         this.closeBtn = document.querySelector('.close-wallet-sheet');
         this.walletBtn = document.querySelector('.wallet-btn');
+        this.floatingWalletBtn = document.querySelector('.floating-wallet-btn');
         this.addWalletBtn = document.querySelector('.add-wallet-btn');
         this.walletInput = document.querySelector('#walletAddressInput');
         this.trackedWalletsContainer = document.querySelector('.tracked-wallets');
@@ -60,8 +61,16 @@ class WalletTracker {
     }
 
     initializeEventListeners() {
-        // Toggle wallet sheet
+        // Toggle wallet sheet from sidebar button
         this.walletBtn.addEventListener('click', () => this.toggleWalletSheet());
+        
+        // Toggle wallet sheet from floating button (mobile)
+        if (this.floatingWalletBtn) {
+            this.floatingWalletBtn.addEventListener('click', () => {
+                this.toggleWalletSheet();
+                this.floatingWalletBtn.classList.add('hidden');
+            });
+        }
         
         // Prevent closing sidebar when clicking inside wallet sheet
         this.walletSheet.addEventListener('click', (e) => {
@@ -71,12 +80,27 @@ class WalletTracker {
         this.closeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             this.closeWalletSheet();
+            if (this.floatingWalletBtn) {
+                this.floatingWalletBtn.classList.remove('hidden');
+            }
         });
 
         // Add wallet
         this.addWalletBtn.addEventListener('click', () => this.addWallet());
         this.walletInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addWallet();
+        });
+
+        // Handle clicks outside the wallet sheet to close it
+        document.addEventListener('click', (e) => {
+            if (this.walletSheet.classList.contains('active') &&
+                !this.walletSheet.contains(e.target) &&
+                !this.floatingWalletBtn?.contains(e.target)) {
+                this.closeWalletSheet();
+                if (this.floatingWalletBtn) {
+                    this.floatingWalletBtn.classList.remove('hidden');
+                }
+            }
         });
     }
 

@@ -2825,7 +2825,7 @@ body.scroll-locked {
 .floating-wallet-btn {
     position: fixed;
     right: 0;
-    top: 33%;
+    top: 36%;
     transform: translateY(-50%);
     background: linear-gradient(
         135deg,
@@ -2887,7 +2887,7 @@ body.scroll-locked {
 }
 
 .floating-wallet-btn .material-icons-round {
-    font-size: 20px;
+    font-size: 18px;
     color: var(--text-primary);
     transition: all 0.3s ease;
     z-index: 2;
