@@ -2821,3 +2821,141 @@ body.scroll-locked {
     margin: -1px;
     padding-bottom: 40px; /* Space for floating button */
 }
+/* Floating Wallet Tracker Button for Mobile */
+.floating-wallet-btn {
+    position: fixed;
+    right: 0;
+    top: 33%;
+    transform: translateY(-50%);
+    background: linear-gradient(
+        135deg,
+        rgba(41, 98, 255, 0.2),
+        rgba(41, 98, 255, 0.35),
+        rgba(41, 98, 255, 0.2)
+    );
+    border: 1px solid rgba(18, 233, 204, 0.18);
+    border-right: none;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 6px;
+    border-radius: 10px 0 0 10px;
+    cursor: pointer;
+    z-index: 999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    box-shadow: -2px 0 10px rgba(18, 233, 204, 0.1);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: wallet-button-glow 3s ease infinite;
+    will-change: transform, background;
+}
+
+.floating-wallet-btn::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(
+        135deg,
+        transparent,
+        rgba(18, 233, 204, 0.1),
+        transparent
+    );
+    background-size: 200% 200%;
+    border-radius: inherit;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: wallet-shimmer 2s ease infinite;
+    pointer-events: none;
+}
+
+.floating-wallet-btn:hover {
+    background: rgba(18, 75, 233, 0.151);
+    padding-right: 14px;
+    box-shadow: -4px 0 15px rgba(18, 233, 204, 0.15);
+    transform: translateY(-50%) translateX(-2px);
+}
+
+.floating-wallet-btn:hover::before {
+    opacity: 1;
+}
+
+.floating-wallet-btn:active {
+    transform: translateY(-50%) translateX(1px);
+    box-shadow: -2px 0 8px rgba(18, 233, 204, 0.1);
+}
+
+.floating-wallet-btn .material-icons-round {
+    font-size: 20px;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    z-index: 2;
+    position: relative;
+    animation: wallet-icon-glow 2s ease-in-out infinite;
+}
+
+.floating-wallet-btn:hover .material-icons-round {
+    transform: scale(1.1);
+    animation: wallet-icon-glow-hover 1.5s ease-in-out infinite;
+}
+
+.floating-wallet-btn.hidden {
+    transform: translate(100%, -50%);
+    opacity: 0;
+    visibility: hidden;
+}
+
+@keyframes wallet-button-glow {
+    0%, 100% {
+        background: linear-gradient(
+            135deg,
+            rgba(18, 111, 233, 0.164),
+            rgba(18, 93, 233, 0.103)
+        );
+    }
+    50% {
+        background: linear-gradient(
+            135deg,
+            rgba(18, 111, 233, 0.2),
+            rgba(18, 93, 233, 0.15)
+        );
+    }
+}
+
+@keyframes wallet-shimmer {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes wallet-icon-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 2px rgba(18, 233, 204, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 0 8px rgba(18, 233, 204, 0.6));
+    }
+}
+
+@keyframes wallet-icon-glow-hover {
+    0%, 100% {
+        filter: drop-shadow(0 0 4px rgba(18, 233, 204, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 0 12px rgba(18, 233, 204, 0.8));
+    }
+}
+
+/* Show floating buttons only on mobile */
+@media (max-width: 768px) {
+    .floating-wallet-btn {
+        display: flex;
+    }
+}
