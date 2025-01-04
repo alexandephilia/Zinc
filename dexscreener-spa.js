@@ -198,13 +198,25 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
                     
                     // Force update both inputs on price change
                     if (tokenInput.value) {
-                        const tokenAmount = parseFloat(tokenInput.value);
-                        const usdValue = (tokenAmount * currentPrice).toFixed(2);
-                        usdInput.value = usdValue;
+                        const rawValue = tokenInput.value.replace(/,/g, '');
+                        const tokenAmount = parseFloat(rawValue);
+                        if (!isNaN(tokenAmount)) {
+                            const usdValue = (tokenAmount * currentPrice).toFixed(2);
+                            usdInput.value = Number(usdValue).toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
                     } else if (usdInput.value) {
-                        const usdAmount = parseFloat(usdInput.value);
-                        const tokenValue = (usdAmount / currentPrice).toFixed(6);
-                        tokenInput.value = tokenValue;
+                        const rawValue = usdInput.value.replace(/,/g, '');
+                        const usdAmount = parseFloat(rawValue);
+                        if (!isNaN(usdAmount)) {
+                            const tokenValue = (usdAmount / currentPrice).toFixed(6);
+                            tokenInput.value = Number(tokenValue).toLocaleString('en-US', {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 9
+                            });
+                        }
                     }
                 }
             } else {
@@ -228,9 +240,20 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
                 usdInput.value = '';
                 return;
             }
-            const tokenAmount = parseFloat(tokenInput.value);
-            const usdValue = (tokenAmount * currentPrice).toFixed(2);
-            usdInput.value = usdValue;
+            const rawValue = tokenInput.value.replace(/,/g, '');
+            const tokenAmount = parseFloat(rawValue);
+            if (!isNaN(tokenAmount)) {
+                const usdValue = (tokenAmount * currentPrice).toFixed(2);
+                usdInput.value = Number(usdValue).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                // Format the token input with commas
+                tokenInput.value = tokenAmount.toLocaleString('en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 9
+                });
+            }
         });
         tokenInput.hasEventListener = true;
     }
@@ -241,9 +264,20 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
                 tokenInput.value = '';
                 return;
             }
-            const usdAmount = parseFloat(usdInput.value);
-            const tokenValue = (usdAmount / currentPrice).toFixed(6);
-            tokenInput.value = tokenValue;
+            const rawValue = usdInput.value.replace(/,/g, '');
+            const usdAmount = parseFloat(rawValue);
+            if (!isNaN(usdAmount)) {
+                const tokenValue = (usdAmount / currentPrice).toFixed(6);
+                tokenInput.value = Number(tokenValue).toLocaleString('en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 9
+                });
+                // Format the USD input with commas
+                usdInput.value = usdAmount.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
         });
         usdInput.hasEventListener = true;
     }
