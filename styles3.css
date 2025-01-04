@@ -2837,7 +2837,7 @@ body.scroll-locked {
     border-right: none;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    padding: 6px;
+    padding: 8px;
     border-radius: 10px 0 0 10px;
     cursor: pointer;
     z-index: 999;
@@ -2887,7 +2887,7 @@ body.scroll-locked {
 }
 
 .floating-wallet-btn .material-icons-round {
-    font-size: 18px;
+    font-size: 20px;
     color: var(--text-primary);
     transition: all 0.3s ease;
     z-index: 2;
