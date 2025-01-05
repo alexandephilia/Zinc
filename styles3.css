@@ -102,6 +102,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-family: 'Roboto Mono', monospace;
 }
 
 /* Dynamic Watchlist Items */
@@ -1039,6 +1040,7 @@
     width: 100%;
     letter-spacing: 0.3px;
     transition: all 0.2s ease;
+    font-family: 'Roboto Mono', monospace;
 }
 
 /* Unblurred state specific styles */
@@ -1716,6 +1718,7 @@ body.scroll-locked {
     align-items: center;
     justify-content: center;
     white-space: nowrap;
+    font-family: 'Roboto Mono', monospace;
 }
 
 .wallet-btn:hover {
