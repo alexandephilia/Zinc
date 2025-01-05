@@ -1228,7 +1228,7 @@ body {
 }
 
 .watchlist-price {
-    font-size: clamp(14px, 1.1vw, 14px);
+    font-size: clamp(13px, 1.1vw, 13px);
     font-weight: 700;
     margin: 4px 0;
     white-space: nowrap;
