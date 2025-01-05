@@ -95,6 +95,7 @@ class WalletTracker {
         document.addEventListener('click', (e) => {
             if (this.walletSheet.classList.contains('active') &&
                 !this.walletSheet.contains(e.target) &&
+                !this.walletBtn.contains(e.target) &&
                 !this.floatingWalletBtn?.contains(e.target)) {
                 this.closeWalletSheet();
                 if (this.floatingWalletBtn) {
