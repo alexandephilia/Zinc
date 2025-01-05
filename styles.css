@@ -1,15 +1,16 @@
 @font-face {
-    font-family: 'MartianMono-Bold';
-    src: url('fonts/MartianMono-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'MartianMono-Regular';
-    src: url('fonts/MartianMono-Regular.ttf') format('truetype');
+    font-family: 'MartianMono';
+    src: url('../fonts/MartianMono-Regular.ttf') format('truetype'),
+         url('../fonts/MartianMono-Bold.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* Override global font variables */
@@ -161,6 +162,7 @@ body {
     line-height: 1;
     display: flex;
     align-items: center;
+    font-family: 'MartianMono';
 }
 
 .sidebar-header .icon-btn {
@@ -396,10 +398,9 @@ body {
 }
 
 .market-price {
-    font-size: clamp(14px, 1.2vw, 14px);
+    font-size: clamp(14px, 1.2vw, 16px);
     font-weight: 700;
     line-height: 1;
-    font-family: 'Roboto Mono', monospace;
 }
 
 .market-stats {
@@ -535,10 +536,11 @@ body {
 
 .logo {
     font-weight: 700;
-    font-size: 18px;
+    font-size: 17px;
     color: white;
     letter-spacing: 0.5px;
     display: flex;
+    font-family: 'MartianMono';
     align-items: center;
 }
 
@@ -569,13 +571,14 @@ body {
 }
 
 .logo-version {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--accent-color);
     font-weight: 500;
     padding: 2px 6px;
     border-radius: 4px;
     background: rgba(41, 98, 255, 0.1);
     margin-left: 4px;
+    font-family: 'MartianMono';
 }
 
 .nav-items {
@@ -705,7 +708,8 @@ body {
 }
 
 .market-pair {
-    font-size: 16px;
+    font-family: 'MartianMono';
+    font-size: 14px;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
@@ -734,12 +738,13 @@ body {
 }
 
 .market-price {
-    font-size: clamp(14px, 1.1vw, 16px);
+    font-size: clamp(14px, 1.1vw, 14px);
     font-weight: 700;
     margin: 4px 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-family: 'MartianMono';
 }
 
 .market-stats {
@@ -1210,8 +1215,9 @@ body {
 }
 
 .watchlist-symbol {
+    font-family: 'MartianMono';
     font-weight: 600;
-    font-size: clamp(13px, 1vw, 15px);
+    font-size: clamp(12px, 1vw, 12px);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1228,7 +1234,8 @@ body {
 }
 
 .watchlist-price {
-    font-size: clamp(13px, 1.1vw, 13px);
+    font-family: 'MartianMono';
+    font-size: clamp(12px, 1.1vw, 12px);
     font-weight: 700;
     margin: 4px 0;
     white-space: nowrap;
@@ -1491,6 +1498,8 @@ body {
         var(--text-primary) 40%,
         var(--text-primary) 100%
     );
+    font-family: 'MartianMono' !important;
+    font-weight: bold;
     background-size: 200% auto;
     color: transparent;
     -webkit-background-clip: text;
