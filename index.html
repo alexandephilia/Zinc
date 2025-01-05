@@ -116,6 +116,7 @@
     <link href="styles.css" rel="stylesheet">
     <link rel="stylesheet" href="styles2.css">
     <link rel="stylesheet" href="styles3.css">
+    <link rel="stylesheet" href="style4.css">
 </head>
 <body>
     <!-- Loading Overlay -->
@@ -195,31 +196,23 @@
                 </button>
             </div>
             <div class="nav-actions">
-                <button class="icon-btn">
-                    <span class="material-icons-round">notifications</span>
-                </button>
-                <div class="profile-dropdown">
-                    <button class="icon-btn" id="profileBtn">
-                        <span class="material-icons-round">account_circle</span>
+                <div class="notification-dropdown">
+                    <button class="icon-btn" id="notificationBtn" style="padding-right: 10px;">
+                        <span class="material-icons-round">notifications</span>
+                        <span class="notification-badge">0</span>
                     </button>
-                    <div class="dropdown-menu" id="walletMenu">
-                        <div class="dropdown-header">
-                            <span class="material-icons-round">account_balance_wallet</span>
-                            Connect Wallet
+                    <div class="notification-menu">
+                        <div class="notification-header">
+                            <span>Whale Alerts</span>
+                            <button class="icon-btn clear-all">
+                                <span class="material-icons-round">clear_all</span>
+                            </button>
                         </div>
-                        <div class="dropdown-items">
-                            <button class="wallet-option">
-                                <img src="https://play-lh.googleusercontent.com/4E-ouY-jU11F0Y7g5J0cl_rCjxVPzFanY3KS-J_0V5tzQewpqI68rqUAPVCaluk61Cg" alt="MetaMask" />
-                                Solflare
-                            </button>
-                            <button class="wallet-option">
-                                <img src="https://187760183-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F-MVOiF6Zqit57q_hxJYp%2Ficon%2FU7kNZ4ygz4QW1rUwOuTT%2FWhite%20Ghost_docs_nu.svg?alt=media&token=447b91f6-db6d-4791-902d-35d75c19c3d1" alt="Phantom" />
-                                Phantom
-                            </button>
-                            <button class="wallet-option">
-                                <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" alt="WalletConnect" />
-                                WalletConnect
-                            </button>
+                        <div class="notification-items">
+                            <!-- Notifications will be dynamically added here -->
+                        </div>
+                        <div class="notification-footer">
+                            <button class="view-all-btn">View All Alerts</button>
                         </div>
                     </div>
                 </div>
@@ -420,6 +413,7 @@
     <script src="dexscreener-spa.js"></script>
     <script src="dexscreener.js"></script>
     <script src="script.js"></script>
+    <script src="whale-alerts.js"></script>
     <!-- Load Jupiter Terminal script -->
     <script src="https://terminal.jup.ag/main-v3.js" defer></script>
     <script src="jupiter-swap.js" defer></script>
