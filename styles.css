@@ -1,3 +1,12 @@
+@font-face {
+    font-family: 'MartianMono';
+    src: url('../fonts/MartianMono-Regular.ttf') format('truetype'),
+         url('../fonts/MartianMono-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -493,6 +502,7 @@ body {
     letter-spacing: 0.5px;
     display: flex;
     align-items: center;
+    font-family: 'MartianMono', monospace;
 }
 
 .logo-icon {
@@ -529,6 +539,7 @@ body {
     border-radius: 4px;
     background: rgba(41, 98, 255, 0.1);
     margin-left: 4px;
+    font-family: 'MartianMono', monospace;
 }
 
 .nav-items {
