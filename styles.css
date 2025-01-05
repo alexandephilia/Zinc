@@ -1,10 +1,47 @@
 @font-face {
-    font-family: 'MartianMono';
-    src: url('../fonts/MartianMono-Regular.ttf') format('truetype'),
-         url('../fonts/MartianMono-Bold.ttf') format('truetype');
+    font-family: 'MartianMono-Bold';
+    src: url('fonts/MartianMono-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MartianMono-Regular';
+    src: url('fonts/MartianMono-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
-    font-display: swap;
+}
+
+/* Override global font variables */
+:root {
+    --font-primary: 'MartianMono-Regular', monospace;
+    --font-bold: 'MartianMono-Bold', monospace;
+}
+
+/* Override global font */
+input, 
+select, 
+textarea, 
+button,
+body {
+    font-family: var(--font-primary);
+}
+
+/* Override monospace elements */
+.mono,
+.watchlist-price,
+.market-price,
+.calc-input,
+input[type="number"],
+.timeframe-btn {
+    font-family: var(--font-primary);
+}
+
+
+strong,
+b,
+.bold {
+    font-family: var(--font-bold);
 }
 
 * {
@@ -42,7 +79,7 @@
 }
 
 body {
-    font-family: 'Roboto Mono', monospace;
+    font-family: var(--font-primary);
     background: var(--primary-bg);
     color: var(--text-primary);
     min-height: 100vh;
@@ -359,9 +396,10 @@ body {
 }
 
 .market-price {
-    font-size: clamp(14px, 1.2vw, 16px);
+    font-size: clamp(14px, 1.2vw, 14px);
     font-weight: 700;
     line-height: 1;
+    font-family: 'Roboto Mono', monospace;
 }
 
 .market-stats {
@@ -502,7 +540,6 @@ body {
     letter-spacing: 0.5px;
     display: flex;
     align-items: center;
-    font-family: 'MartianMono', monospace;
 }
 
 .logo-icon {
@@ -539,7 +576,6 @@ body {
     border-radius: 4px;
     background: rgba(41, 98, 255, 0.1);
     margin-left: 4px;
-    font-family: 'MartianMono', monospace;
 }
 
 .nav-items {
@@ -1192,7 +1228,7 @@ body {
 }
 
 .watchlist-price {
-    font-size: clamp(14px, 1.1vw, 16px);
+    font-size: clamp(14px, 1.1vw, 14px);
     font-weight: 700;
     margin: 4px 0;
     white-space: nowrap;
@@ -1483,11 +1519,11 @@ body {
 
 @keyframes iconPulse {
     0%, 100% {
-        filter: drop-shadow(0 0 4px rgba(41, 98, 255, 0.3));
+        filter: drop-shadow(0 0 2px rgba(41, 98, 255, 0.4));
         transform: scale(1) rotate(0deg);
     }
     50% {
-        filter: drop-shadow(0 0 12px rgba(41, 98, 255, 0.6));
+        filter: drop-shadow(0 0 8px rgba(41, 98, 255, 0.6));
         transform: scale(1.1) rotate(5deg);
     }
 }
@@ -1568,7 +1604,7 @@ body {
     transform: translateX(-50%);
     width: 400px;
     height: 0%;
-    min-height: 616px;
+    min-height: 550px;
     background: linear-gradient(45deg, rgba(18, 18, 26, 0.95), rgba(41, 98, 255, 0.048));
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -1681,21 +1717,7 @@ body {
 }
 
 
-#jupiter-terminal-instance .w-full {
-    width: 100%;
-    background-color: rgba(10, 10, 15, 0.07) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-}
 
-
-#jupiter-terminal-instance .border-white\/10,
-#jupiter-terminal-instance .border-transparent,
-#jupiter-terminal-instance .bg-\[\#1B1B1E\] {
-    --tw-bg-opacity: 1;
-    background-color: rgba(10, 10, 15, 0.07) !important;
-
-}
 
 /* Override for Jupiter Terminal container */
 .css-f47xmg {
@@ -1722,14 +1744,14 @@ body {
 }
 
 .css-16ceglb {
-    font-family: 'Roboto Mono', monospace !important;
+    font-family: var(--font-primary) !important;
     font-size: 18px !important;
     font-weight: 600 !important;
     color: var(--text-primary) !important;
 }
 
 .css-df9rzr {
-    font-family: 'Roboto Mono', monospace !important;
+    font-family: var(--font-primary) !important;
     font-size: 13px !important;
     color: var(--text-secondary) !important;
     margin-top: 4px !important;
@@ -1747,7 +1769,7 @@ body {
     border-radius: 8px !important;
     padding: 12px !important;
     color: var(--text-primary) !important;
-    font-family: 'Roboto Mono', monospace !important;
+    font-family: var(--font-primary) !important;
     font-size: 13px !important;
     transition: all 0.2s ease !important;
     display: flex !important;
@@ -1769,7 +1791,7 @@ body {
     border-radius: 8px !important;
     padding: 12px !important;
     color: var(--text-primary) !important;
-    font-family: 'Roboto Mono', monospace !important;
+    font-family: var(--font-primary) !important;
     font-size: 13px !important;
     width: 100% !important;
     display: flex !important;
@@ -1809,7 +1831,7 @@ body {
     width: 100% !important;
     text-align: center !important;
     color: var(--text-secondary) !important;
-    font-family: 'Roboto Mono', monospace !important;
+    font-family: var(--font-primary) !important;
     font-size: 13px !important;
     padding: 12px !important;
     background: var(--tertiary-bg) !important;
@@ -1942,76 +1964,6 @@ body {
 .mt-2[style*="flex-grow: 1"]::-webkit-scrollbar-thumb:hover {
     background: var(--accent-color);
 }
-/* Jupiter Terminal Instance */
-#jupiter-terminal-instance .text-white,
-#jupiter-terminal-instance .leading-none,
-#jupiter-terminal-instance .font-semibold,
-#jupiter-terminal-instance .p-5,
-#jupiter-terminal-instance .w-full,
-#jupiter-terminal-instance .h-full,
-#jupiter-terminal-instance .leading-normal,
-#jupiter-terminal-instance .text-xs,
-#jupiter-terminal-instance .py-2,
-#jupiter-terminal-instance .px-3,
-#jupiter-terminal *, 
-#jupiter-terminal ::before, 
-#jupiter-terminal ::after,
-#jupiter-terminal {
-    font-family: 'Roboto Mono', monospace !important;
-}
-
-#jupiter-terminal-instance .text-white {
-    --tw-text-opacity: 1;
-    color: rgba(255,255,255,var(--tw-text-opacity));
-}
-
-#jupiter-terminal-instance .leading-none {
-    line-height: 1;
-}
-
-#jupiter-terminal-instance .font-semibold {
-    font-weight: 600;
-}
-
-#jupiter-terminal-instance .p-5 {
-    padding: 1.25rem;
-}
-
-#jupiter-terminal-instance .w-full {
-    width: 100%;
-}
-
-#jupiter-terminal-instance .h-full {
-    height: 100%;
-}
-
-#jupiter-terminal-instance .leading-normal {
-    line-height: 1.5;
-}
-
-#jupiter-terminal-instance .text-xs {
-    font-size: .75rem;
-    line-height: 1rem;
-}
-
-#jupiter-terminal-instance .py-2 {
-    padding-bottom: .5rem;
-    padding-top: .5rem;
-}
-
-#jupiter-terminal-instance .px-3 {
-    padding-left: .75rem;
-    padding-right: .75rem;
-}
-
-#jupiter-terminal-instance [class*="bg-[#191B1F]"] {
-    background-color: #191B1F;
-}
-
-
-
-
-
 
 /* Add mobile responsiveness for Jupiter bottom sheet */
 @media (max-width: 768px) {

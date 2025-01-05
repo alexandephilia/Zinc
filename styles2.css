@@ -65,7 +65,7 @@
 }
 
 .result-symbol {
-    font-size: clamp(11px, 2.8vw, 13px);
+    font-size: clamp(12px, 3vw, 14px);
     font-weight: 600;
     color: var(--text-primary);
     display: flex;
@@ -79,7 +79,7 @@
 }
 
 .result-name {
-    font-size: clamp(9px, 2.2vw, 11px);
+    font-size: clamp(10px, 2.5vw, 12px);
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
@@ -93,86 +93,37 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    align-items: flex-end;
-}
-
-.result-info .chain-tag {
-    margin: 0;
-    font-size: clamp(8px, 2vw, 10px);
-    padding: 1px 6px;
 }
 
 .result-price {
     font-family: 'Roboto Mono', monospace;
     color: var(--text-primary);
-    font-size: clamp(11px, 2.8vw, 13px);
+    font-size: clamp(12px, 3vw, 14px);
     font-weight: 500;
     letter-spacing: 0.3px;
     white-space: nowrap;
 }
 
 .result-volume {
-    font-size: clamp(9px, 2.2vw, 11px);
+    font-size: clamp(10px, 2.5vw, 12px);
     color: var(--text-secondary);
     white-space: nowrap;
 }
 
 .result-mcap {
-    font-size: clamp(9px, 2.2vw, 11px);
+    font-size: clamp(10px, 2.5vw, 12px);
     color: var(--text-secondary);
     white-space: nowrap;
-    margin-top: -2px;
+    margin-top: -2px;  /* Tighter spacing with volume */
 }
 
 .chain-tag {
-    font-size: clamp(8px, 2vw, 10px);
+    font-size: clamp(9px, 2.2vw, 11px);
     padding: 2px 6px;
-    background: rgba(41, 98, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
-    color: rgba(41, 98, 255, 0.9);
+    color: var(--text-secondary);
     white-space: nowrap;
-    margin-left: 1px;
-    text-transform: capitalize;
-}
-
-/* DEX-specific colors */
-.chain-tag[data-dex="raydium"] {
-    background: rgba(147, 51, 234, 0.15);
-    color: rgba(147, 51, 234, 0.9);
-    box-shadow: 0 0 12px rgba(147, 51, 234, 0.15);
-}
-
-.chain-tag[data-dex="meteora"] {
-    background: rgba(239, 68, 68, 0.15);
-    color: rgba(239, 68, 68, 0.9);
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
-}
-
-.chain-tag[data-dex="orca"] {
-    background: rgba(249, 115, 22, 0.15);
-    color: rgba(249, 115, 22, 0.9);
-    box-shadow: 0 0 12px rgba(249, 115, 22, 0.15);
-}
-
-/* Keep SOL tag blue */
-.chain-tag[data-chain="sol"] {
-    position: relative;
-    background-image: linear-gradient(to right, #9945FF, #14F195) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-}
-
-.chain-tag[data-chain="sol"]::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, #9945ff37, #14f19537) !important;
-    border-radius: 4px;
-    z-index: -1;
 }
 
 .no-results {
@@ -603,7 +554,6 @@
     }
 
     .calculator-toggle {
-            display: none;
             position: fixed;
             right: 16px;
             top: calc(var(--navbar-height) + 18px);
@@ -615,6 +565,7 @@
             border-radius: 10px;
             cursor: pointer;
             z-index: 999;
+            display: flex;
             align-items: center;
             gap: 8px;
             font-size: 13px;
@@ -622,12 +573,6 @@
             color: var(--text-primary);
             box-shadow: 0 4px 20px rgba(41, 98, 255, 0.15);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    @media (max-width: 768px) {
-        .calculator-toggle {
-            display: flex;
-        }
     }
 
     .calculator-toggle:hover {
@@ -759,7 +704,7 @@
     align-items: center;
     gap: 4px;
     font-family: 'Roboto Mono', monospace;
-    font-size: clamp(8px, 2vw, 10px);
+    font-size: 9px;
     color: var(--text-secondary);
     background: rgba(255, 255, 255, 0.05);
     padding: 1px 4px;
@@ -771,54 +716,38 @@
 .mini-label {
     color: var(--text-secondary);
     font-weight: 500;
-    font-size: clamp(8px, 2vw, 10px);
+    font-size: 8px;
     width: fit-content;
 }
 
 .mini-address {
     color: var(--text-primary);
     letter-spacing: 0.3px;
-    font-size: clamp(8px, 2vw, 10px);
+    font-size: 8px;
     width: fit-content;
 }
 
 @media (max-width: 768px) {
-    .mini-contract-info,
+    .mini-contract-info {
+        font-size: 10px;
+        padding: 1px 3px;
+    }
+    
     .mini-label,
     .mini-address {
-        font-size: clamp(8px, 2vw, 10px);
-        padding: 1px 4px;
-    }
-    
-    .result-symbol {
-        font-size: clamp(11px, 2.8vw, 13px);
-    }
-    
-    .result-name,
-    .result-volume,
-    .result-mcap,
-    .title-percentage {
-        font-size: clamp(9px, 2.2vw, 11px);
+        font-size: 10px;
     }
 }
 
 @media (max-width: 480px) {
-    .mini-contract-info,
+    .mini-contract-info {
+        font-size: 9px;
+        padding: 1px 3px;
+    }
+    
     .mini-label,
     .mini-address {
-        font-size: clamp(8px, 2vw, 10px);
-        padding: 1px 4px;
-    }
-    
-    .result-symbol {
-        font-size: clamp(11px, 2.8vw, 13px);
-    }
-    
-    .result-name,
-    .result-volume,
-    .result-mcap,
-    .title-percentage {
-        font-size: clamp(9px, 2.2vw, 11px);
+        font-size: 9px;
     }
 }
 
@@ -1005,7 +934,7 @@
 }
 
 .title-percentage {
-    font-size: clamp(9px, 2.2vw, 11px);
+    font-size: 11px;
     font-weight: 600;
     padding: 2px 6px;
     border-radius: 4px;
