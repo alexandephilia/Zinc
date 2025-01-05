@@ -687,16 +687,35 @@ function formatVolume(volume) {
     return volume.toFixed(1);
 }
 
-// Function to search DexScreener pairs
+// Cache for recent searches
+const searchCache = new Map();
+const CACHE_EXPIRY = 30000; // 30 seconds
+
+// Function to search DexScreener pairs with caching
 async function searchDexScreenerPairs(query) {
     if (!query) return;
     
+    // Check cache first
+    const cacheKey = query.toLowerCase();
+    const cachedResult = searchCache.get(cacheKey);
+    if (cachedResult && (Date.now() - cachedResult.timestamp) < CACHE_EXPIRY) {
+        return cachedResult.pairs;
+    }
+    
     try {
-        const response = await fetch(`https://api.dexscreener.com/latest/dex/search/?q=${encodeURIComponent(query)}`);
+        // Add chain filter directly in the query for better performance
+        const response = await fetch(`https://api.dexscreener.com/latest/dex/search/?q=${encodeURIComponent(query)}%20chain%3Asolana`);
         const data = await response.json();
         
-        // Filter for Solana pairs only
-        const solanaPairs = data.pairs?.filter(pair => pair.chainId === 'solana') || [];
+        // Additional filter to ensure only Solana pairs
+        const solanaPairs = (data.pairs || []).filter(pair => pair.chainId === 'solana');
+        
+        // Cache the filtered result
+        searchCache.set(cacheKey, {
+            pairs: solanaPairs,
+            timestamp: Date.now()
+        });
+        
         return solanaPairs;
     } catch (error) {
         console.error('Error searching pairs:', error);
@@ -704,7 +723,7 @@ async function searchDexScreenerPairs(query) {
     }
 }
 
-// Function to display search results
+// Optimize DOM operations in result display
 function displaySearchResults(pairs) {
     let resultsContainer = document.querySelector('.search-results');
     
@@ -714,69 +733,87 @@ function displaySearchResults(pairs) {
         document.querySelector('.search-bar').appendChild(resultsContainer);
     }
     
-    resultsContainer.innerHTML = '';
+    // Create document fragment for better performance
+    const fragment = document.createDocumentFragment();
     
-    if (pairs.length === 0) {
-        resultsContainer.innerHTML = '<div class="no-results">No pairs found</div>';
-        return;
-    }
+    // Filter for Solana pairs only
+    const solanaPairs = pairs.filter(pair => pair.chainId === 'solana');
     
-    pairs.slice(0, 10).forEach(pair => {
-        const resultItem = document.createElement('div');
-        resultItem.className = 'search-result-item';
-        
-        const price = parseFloat(pair.priceUsd);
-        const formattedPrice = price < 0.01 ? 
-            price.toFixed(8) : 
-            price.toFixed(price < 1 ? 4 : 2);
-
-        const priceChange24h = parseFloat(pair.priceChange.h24);
-        const priceChangeClass = priceChange24h >= 0 ? 'positive' : 'negative';
-        const priceChangeSign = priceChange24h >= 0 ? '+' : '';
-
-        const shortContractAddress = pair.baseToken.address ? 
-            pair.baseToken.address.slice(0, 6) + '...' + pair.baseToken.address.slice(-4) : '';
-        const shortPairAddress = pair.pairAddress ? 
-            pair.pairAddress.slice(0, 6) + '...' + pair.pairAddress.slice(-4) : '';
-        
-        resultItem.innerHTML = `
-            <div class="result-pair">
-                <div class="result-symbol">
-                    ${pair.baseToken.symbol}/${pair.quoteToken.symbol}
-                    <span class="chain-tag">SOL</span>
-                </div>
-                <div class="result-name-row">
-                    <span class="result-name">${pair.baseToken.name || 'Unknown Token'}</span>
-                    <span class="title-percentage ${priceChangeClass}">${priceChangeSign}${priceChange24h.toFixed(2)}%</span>
-                </div>
-                ${pair.baseToken.address ? `
-                    <div class="result-addresses">
-                        <div class="mini-contract-info">
-                            <span class="mini-label">Contract:</span>
-                            <span class="mini-address">${shortContractAddress}</span>
-                        </div>
-                        <div class="mini-contract-info">
-                            <span class="mini-label">Pair:</span>
-                            <span class="mini-address">${shortPairAddress}</span>
-                        </div>
-                    </div>
-                ` : ''}
-            </div>
-            <div class="result-info">
-                <div class="result-price">$${formattedPrice}</div>
-                <div class="result-volume">Vol $${formatVolume(pair.volume.h24)}</div>
-            </div>
-        `;
-        
-        // Add click handler to show DexScreener chart
-        resultItem.addEventListener('click', () => {
-            showPairChart(pair);
-            clearSearch();
+    if (solanaPairs.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.className = 'no-results';
+        noResults.textContent = 'No pairs found on Solana';
+        fragment.appendChild(noResults);
+    } else {
+        // Pre-calculate reused values
+        const formatter = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 8
         });
         
-        resultsContainer.appendChild(resultItem);
-    });
+        solanaPairs.slice(0, 10).forEach(pair => {
+            const resultItem = document.createElement('div');
+            resultItem.className = 'search-result-item';
+            
+            const price = parseFloat(pair.priceUsd);
+            const formattedPrice = price < 0.01 ? 
+                formatter.format(price) : 
+                formatter.format(price);
+
+            const priceChange24h = parseFloat(pair.priceChange.h24);
+            const priceChangeClass = priceChange24h >= 0 ? 'positive' : 'negative';
+            const priceChangeSign = priceChange24h >= 0 ? '+' : '';
+
+            const shortContractAddress = pair.baseToken.address ? 
+                `${pair.baseToken.address.slice(0, 6)}...${pair.baseToken.address.slice(-4)}` : '';
+            const shortPairAddress = pair.pairAddress ? 
+                `${pair.pairAddress.slice(0, 6)}...${pair.pairAddress.slice(-4)}` : '';
+            
+            // Use template literal for better performance than complex DOM creation
+            resultItem.innerHTML = `
+                <div class="result-pair">
+                    <div class="result-symbol">
+                        ${pair.baseToken.symbol}/${pair.quoteToken.symbol}
+                        <span class="chain-tag" data-chain="sol">SOL</span>
+                    </div>
+                    <div class="result-name-row">
+                        <span class="result-name">${pair.baseToken.name || 'Unknown Token'}</span>
+                        <span class="title-percentage ${priceChangeClass}">${priceChangeSign}${priceChange24h.toFixed(2)}%</span>
+                    </div>
+                    ${pair.baseToken.address ? `
+                        <div class="result-addresses">
+                            <div class="mini-contract-info">
+                                <span class="mini-label">Contract:</span>
+                                <span class="mini-address">${shortContractAddress}</span>
+                            </div>
+                            <div class="mini-contract-info">
+                                <span class="mini-label">Pair:</span>
+                                <span class="mini-address">${shortPairAddress}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="result-info">
+                    <div class="chain-tag" data-dex="${pair.dexId.toLowerCase()}" style="margin: 0 0 4px 0;">${pair.dexId}</div>
+                    <div class="result-price">$${formattedPrice}</div>
+                    <div class="result-volume">Vol $${formatVolume(pair.volume.h24)}</div>
+                    <div class="result-mcap">MCap $${formatVolume(pair.fdv)}</div>
+                </div>
+            `;
+            
+            // Use event delegation for better performance
+            resultItem.addEventListener('click', () => {
+                showPairChart(pair);
+                clearSearch();
+            });
+            
+            fragment.appendChild(resultItem);
+        });
+    }
     
+    // Clear and append in one operation
+    resultsContainer.innerHTML = '';
+    resultsContainer.appendChild(fragment);
     resultsContainer.style.display = 'block';
 }
 
@@ -790,7 +827,7 @@ function clearSearch() {
     }
 }
 
-// Input handling with debounce
+// Input handling with optimized debounce
 searchInput.addEventListener('input', (e) => {
     const query = e.target.value.trim();
     searchBar.classList.toggle('has-value', query.length > 0);
@@ -805,11 +842,11 @@ searchInput.addEventListener('input', (e) => {
     }
 });
 
-// Add debounced search
+// Reduce debounce time for faster response
 const debouncedSearch = debounce(async (query) => {
     const pairs = await searchDexScreenerPairs(query);
     displaySearchResults(pairs);
-}, 300);
+}, 150); // Reduced from 300ms to 150ms for faster response
 
 // Clear button
 clearBtn.addEventListener('click', clearSearch);
@@ -822,62 +859,6 @@ document.addEventListener('click', (e) => {
             resultsContainer.style.display = 'none';
         }
     }
-});
-
-// Profile Dropdown Functionality
-document.addEventListener('DOMContentLoaded', () => {
-    const profileBtn = document.getElementById('profileBtn');
-    const walletMenu = document.getElementById('walletMenu');
-
-    // Toggle dropdown on profile button click
-    profileBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        walletMenu.classList.toggle('active');
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!walletMenu.contains(e.target) && !profileBtn.contains(e.target)) {
-            walletMenu.classList.remove('active');
-        }
-    });
-
-    // Handle wallet connections
-    document.querySelectorAll('.wallet-option').forEach(button => {
-        button.addEventListener('click', async () => {
-            const walletType = button.textContent.trim();
-            try {
-                switch (walletType) {
-                    case 'MetaMask':
-                        if (typeof window.ethereum !== 'undefined') {
-                            await window.ethereum.request({ method: 'eth_requestAccounts' });
-                            // Handle successful connection
-                            console.log('Connected to MetaMask');
-                        } else {
-                            window.open('https://metamask.io/download/', '_blank');
-                        }
-                        break;
-                    case 'Phantom':
-                        if (typeof window.solana !== 'undefined') {
-                            await window.solana.connect();
-                            // Handle successful connection
-                            console.log('Connected to Phantom');
-                        } else {
-                            window.open('https://phantom.app/', '_blank');
-                        }
-                        break;
-                    case 'WalletConnect':
-                        // Initialize WalletConnect
-                        // Note: Requires WalletConnect SDK integration
-                        console.log('WalletConnect integration pending');
-                        break;
-                }
-            } catch (error) {
-                console.error('Error connecting wallet:', error);
-            }
-            walletMenu.classList.remove('active');
-        });
-    });
 });
 
 // Quick Trade Connect functionality

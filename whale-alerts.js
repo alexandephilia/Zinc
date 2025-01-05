@@ -5,8 +5,13 @@ class WhaleAlerts {
         this.lastCheckedTimestamp = new Date();
         this.isLoading = true;
         this.maxDisplayCount = 0; // Start with no alerts shown
-        this.notificationSound = new Audio('https://www.soundjay.com/buttons/sounds/button-25.mp3');
-        this.soundEnabled = localStorage.getItem('whaleAlertsSoundEnabled') === 'true';
+        this.notificationSounds = {
+            banner: new Audio('/media/notification.mp3'),
+            update: new Audio('/media/notification.wav')
+        };
+        // Enable sound by default if not set
+        this.soundEnabled = localStorage.getItem('whaleAlertsSoundEnabled') !== null ? 
+            localStorage.getItem('whaleAlertsSoundEnabled') === 'true' : true;
         this.injectStyles();
         this.setupEventListeners();
         this.startPolling();
@@ -55,7 +60,7 @@ class WhaleAlerts {
             });
         }
 
-        // Add sound toggle button
+        // Add sound toggle button with both sound indicators
         const soundToggleBtn = document.createElement('button');
         soundToggleBtn.className = 'sound-toggle-btn';
         soundToggleBtn.innerHTML = `
@@ -69,9 +74,10 @@ class WhaleAlerts {
             soundToggleBtn.innerHTML = `
                 <span class="material-icons-round">${this.soundEnabled ? 'volume_up' : 'volume_off'}</span>
             `;
-            // Play a test sound when enabled
+            // Play both sounds when enabled to preview them
             if (this.soundEnabled) {
-                this.playNotificationSound();
+                setTimeout(() => this.playNotificationSound('banner'), 0);
+                setTimeout(() => this.playNotificationSound('update'), 300);
             }
         });
     }
@@ -125,14 +131,17 @@ class WhaleAlerts {
         this.renderNotifications();
     }
 
-    playNotificationSound() {
+    playNotificationSound(type = 'banner') {
         if (!this.soundEnabled) return;
         
         try {
-            this.notificationSound.currentTime = 0;
-            this.notificationSound.play().catch(error => {
-                console.warn('Could not play notification sound:', error);
-            });
+            const sound = this.notificationSounds[type];
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(error => {
+                    console.warn('Could not play notification sound:', error);
+                });
+            }
         } catch (error) {
             console.warn('Error playing notification sound:', error);
         }
@@ -140,8 +149,14 @@ class WhaleAlerts {
 
     updateNotificationBadge() {
         const badge = document.querySelector('.notification-badge');
+        const previousCount = parseInt(badge.textContent) || 0;
         badge.textContent = this.unreadCount;
         badge.style.display = this.unreadCount > 0 ? 'flex' : 'none';
+        
+        // Play update sound if count increased
+        if (this.unreadCount > previousCount) {
+            this.playNotificationSound('update');
+        }
     }
 
     renderNotifications() {
@@ -216,7 +231,6 @@ class WhaleAlerts {
     }
 
     async startPolling() {
-     
         // Initial fetch
         this.isLoading = true;
         this.renderNotifications();
@@ -224,21 +238,41 @@ class WhaleAlerts {
         const tweets = await this.fetchWhaleTransactions();
         this.isLoading = false;
         
+        // Set initial timestamp BEFORE processing tweets
+        const initialTimestamp = new Date();
+        
         tweets.forEach(tweet => {
             if (!this.notifications.find(n => n.id === tweet.id)) {
                 this.addNotification(tweet);
             }
         });
-        this.lastCheckedTimestamp = new Date();
+        
+        this.lastCheckedTimestamp = initialTimestamp;
 
         // Poll for new transactions every 5 seconds
         setInterval(async () => {
-            const newTweets = await this.fetchWhaleTransactions();
             const currentTime = new Date();
+            const newTweets = await this.fetchWhaleTransactions();
             
             newTweets.forEach(tweet => {
                 if (!this.notifications.find(n => n.id === tweet.id)) {
-                    this.addNotification(tweet);
+                    // Force show banner for new tweets in this polling interval
+                    const notification = {
+                        id: tweet.id,
+                        text: tweet.text,
+                        timestamp: tweet.timestamp,
+                        link: tweet.link,
+                        unread: true
+                    };
+                    
+                    this.notifications.unshift(notification);
+                    this.unreadCount++;
+                    this.updateNotificationBadge(); // This will play the update sound
+                    this.renderNotifications();
+                    
+                    // Show banner and play banner sound
+                    this.showBannerAlert(notification);
+                    this.playNotificationSound('banner');
                 }
             });
             
@@ -536,12 +570,15 @@ class WhaleAlerts {
             '<span class="amount-badge">$$$1</span>'
         );
         
+        // Format the time display
+        const timeDisplay = notification.timestamp ? this.getTimeAgo(notification.timestamp) : 'Just now';
+        
         banner.innerHTML = `
             <div class="banner-content">
                 <div class="banner-text">${coloredText}</div>
                 <div class="banner-footer">
                     <a href="${notification.link}" target="_blank" rel="noopener noreferrer" class="banner-time">
-                        Just now
+                        ${timeDisplay}
                     </a>
                     <button class="banner-close">
                         <span class="material-icons-round">close</span>
@@ -578,3 +615,46 @@ class WhaleAlerts {
 document.addEventListener('DOMContentLoaded', () => {
     window.whaleAlerts = new WhaleAlerts();
 }); 
+
+// // Test function for banner notifications
+// function testWhaleBanner() {
+//     const dummyNotification = {
+//         id: 'test-' + Date.now(),
+//         text: 'A whale just bought 500,000 BONK ($250,000) on Jupiter Exchange',
+//         timestamp: new Date(),
+//         link: 'https://twitter.com/whale_alert',
+//         unread: true
+//     };
+    
+//     if (window.whaleAlerts) {
+//         // Show banner and play banner sound
+//         window.whaleAlerts.showBannerAlert(dummyNotification);
+//         window.whaleAlerts.playNotificationSound('banner');
+        
+//         // Update notification count and play update sound
+//         window.whaleAlerts.notifications.unshift(dummyNotification);
+//         window.whaleAlerts.unreadCount++;
+//         window.whaleAlerts.updateNotificationBadge(); // This will play the update sound
+//         window.whaleAlerts.renderNotifications();
+//     } else {
+//         console.error('WhaleAlerts not initialized');
+//     }
+// }
+
+// // Add test button to easily trigger notifications
+// document.addEventListener('DOMContentLoaded', () => {
+//     const testButton = document.createElement('button');
+//     testButton.textContent = 'Test Whale Alert';
+//     testButton.style.position = 'fixed';
+//     testButton.style.bottom = '20px';
+//     testButton.style.right = '20px';
+//     testButton.style.zIndex = '9999';
+//     testButton.style.padding = '8px 16px';
+//     testButton.style.borderRadius = '8px';
+//     testButton.style.background = '#3b82f6';
+//     testButton.style.color = 'white';
+//     testButton.style.border = 'none';
+//     testButton.style.cursor = 'pointer';
+//     testButton.onclick = testWhaleBanner;
+//     document.body.appendChild(testButton);
+// });

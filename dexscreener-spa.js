@@ -28,7 +28,6 @@ window.showPairChart = function(pair) {
         const priceChange24h = parseFloat(pair.priceChange.h24);
 
         chartTitle.innerHTML = `
-            <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
             <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
                 <div style="display: flex; align-items: center;">
                     <span>${pair.baseToken.name || pair.baseToken.symbol}</span>
@@ -147,6 +146,23 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
         `;
         document.body.appendChild(toggleBtn);
 
+        // Add responsive visibility handling
+        function handleResponsiveVisibility() {
+            if (window.innerWidth <= 768) { // Mobile breakpoint
+                toggleBtn.style.display = 'flex';
+            } else {
+                toggleBtn.style.display = 'none';
+                calculator.classList.remove('expanded');
+                document.querySelector('.calculator-backdrop')?.classList.remove('visible');
+            }
+        }
+
+        // Initial check
+        handleResponsiveVisibility();
+
+        // Listen for window resize
+        window.addEventListener('resize', handleResponsiveVisibility);
+
         // Create backdrop if it doesn't exist
         if (!document.querySelector('.calculator-backdrop')) {
             const backdrop = document.createElement('div');
@@ -160,7 +176,6 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
                 toggleBtn.classList.remove('hidden');
             });
         }
-
         // Toggle calculator on button click
         toggleBtn.addEventListener('click', () => {
             calculator.classList.add('expanded');

@@ -140,8 +140,8 @@ window.showPairChart = function(pair) {
         const priceChange24h = parseFloat(pair.priceChange.h24);
 
         chartTitle.innerHTML = `
-            <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;">
-            <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px;">
+            <!-- <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Token Logo" style="width: 24px; height: 24px;"> -->
+            <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 5px; margin-left: 5px;">
                 <div style="display: flex; align-items: center;">
                     <span>${pair.baseToken.name || pair.baseToken.symbol}</span>
                     <div class="volume-info">
@@ -297,8 +297,8 @@ window.initializeMarketCards = function() {
     // Initial trending update
     window.updateTrendingData();
     
-    // Set up trending update interval (every 500ms)
-    const trendingInterval = setInterval(window.updateTrendingData, 500);
+    // Set up trending update interval (every 2 seconds instead of 500ms)
+    const trendingInterval = setInterval(window.updateTrendingData, 2000);
     
     // Clean up on page unload
     window.addEventListener('beforeunload', () => {

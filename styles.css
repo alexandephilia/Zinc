@@ -1557,7 +1557,7 @@ body {
     transform: translateX(-50%);
     width: 400px;
     height: 0%;
-    min-height: 550px;
+    min-height: 616px;
     background: linear-gradient(45deg, rgba(18, 18, 26, 0.95), rgba(41, 98, 255, 0.048));
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -1670,7 +1670,21 @@ body {
 }
 
 
+#jupiter-terminal-instance .w-full {
+    width: 100%;
+    background-color: rgba(10, 10, 15, 0.07) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+}
 
+
+#jupiter-terminal-instance .border-white\/10,
+#jupiter-terminal-instance .border-transparent,
+#jupiter-terminal-instance .bg-\[\#1B1B1E\] {
+    --tw-bg-opacity: 1;
+    background-color: rgba(10, 10, 15, 0.07) !important;
+
+}
 
 /* Override for Jupiter Terminal container */
 .css-f47xmg {
@@ -1917,6 +1931,76 @@ body {
 .mt-2[style*="flex-grow: 1"]::-webkit-scrollbar-thumb:hover {
     background: var(--accent-color);
 }
+/* Jupiter Terminal Instance */
+#jupiter-terminal-instance .text-white,
+#jupiter-terminal-instance .leading-none,
+#jupiter-terminal-instance .font-semibold,
+#jupiter-terminal-instance .p-5,
+#jupiter-terminal-instance .w-full,
+#jupiter-terminal-instance .h-full,
+#jupiter-terminal-instance .leading-normal,
+#jupiter-terminal-instance .text-xs,
+#jupiter-terminal-instance .py-2,
+#jupiter-terminal-instance .px-3,
+#jupiter-terminal *, 
+#jupiter-terminal ::before, 
+#jupiter-terminal ::after,
+#jupiter-terminal {
+    font-family: 'Roboto Mono', monospace !important;
+}
+
+#jupiter-terminal-instance .text-white {
+    --tw-text-opacity: 1;
+    color: rgba(255,255,255,var(--tw-text-opacity));
+}
+
+#jupiter-terminal-instance .leading-none {
+    line-height: 1;
+}
+
+#jupiter-terminal-instance .font-semibold {
+    font-weight: 600;
+}
+
+#jupiter-terminal-instance .p-5 {
+    padding: 1.25rem;
+}
+
+#jupiter-terminal-instance .w-full {
+    width: 100%;
+}
+
+#jupiter-terminal-instance .h-full {
+    height: 100%;
+}
+
+#jupiter-terminal-instance .leading-normal {
+    line-height: 1.5;
+}
+
+#jupiter-terminal-instance .text-xs {
+    font-size: .75rem;
+    line-height: 1rem;
+}
+
+#jupiter-terminal-instance .py-2 {
+    padding-bottom: .5rem;
+    padding-top: .5rem;
+}
+
+#jupiter-terminal-instance .px-3 {
+    padding-left: .75rem;
+    padding-right: .75rem;
+}
+
+#jupiter-terminal-instance [class*="bg-[#191B1F]"] {
+    background-color: #191B1F;
+}
+
+
+
+
+
 
 /* Add mobile responsiveness for Jupiter bottom sheet */
 @media (max-width: 768px) {

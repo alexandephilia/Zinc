@@ -15,11 +15,40 @@
         height: calc(100% - var(--navbar-height));
         z-index: 1000;
         transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.3s ease,
+                    visibility 0.3s ease,
+                    opacity 0.3s ease;
         background: var(--secondary-bg);
-        will-change: transform;
+        will-change: transform, opacity, visibility;
         visibility: hidden;
         opacity: 0;
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .sidebar::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 100%;
+        right: -100vw;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease,
+                    visibility 0.3s ease;
+        z-index: -1;
+        will-change: opacity, visibility;
+    }
+
+    .sidebar.active::before {
+        opacity: 1;
+        visibility: visible;
     }
 }
 
@@ -229,12 +258,11 @@
         height: calc(100% - var(--navbar-height));
         z-index: 1000;
         transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         background: var(--secondary-bg);
         will-change: transform;
         visibility: hidden;
         opacity: 0;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        transition: transform 0.3s ease,
                     visibility 0.3s ease,
                     opacity 0.3s ease;
     }
@@ -263,7 +291,8 @@
         background: rgba(0, 0, 0, 0.5);
         opacity: 0;
         visibility: hidden;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
+        transition: opacity 0.3s ease,
+                    visibility 0.3s ease;
         z-index: -1;
         will-change: opacity, visibility;
     }
@@ -1414,8 +1443,10 @@ body.scroll-locked {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: var(--secondary-bg);
-    border: 1px solid var(--border-color);
+    background: linear-gradient(45deg, rgba(18, 18, 26, 0.95), rgba(41, 98, 255, 0.048));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 24px;
     width: 90%;
@@ -1472,7 +1503,7 @@ body.scroll-locked {
 }
 
 .watchlist-popup-input {
-    background: var(--tertiary-bg);
+    background: #1a1a2457;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 12px;
