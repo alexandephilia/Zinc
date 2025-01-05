@@ -357,12 +357,24 @@ const toggleSidebar = (e) => {
     
     // Toggle with a slight delay to ensure smooth animation
     requestAnimationFrame(() => {
-        sidebar.classList.toggle('active');
-        
-        // Lock/unlock body scroll when sidebar is opened/closed
         if (!isActive) {
+            // Opening sidebar
+            sidebar.style.visibility = 'visible';
+            sidebar.style.opacity = '1';
+            sidebar.style.transform = 'translateX(0)';
+            sidebar.classList.add('active');
             lockBodyScroll();
         } else {
+            // Closing sidebar
+            sidebar.style.transform = 'translateX(-100%)';
+            sidebar.style.opacity = '0';
+            sidebar.classList.remove('active');
+            // Delay hiding visibility until after transition
+            setTimeout(() => {
+                if (!sidebar.classList.contains('active')) {
+                    sidebar.style.visibility = 'hidden';
+                }
+            }, 300); // Match transition duration
             unlockBodyScroll();
         }
     });
@@ -385,6 +397,9 @@ const checkMobileView = () => {
     if (window.innerWidth <= 768) {
         // Ensure sidebar is hidden by default on mobile
         sidebar.classList.remove('active');
+        sidebar.style.visibility = 'hidden';
+        sidebar.style.opacity = '0';
+        sidebar.style.transform = 'translateX(-100%)';
         
         if (!existingBtn) {
             const menuBtn = document.createElement('button');
@@ -443,6 +458,11 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => {
         initMarketCardsAnimation();
     });
+}, { passive: true });
+
+// Add resize event listener
+window.addEventListener('resize', () => {
+    checkMobileView();
 }, { passive: true });
 
 // Handle window load completion

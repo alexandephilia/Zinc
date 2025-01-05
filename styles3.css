@@ -1596,10 +1596,7 @@ body.scroll-locked {
     transform: translateY(-10px);
 }
 
-/* Add loading animation for the add button */
-.watchlist-popup-btn .material-icons-round.loading {
-    animation: spin 1s linear infinite;
-}
+
 
 @keyframes spin {
     from { transform: rotate(0deg); }
@@ -2958,4 +2955,54 @@ body.scroll-locked {
     .floating-wallet-btn {
         display: flex;
     }
+}
+
+/* Add loading animation for the add button */
+.watchlist-popup-btn .material-icons-round.loading,
+.material-icons-round.loading {
+    animation: spin 1s linear infinite;
+    background: none;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    color: inherit; /* Inherit color from parent button */
+}
+
+.watchlist-popup-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+    min-height: 36px;
+    gap: 8px;
+    padding: 8px 16px;
+}
+
+.watchlist-popup-btn span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit; /* Ensure span inherits color */
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Style for disabled button state */
+.watchlist-popup-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Update the add button loading state */
+.watchlist-popup-btn.add:disabled {
+    background: rgba(41, 98, 255, 0.05);
+    border-color: rgba(41, 98, 255, 0.1);
 }
