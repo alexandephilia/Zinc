@@ -77,6 +77,7 @@ class WalletTracker {
             e.stopPropagation();  // This prevents the click from reaching the document
         });
 
+        // Only close via close button
         this.closeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             this.closeWalletSheet();
@@ -89,19 +90,6 @@ class WalletTracker {
         this.addWalletBtn.addEventListener('click', () => this.addWallet());
         this.walletInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addWallet();
-        });
-
-        // Handle clicks outside the wallet sheet to close it
-        document.addEventListener('click', (e) => {
-            if (this.walletSheet.classList.contains('active') &&
-                !this.walletSheet.contains(e.target) &&
-                !this.walletBtn.contains(e.target) &&
-                !this.floatingWalletBtn?.contains(e.target)) {
-                this.closeWalletSheet();
-                if (this.floatingWalletBtn) {
-                    this.floatingWalletBtn.classList.remove('hidden');
-                }
-            }
         });
     }
 
