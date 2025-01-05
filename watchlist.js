@@ -63,7 +63,7 @@ window.addToWatchlist = async function(token) {
                 symbol: token.symbol || pair.baseToken.symbol
             };
         } else {
-            showWatchlistMessage('error', 'Invalid token address or token data not found');
+            showWatchlistMessage('error', 'Invalid, dipshit! Copy paste the pair address!');
             return null;
         }
 
@@ -223,7 +223,7 @@ function showAddToWatchlistPopup() {
                     }, 1000);
                 }
             } else {
-                showWatchlistMessage('error', 'Please enter a contract address');
+                showWatchlistMessage('error', 'No address. No token, genius');
             }
         });
 
