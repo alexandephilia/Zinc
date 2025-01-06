@@ -1840,6 +1840,12 @@ body {
     font-family: 'Roboto Mono', monospace !important;
     border-radius: 30px !important;
 }
+.css-qzg2qv {
+    color: #2962ff !important;
+    background-color: rgba(41, 98, 255, 0) !important; 
+    border: 1px solid rgba(41, 98, 255, 0) !important;
+    border-radius: 30px !important;
+}
 
 #jupiter-terminal-instance .text-white {
     --tw-text-opacity: 1;
