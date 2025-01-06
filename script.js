@@ -695,10 +695,14 @@ const CACHE_EXPIRY = 30000; // 30 seconds
 async function searchDexScreenerPairs(query) {
     if (!query) return;
     
+    // Add loading state
+    searchBar.classList.add('is-loading');
+    
     // Check cache first
     const cacheKey = query.toLowerCase();
     const cachedResult = searchCache.get(cacheKey);
     if (cachedResult && (Date.now() - cachedResult.timestamp) < CACHE_EXPIRY) {
+        searchBar.classList.remove('is-loading');
         return cachedResult.pairs;
     }
     
@@ -716,9 +720,14 @@ async function searchDexScreenerPairs(query) {
             timestamp: Date.now()
         });
         
+        // Remove loading state
+        searchBar.classList.remove('is-loading');
+        
         return solanaPairs;
     } catch (error) {
         console.error('Error searching pairs:', error);
+        // Remove loading state on error
+        searchBar.classList.remove('is-loading');
         return [];
     }
 }
@@ -833,8 +842,10 @@ searchInput.addEventListener('input', (e) => {
     searchBar.classList.toggle('has-value', query.length > 0);
     
     if (query.length >= 2) {
+        searchBar.classList.add('is-loading');
         debouncedSearch(query);
     } else {
+        searchBar.classList.remove('is-loading');
         const resultsContainer = document.querySelector('.search-results');
         if (resultsContainer) {
             resultsContainer.style.display = 'none';
@@ -844,12 +855,19 @@ searchInput.addEventListener('input', (e) => {
 
 // Reduce debounce time for faster response
 const debouncedSearch = debounce(async (query) => {
-    const pairs = await searchDexScreenerPairs(query);
-    displaySearchResults(pairs);
+    try {
+        const pairs = await searchDexScreenerPairs(query);
+        displaySearchResults(pairs);
+    } finally {
+        searchBar.classList.remove('is-loading');
+    }
 }, 150); // Reduced from 300ms to 150ms for faster response
 
 // Clear button
-clearBtn.addEventListener('click', clearSearch);
+clearBtn.addEventListener('click', () => {
+    searchBar.classList.remove('is-loading');
+    clearSearch();
+});
 
 // Close search results when clicking outside
 document.addEventListener('click', (e) => {
