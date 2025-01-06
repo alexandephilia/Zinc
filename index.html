@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zinc | Degen </title>
+    <link rel="icon" type="image/png" href="/asterisk-mark-symbol-design-blue-600nw-2310398637.webp">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" as="style">
+    <!-- Critical CSS to prevent FOUC -->
+    <style>
+        .app-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0a0a0f;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .app-loading.loaded {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .text-scramble {
+            font-family: var(--font-bold);
+            font-size: 78px;
+            font-weight: 700;
+            color: #2962ff;
+            text-shadow: 0 0 10px rgba(41, 98, 255, 0.5);
+            letter-spacing: 4px;
+            position: relative;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .text-scramble.finished {
+            background-color: rgba(41, 98, 255, 0.075);
+            animation: bgGlow 0.4s ease-in-out;
+            text-shadow: 0 0 20px rgba(41, 98, 255, 0.8);
+        }
+
+        .text-scramble .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.2s ease forwards;
+            color: #2962ff;
+            text-shadow: 0 0 10px rgba(41, 98, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bgGlow {
+            0% {
+                background-color: rgba(41, 98, 255, 0.1);
+                box-shadow: 0 0 10px rgba(41, 98, 255, 0.1);
+            }
+            50% {
+                background-color: rgba(41, 98, 255, 0.2);
+                box-shadow: 0 0 30px rgba(41, 98, 255, 0.3);
+            }
+            100% {
+                background-color: rgba(41, 98, 255, 0.1);
+                box-shadow: 0 0 10px rgba(41, 98, 255, 0.1);
+            }
+        }
+
+        /* Remove old glitch styles */
+       
+        /* Critical styles to prevent FOUC */
+        .sidebar {
+            display: none !important;
+        }
+
+        @media (min-width: 769px) {
+            .sidebar {
+                display: flex !important;
+            }
+        }
+
+        /* Hide content until loaded */
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .main-content.loaded {
+            opacity: 1;
+        }
+    </style>
+
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" as="style">
+    
+    <!-- Load actual fonts -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <!-- Load stylesheets -->
+    <link href="styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles2.css">
+    <link rel="stylesheet" href="styles3.css">
+    <link rel="stylesheet" href="style4.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="app-loading">
+        <div class="text-scramble"></div>
+    </div>
+
+    <!-- Jupiter Terminal Bottom Sheet -->
+    <div class="jupiter-bottom-sheet">
+        <div class="bottom-sheet-header">
+            <span>Quick Trade</span>
+            <button class="close-bottom-sheet">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div id="integrated-terminal"></div>
+    </div>
+
+    <!-- Wallet Tracker Bottom Sheet -->
+    <div class="wallet-tracker-sheet">
+        <div class="bottom-sheet-header">
+            <span>Wallet Tracker</span>
+            <button class="close-wallet-sheet">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="wallet-tracker-content">
+            <div class="wallet-input-section">
+                <div class="input-group">
+                    <input type="text" id="walletAddressInput" placeholder="Enter Solana wallet address">
+                    <button class="add-wallet-btn">
+                        <span class="material-icons-round">add</span>
+                    </button>
+                </div>
+            </div>
+            <div class="tracked-wallets">
+                <!-- Tracked wallets will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="logo-container">
+                <div class="logo">
+                    <span class="logo-icon">
+                        <span class="material-icons-round">bolt</span>
+                    </span>
+                    ZINC
+                    <span class="logo-version">DEGEN</span>
+                </div>
+            </div>
+            <div class="nav-items">
+                <a href="#" class="nav-link active">
+                    <span class="material-icons-round">dashboard</span>
+                    Trading
+                </a>
+                <a href="#" class="nav-link">
+                    <span class="material-icons-round">account_balance</span>
+                    DeFi
+                </a>
+                <a href="#" class="nav-link">
+                    <span class="material-icons-round">screen_search_desktop</span>
+                    NFTs
+                </a>
+                <a href="#" class="nav-link">
+                    <span class="material-icons-round">forum</span>
+                    Community
+                </a>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search">
+                <span class="material-icons-round search-icon">search</span>
+                <div class="loading-spinner"></div>
+                <button class="clear-btn">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="nav-actions">
+                <div class="notification-dropdown">
+                    <button class="icon-btn" id="notificationBtn" style="padding-right: 10px;">
+                        <span class="material-icons-round">notifications</span>
+                        <span class="notification-badge">0</span>
+                    </button>
+                    <div class="notification-menu">
+                        <div class="notification-header">
+                            <span>Whale Alerts</span>
+                            <button class="icon-btn clear-all">
+                                <span class="material-icons-round">clear_all</span>
+                            </button>
+                        </div>
+                        <div class="notification-items">
+                            <!-- Notifications will be dynamically added here -->
+                        </div>
+                        <div class="notification-footer">
+                            <button class="view-all-btn">View All Alerts</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-resizer"></div>
+                <div class="sidebar-content">
+                    <!-- Market Filter Section -->
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-header">
+                            <h3 class="sidebar-section-title">Markets</h3>
+                        </div>
+                        <div class="market-filter">
+                            <button class="filter-btn active">All</button>
+                            <button class="filter-btn">Layer 1</button>
+                            <button class="filter-btn">Layer 2</button>
+                            <button class="filter-btn">DeFi</button>
+                            <button class="filter-btn">Memecoin</button>
+                            <button class="filter-btn">AI</button>
+                        </div>
+                    </div>
+
+                    <!-- Watchlist Section -->
+                    <div class="sidebar-section">
+                        <div class="sidebar-header">
+                            <h2 class="sidebar-title">
+                                <span class="material-icons-round" style="font-size: 18px; margin-right: 8px;">star</span>
+                                Watchlist
+                            </h2>
+                            <button class="icon-btn">
+                                <span class="material-icons-round">add</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Watchlist Items Container -->
+                        <div class="watchlist-content">
+                            <!-- Items will be dynamically generated by watchlist.js -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Trade Section -->
+                    <div class="sidebar-section">
+                        <div class="quick-trade">
+                            <div class="quick-trade-title">
+                                <span class="material-icons-round">bolt</span>
+                                Quick Trade
+                            </div>
+                            <div class="trade-input-group">
+                                <div class="dex-buttons">
+                                    <button class="trade-btn jupiter-btn">
+                                        <img src="https://jup.ag/favicon.ico" alt="Jupiter" style="width: 16px; height: 16px; margin-right: 4px;">
+                                        Jupiter
+                                    </button>
+                                    <!-- <button class="trade-btn meteora-btn">
+                                        <img src="https://meteora.ag/logo.svg" alt="Meteora" style="width: 16px; height: 16px; margin-right: 4px;">
+                                        Meteora
+                                    </button> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Tracker Section -->
+                    <div class="sidebar-section">
+                        <div class="wallet-tracker">
+                            <div class="quick-trade-title">
+                                <span class="material-icons-round" style="margin-right: 4px;">account_balance_wallet</span>
+                                Wallet Tracker
+                            </div>
+                            <div class="wallet-tracker-content">
+                                <button class="trade-btn wallet-btn">
+                                    <span class="material-icons-round" style="margin-right: 4px;">assessment</span>
+                                    Portfolio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                <!-- Trending Title -->
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="material-icons-round">trending_up</span>
+                        Trending
+                    </div>
+                </div>
+
+                <!-- Market Grid Container -->
+                <div class="market-grid-container">
+                    <div class="market-grid-scroll" id="marketGridScroll">
+                        <!-- Cards will be dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <div class="chart-title">
+                                <img src="https://img.icons8.com/?size=100&id=NgbFFSOCkrnB&format=png&color=FFFFFF" alt="Solana Logo" style="width: 24px; height: 24px;">
+                                <div>
+                                    <div style="font-weight: 600;">SOL/USDT</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">Solana / Tether</div>
+                                </div>
+                            </div>
+                            <div class="pair-calculator">
+                                <div class="calc-inputs">
+                                    <div class="calc-input-group">
+                                        <input type="text" class="calc-input" id="tokenAmount" placeholder="0.00" pattern="[0-9,]*\.?[0-9]*">
+                                        <span class="calc-symbol">JUP</span>
+                                    </div>
+                                    <span class="calc-equals">=</span>
+                                    <div class="calc-input-group">
+                                        <input type="text" class="calc-input" id="usdAmount" placeholder="0.00" pattern="[0-9,]*\.?[0-9]*">
+                                        <span class="calc-symbol">USD</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-controls">
+                                <div class="timeframe-group">
+                                    <button class="timeframe-btn">1m</button>
+                                    <button class="timeframe-btn">5m</button>
+                                    <button class="timeframe-btn active">15m</button>
+                                    <button class="timeframe-btn">1H</button>
+                                    <button class="timeframe-btn">4H</button>
+                                    <button class="timeframe-btn">1D</button>
+                                    <button class="timeframe-btn">1W</button>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="icon-btn">
+                                        <span class="material-icons-round">candlestick_chart</span>
+                                    </button>
+                                    <button class="icon-btn">
+                                        <span class="material-icons-round">draw</span>
+                                    </button>
+                                    <button class="icon-btn">
+                                        <span class="material-icons-round">widgets</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                            <!-- TradingView Widget BEGIN -->
+                            <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+                                <div id="tradingview_solana" style="height: 100%; width: 100%;"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                                <script type="text/javascript">
+                                new TradingView.widget({
+                                    "width": "100%",
+                                    "height": "100%",
+                                    "symbol": "BINANCE:SOLUSDT",
+                                    "interval": "15",
+                                    "timezone": "Etc/UTC",
+                                    "theme": "dark",
+                                    "style": "1",
+                                    "locale": "en",
+                                    "toolbar_bg": "#131722",
+                                    "enable_publishing": false,
+                                    "hide_side_toolbar": false,
+                                    "allow_symbol_change": true,
+                                    "save_image": false,
+                                    "container_id": "tradingview_solana",
+                                    "hide_top_toolbar": true,
+                                    "studies": [],
+                                    "show_popup_button": false,
+                                    "popup_width": "1000",
+                                    "popup_height": "650",
+                                    "backgroundColor": "#0a0a0f",
+                                    "hide_volume": false
+                                });
+                                </script>
+                            </div>
+                            <!-- TradingView Widget END -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            &copy; 2025 Zinc. All rights reserved.
+        </footer>
+        
+        <!-- Web3.js -->
+        <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+        <script src="https://unpkg.com/@solana/spl-token@latest/lib/index.iife.min.js"></script>
+    </div>
+    <script src="watchlist.js"></script>
+    <script src="dexscreener-spa.js"></script>
+    <script src="dexscreener.js"></script>
+    <script src="script.js"></script>
+    <script src="whale-alerts.js"></script>
+    <!-- Load Jupiter Terminal script -->
+    <script src="https://terminal.jup.ag/main-v3.js" defer></script>
+    <script src="jupiter-swap.js" defer></script>
+    <script src="wallet-tracker.js"></script>
+
+    <!-- Floating Jupiter Button for Mobile -->
+    <button class="floating-jupiter-btn">
+        <span class="material-icons-round">bolt</span>
+    </button>
+
+    <!-- Floating Wallet Tracker Button for Mobile -->
+    <button class="floating-wallet-btn">
+        <span class="material-icons-round">account_balance_wallet</span>
+    </button>
+</body>
+</html>

@@ -1,0 +1,3042 @@
+/* Dynamic Sidebar Styling */
+/* FORCE HIDE ON MOBILE FIRST - NO FUCKING AROUND */
+@media (max-width: 768px) {
+    .sidebar {
+        display: none !important;
+    }
+    
+    .sidebar.init-complete {
+        display: flex !important;
+        width: 100%;
+        max-width: none;
+        position: fixed;
+        left: 0;
+        top: var(--navbar-height);
+        height: calc(100% - var(--navbar-height));
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease,
+                    visibility 0.3s ease,
+                    opacity 0.3s ease;
+        background: var(--secondary-bg);
+        will-change: transform, opacity, visibility;
+        visibility: hidden;
+        opacity: 0;
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .sidebar::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 100%;
+        right: -100vw;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease,
+                    visibility 0.3s ease;
+        z-index: -1;
+        will-change: opacity, visibility;
+    }
+
+    .sidebar.active::before {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.sidebar {
+    width: clamp(240px, 20vw, 400px);
+    background: var(--secondary-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: width 0.1s ease;
+    min-width: 240px;
+    max-width: min(280px, 30vw);
+    flex-shrink: 0;
+}
+
+.sidebar-content {
+    height: calc(100vh - var(--navbar-height));
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--spacing);
+    padding-right: calc(var(--spacing) + 8px);
+    mask-image: linear-gradient(to bottom, 
+        transparent, 
+        black 10px,
+        black calc(100% - 10px),
+        transparent
+    );
+    -webkit-mask-image: linear-gradient(to bottom, 
+        transparent, 
+        black 10px,
+        black calc(100% - 10px),
+        transparent
+    );
+}
+
+/* Adaptive Market Filter */
+.market-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 var(--spacing);
+    margin-bottom: 16px;
+}
+
+.filter-btn {
+    flex: 1;
+    min-width: 60px;
+    max-width: calc(50% - 3px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* Dynamic Watchlist Items */
+.watchlist-item {
+    transform: translateX(0);
+    opacity: 1;
+    animation: slideIn 0.3s ease;
+    position: relative;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.watchlist-item::after {
+    display: none;
+}
+
+.watchlist-item:hover::after {
+    opacity: 0.5;
+}
+
+.watchlist-item.active::after {
+    opacity: 1;
+}
+
+/* Add remove button styles - ONLY FOR WATCHLIST */
+.watchlist-content .watchlist-item .watchlist-x-close {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: rgba(255, 61, 0, 0.1);
+    border: 1px solid rgba(255, 61, 0, 0.2);
+    color: var(--danger-color);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 2;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+.watchlist-content .watchlist-item:hover .watchlist-x-close {
+    display: flex;
+}
+
+.watchlist-content .watchlist-item .watchlist-x-close:hover {
+    background: rgba(255, 61, 0, 0.2);
+    border-color: rgba(255, 61, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.watchlist-content .watchlist-item .watchlist-x-close:active {
+    transform: scale(0.95);
+}
+
+/* Remove these styles to remove add to watchlist button */
+.market-card .add-to-watchlist {
+    display: none !important;
+}
+
+/* Adaptive Quick Trade Section */
+.quick-trade {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        var(--secondary-bg)
+    );
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: clamp(12px, 1.5vw, 16px);
+    transition: padding 0.1s ease;
+}
+
+.trade-input-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 100px;
+    gap: 8px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.trade-input {
+    min-width: 0;
+    width: 100%;
+    font-size: clamp(12px, 1vw, 14px);
+    padding: clamp(6px, 0.8vw, 8px) clamp(8px, 1vw, 12px);
+}
+
+.trade-btn-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(4px, 0.5vw, 8px);
+}
+
+.trade-btn {
+    font-size: clamp(12px, 1vw, 14px);
+    padding: clamp(8px, 1vw, 10px);
+    white-space: nowrap;
+}
+
+/* Ensure quick trade title stays proportional */
+.quick-trade-title {
+    font-size: clamp(13px, 1.1vw, 14px);
+    margin-bottom: clamp(8px, 1vw, 12px);
+}
+
+.quick-trade-title .material-icons-round {
+    font-size: clamp(16px, 1.2vw, 18px);
+}
+
+/* Adjust select width based on sidebar width */
+.trade-input[type="number"] {
+    width: 100%;
+}
+
+.trade-input-group select.trade-input {
+    width: clamp(80px, 30%, 100px);
+}
+
+@media (max-width: 300px) {
+    .trade-input-group {
+        grid-template-columns: 1fr;
+    }
+    
+    .trade-input-group select.trade-input {
+        width: 100%;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        max-width: none;
+        position: fixed;
+        left: 0;
+        top: var(--navbar-height);
+        height: calc(100% - var(--navbar-height));
+        z-index: 1000;
+        transform: translateX(-100%);
+        background: var(--secondary-bg);
+        will-change: transform;
+        visibility: hidden;
+        opacity: 0;
+        transition: transform 0.3s ease,
+                    visibility 0.3s ease,
+                    opacity 0.3s ease;
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .sidebar-content {
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: calc(var(--spacing) + env(safe-area-inset-bottom));
+    }
+
+    .sidebar::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 100%;
+        right: -100vw;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease,
+                    visibility 0.3s ease;
+        z-index: -1;
+        will-change: opacity, visibility;
+    }
+
+    .sidebar.active::before {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .market-filter {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 0;
+        margin: 12px 0;
+    }
+
+    .filter-btn {
+        height: 36px;
+        font-size: 13px;
+        padding: 8px 12px;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--tertiary-bg);
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+        background: rgba(41, 98, 255, 0.1);
+        border-color: var(--accent-color);
+        transform: translateY(-1px);
+    }
+
+    .sidebar-section {
+        margin-bottom: 16px;
+        padding: 0 12px;
+    }
+
+    .sidebar-section-header {
+        margin-bottom: 8px;
+    }
+
+    .trade-input-group {
+        grid-template-columns: 1fr;
+    }
+
+    .trade-input-group .trade-input,
+    .trade-input-group .custom-select {
+        width: 100%;
+    }
+
+    .custom-select-trigger {
+        width: 100%;
+    }
+
+    .chart-header {
+        flex-direction: column;
+        height: auto;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+
+    .chart-title {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .chart-title .material-icons-round {
+        font-size: 18px;
+    }
+
+    .chart-title > div > div:first-child {
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .chart-title > div > div:last-child {
+        font-size: 11px;
+        opacity: 0.7;
+    }
+
+    .chart-controls {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .timeframe-group {
+        flex: 1;
+        display: flex;
+        overflow-x: auto;
+        gap: 4px;
+        padding: 4px 12px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        position: relative;
+        border-radius: 6px;
+        cursor: grab;
+        user-select: none;
+        transition: all 0.2s ease;
+        mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 12px,
+            black calc(100% - 12px),
+            transparent
+        );
+        -webkit-mask-image: linear-gradient(
+            to right,
+            transparent,
+            black 12px,
+            black calc(100% - 12px),
+            transparent
+        );
+    }
+
+    .timeframe-group.active {
+        cursor: grabbing;
+        background: var(--secondary-bg);
+    }
+
+    .timeframe-group:active {
+        cursor: grabbing;
+    }
+
+    .timeframe-group * {
+        user-select: none;
+    }
+
+    /* Remove old fade implementation */
+    .timeframe-group::before,
+    .timeframe-group::after {
+        display: none;
+    }
+
+    .timeframe-group::-webkit-scrollbar {
+        display: none;
+    }
+
+    .timeframe-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Hide fade when at the start/end */
+    .timeframe-group.at-start::before {
+        opacity: 0;
+    }
+
+    .timeframe-group.at-end::after {
+        opacity: 0;
+    }
+
+    .chart-controls > div:last-child {
+        display: flex;
+        gap: 4px;
+    }
+
+    .chart-controls .icon-btn {
+        width: 32px;
+        height: 32px;
+        padding: 6px;
+    }
+
+    .chart-controls .icon-btn .material-icons-round {
+        font-size: 18px;
+    }
+
+    .navbar {
+        padding: 0 8px;
+        gap: 8px;
+        height: 48px;
+    }
+
+    .logo {
+        font-size: 16px;
+    }
+
+    .logo-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 6px;
+    }
+
+    .logo-icon .material-icons-round {
+        font-size: 12px;
+    }
+
+    .logo-version {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+
+    .nav-items {
+        display: none;
+    }
+
+    .search-bar {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: none;
+        margin: 0 0px;
+        height: 32px;
+        background: var(--tertiary-bg);
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .search-bar.focused {
+        background: var(--secondary-bg);
+        box-shadow: 0 0 0 1px var(--border-color),
+                   0 0 0 4px rgba(41, 98, 255, 0.1);
+    }
+
+    .search-bar input {
+        font-size: 13px;
+        width: 100%;
+        height: 100%;
+        padding: 0 32px;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-family: 'Roboto Mono', monospace;
+    }
+
+    .search-bar input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    .search-bar .material-icons-round {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 16px;
+        color: var(--text-secondary);
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .search-bar.focused .material-icons-round {
+        color: var(--accent-color);
+    }
+
+    .search-bar .clear-btn {
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        padding: 4px;
+        border-radius: 4px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-secondary);
+        background: none;
+        border: none;
+        opacity: 0.7;
+    }
+
+    .search-bar .clear-btn:hover {
+        opacity: 1;
+        background: var(--secondary-bg);
+    }
+
+    .search-bar .clear-btn .material-icons-round {
+        position: static;
+        transform: none;
+        font-size: 16px;
+        pointer-events: auto;
+    }
+
+    .search-bar.has-value .clear-btn {
+        display: flex;
+    }
+
+    .nav-actions {
+        margin-left: 0;
+        gap: 2px;
+    }
+
+    .nav-actions .icon-btn {
+        width: 32px;
+        height: 32px;
+        padding: 6px;
+    }
+
+    .nav-actions .material-icons-round {
+        font-size: 18px;
+    }
+
+    .mobile-menu-btn {
+        width: 32px;
+        height: 32px;
+        padding: 6px;
+    }
+
+    .mobile-menu-btn .material-icons-round {
+        font-size: 18px;
+    }
+}
+
+/* Additional breakpoint for smaller phones */
+@media (max-width: 380px) {
+    .market-filter {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .filter-btn {
+        height: 32px;
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
+
+/* Dynamic Theme Colors */
+.watchlist-item.positive {
+    background: linear-gradient(45deg, 
+        var(--tertiary-bg), 
+        rgba(0, 200, 83, 0.05)
+    );
+}
+
+.watchlist-item.negative {
+    background: linear-gradient(45deg, 
+        var(--tertiary-bg), 
+        rgba(255, 61, 0, 0.05)
+    );
+}
+
+/* Custom Dropdown Styling */
+.custom-select {
+    position: relative;
+    width: 100%;
+}
+
+.custom-select-trigger {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 6px;
+    font-family: 'Roboto Mono', monospace;
+    padding: 8px 12px;
+    font-size: clamp(12px, 1vw, 14px);
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    user-select: none;
+    height: 100%;
+}
+
+.custom-select-trigger:hover,
+.custom-select.active .custom-select-trigger {
+    border-color: transparent;
+    box-shadow: 0 0 12px rgba(41, 98, 255, 0.2),
+               0 0 2px rgba(41, 98, 255, 0.3);
+    background: linear-gradient(45deg,
+        var(--secondary-bg),
+        rgba(41, 98, 255, 0.05)
+    );
+}
+
+.custom-select-trigger .material-icons-round {
+    font-size: 16px;
+    transition: transform 0.2s ease;
+    opacity: 0.7;
+}
+
+.custom-select.active .custom-select-trigger .material-icons-round {
+    transform: rotate(180deg);
+    opacity: 1;
+}
+
+.custom-select-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.custom-select.active .custom-select-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.custom-select-option {
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+    font-size: clamp(12px, 1vw, 14px);
+}
+
+.custom-select-option:hover {
+    background: linear-gradient(45deg,
+        var(--tertiary-bg),
+        rgba(41, 98, 255, 0.1)
+    );
+    color: var(--accent-color);
+}
+
+.custom-select-option.selected {
+    background: rgba(41, 98, 255, 0.1);
+    color: var(--accent-color);
+}
+
+/* Position dropdown above if not enough space below */
+.custom-select.dropup .custom-select-options {
+    top: auto;
+    bottom: calc(100% + 4px);
+    transform: translateY(10px);
+}
+
+.custom-select.dropup.active .custom-select-options {
+    transform: translateY(0);
+}
+
+/* Update positive/negative states */
+.watchlist-item.positive:hover,
+.watchlist-item.positive.active {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(0, 200, 83, 0.05)
+    );
+    border-color: rgba(0, 200, 83, 0.2);
+}
+
+.watchlist-item.negative:hover,
+.watchlist-item.negative.active {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(255, 61, 0, 0.05)
+    );
+    border-color: rgba(255, 61, 0, 0.2);
+}
+
+/* Profile Dropdown Styles */
+.profile-dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 240px;
+    background: linear-gradient(
+        45deg,
+        rgba(18, 18, 26, 0.4),
+        rgba(41, 98, 255, 0.05)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+.dropdown-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+    font-size: 13px;
+    background: rgba(26, 26, 36, 0.3);
+    border-radius: 10px 10px 0 0;
+}
+
+.dropdown-items {
+    padding: 6px;
+    background: rgba(18, 18, 26, 0.3);
+    border-radius: 0 0 10px 10px;
+}
+
+.wallet-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+}
+
+.wallet-option img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: var(--tertiary-bg);
+    padding: 3px;
+}
+
+/* Special handling for WalletConnect logo which should stay square */
+.wallet-option img[alt="WalletConnect"] {
+    border-radius: 0;
+    background: none;
+    padding: 0;
+}
+
+.wallet-option:hover {
+    background: rgba(41, 98, 255, 0.15);
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(41, 98, 255, 0.1);
+}
+
+/* Section Header Styles */
+.section-header {
+    padding: var(--spacing);
+    padding-bottom: 0;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--accent-color);
+    background: rgba(41, 98, 255, 0.1);
+    padding: 6px 6px 10px;
+    border-radius: 4px;
+    width: fit-content;
+}
+
+
+
+
+/* Quick Trade Styles */
+.trade-input-group.blurred {
+    position: relative;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    min-height: 120px;
+}
+
+.blur-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(9, 9, 19, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    z-index: 4;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.lock-icon {
+    margin-right: 12px;
+    color: var(--text-secondary);
+}
+
+.trade-field {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.dex-buttons.blurred {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.dex-buttons.blurred .trade-btn {
+    background: linear-gradient(
+        45deg,
+        var(--secondary-bg),
+        rgba(41, 98, 255, 0.02)
+    );
+    border: 1px solid var(--border-color);
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+    padding: 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    height: 44px;
+    width: 100%;
+    letter-spacing: 0.5px;
+}
+
+.dex-buttons.blurred .trade-btn img {
+    opacity: 0.7;
+}
+
+.connect-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(41, 98, 255, 0.1);
+    border: 1px solid rgba(41, 98, 255, 0.2);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    height: 44px;
+    margin-top: 12px;
+    letter-spacing: 0.5px;
+    position: relative;
+    color: var(--accent-color);
+    transition: all 0.3s ease;
+}
+
+.connect-btn:hover {
+    background: rgba(41, 98, 255, 0.15);
+    border-color: rgba(41, 98, 255, 0.3);
+    box-shadow: 0 0 20px rgba(41, 98, 255, 0.3),
+                0 0 0 1px rgba(41, 98, 255, 0.2);
+}
+
+.connect-btn:active {
+    transform: translateY(1px);
+}
+
+.connect-btn .material-icons-round {
+    font-size: 18px;
+}
+
+/* Add transition for smooth unblur effect */
+.trade-input-group {
+    transition: all 0.3s ease;
+}
+
+.blur-overlay {
+    transition: opacity 0.3s ease;
+}
+
+/* Update the blurred state styles */
+.trade-input-group.blurred {
+    position: relative;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    min-height: 120px;
+}
+
+.dex-buttons:not(.blurred) .trade-btn {
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* When not blurred, enable the buttons */
+.dex-buttons:not(.blurred) .trade-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Update the DEX buttons styling */
+.dex-buttons {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Base button styles that apply to both blurred and unblurred states */
+.dex-buttons .trade-btn {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    height: 40px;
+    width: 100%;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* Unblurred state specific styles */
+.dex-buttons:not(.blurred) .trade-btn {
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.dex-buttons:not(.blurred) .trade-btn:hover {
+    transform: translateY(-1px);
+    background: var(--tertiary-bg);
+    border: 1px solid rgba(18, 233, 204, 0.6);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1),
+                0 0 10px rgba(18, 233, 204, 0.4),
+                0 0 2px rgba(18, 233, 204, 0.8);
+}
+
+.dex-buttons:not(.blurred) .trade-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(41, 98, 255, 0.1);
+}
+
+/* Ensure images are consistent */
+.dex-buttons .trade-btn img {
+    width: 16px;
+    height: 16px;
+    transition: opacity 0.2s ease;
+    filter: brightness(2);
+}
+
+.dex-buttons.blurred .trade-btn img {
+    opacity: 0.7;
+}
+
+.dex-buttons:not(.blurred) .trade-btn img {
+    opacity: 1;
+}
+
+/* Add media query for very narrow screens */
+@media (max-width: 300px) {
+    .watchlist-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .title-percentage {
+        align-self: flex-start;
+    }
+}
+
+/* Update the connect button to match the new size */
+.trade-btn.connect-btn {
+    height: 32px;
+    font-size: 12px;
+    padding: 6px 10px;
+    letter-spacing: 0.3px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Update the gap between buttons */
+.dex-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+/* Update the blur overlay to match new size */
+.trade-input-group.blurred {
+    position: relative;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 10px;
+    min-height: 80px;
+}
+
+/* Update the lock icon size */
+.blur-overlay .lock-icon .material-icons-round {
+    font-size: 20px;
+}
+
+/* Add responsive adjustments */
+@media (max-width: 300px) {
+    .quick-trade {
+        width: 100%;
+    }
+}
+
+/* Add responsive breakpoints */
+@media (max-width: 1200px) {
+    .market-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: clamp(8px, 1vw, var(--spacing));
+        padding: clamp(8px, 1vw, var(--spacing));
+    }
+}
+
+@media (max-width: 768px) {
+    .market-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        max-height: 400px;
+        min-height: 120px;
+        overflow-y: auto;
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .chart-section {
+        height: calc(100vh - var(--navbar-height) - var(--market-card-height) - var(--spacing) * 2);
+        min-height: 300px;
+    }
+}
+
+/* Add cursor styles for resizing state */
+.resizing-vertical * {
+    cursor: row-resize !important;
+}
+
+.market-card.compact {
+    min-height: 70px;
+    padding: 6px 8px;
+    gap: 4px;
+}
+
+.market-card.compact .market-header {
+    gap: 4px;
+}
+
+.market-card.compact .market-title {
+    font-size: 12px;
+}
+
+.market-card.compact .market-subtitle {
+    display: none;
+}
+
+.market-card.compact .title-percentage {
+    font-size: 10px;
+    padding: 1px 4px;
+}
+
+.market-card.compact .market-price {
+    font-size: 14px;
+    margin: 2px 0;
+}
+
+.market-card.compact .market-stats {
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+.market-card.compact .icon-btn {
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+}
+
+.market-card.compact .icon-btn .material-icons-round {
+    font-size: 14px;
+}
+
+/* Add transition for smooth resizing */
+.market-card {
+    transition: all 0.2s ease-out;
+}
+
+/* Adjust grid layout based on container height */
+.market-grid.compact {
+    gap: 6px;
+    padding: 6px;
+}
+
+.market-grid.compact .market-card {
+    min-height: 70px;
+}
+
+/* Ensure content stays within bounds */
+.market-card > * {
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Improve text truncation */
+.market-pair,
+.market-subtitle,
+.market-stats span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Optimize hover effect for compact mode */
+.market-card.compact:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Prevent content shift when scrollbar is hidden */
+body.scroll-locked {
+    padding-right: var(--scrollbar-width, 0px);
+}
+
+/* Ensure navbar stays fixed when body scroll is locked */
+.navbar {
+    padding-right: var(--scrollbar-width, 0px);
+}
+
+
+
+/* Market Grid Container */
+.market-grid-container {
+    width: 100%;
+    overflow: hidden;
+    background: var(--primary-bg);
+    min-height: 120px;
+    max-height: 250px;
+    position: relative;
+}
+
+/* Add fade-out gradients */
+.market-grid-container::before,
+.market-grid-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 100px;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.market-grid-container::before {
+    left: 0;
+    background: linear-gradient(
+        to right,
+        var(--primary-bg) 0%,
+        rgba(10, 10, 15, 0.9) 20%,
+        rgba(10, 10, 15, 0) 100%
+    );
+}
+
+.market-grid-container::after {
+    right: 0;
+    background: linear-gradient(
+        to left,
+        var(--primary-bg) 0%,
+        rgba(10, 10, 15, 0.9) 20%,
+        rgba(10, 10, 15, 0) 100%
+    );
+}
+
+.market-grid-scroll {
+    display: flex;
+    gap: var(--spacing);
+    padding: var(--spacing);
+    animation: scroll 60s linear infinite;
+    will-change: transform;
+    width: fit-content;
+    padding-left: 100px;  /* Add padding to account for fade gradient */
+    padding-right: 100px; /* Add padding to account for fade gradient */
+}
+
+/* Consistent card styling */
+.market-grid-scroll .market-card {
+    animation: none;
+    flex: 0 0 280px;
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(41, 98, 255, 0.02)
+    );
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    padding: clamp(10px, 1.2vw, 12px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.market-grid-scroll .market-card.positive {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(0, 200, 83, 0.05)
+    );
+    border: 1px solid rgba(0, 200, 83, 0.1);
+    box-shadow: 0 0 20px rgba(0, 200, 83, 0.02);
+}
+
+.market-grid-scroll .market-card.negative {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(255, 61, 0, 0.05)
+    );
+    border: 1px solid rgba(255, 61, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 61, 0, 0.02);
+}
+
+.market-grid-scroll .market-card:hover {
+    transform: translateY(-4px);
+}
+
+.market-grid-scroll .market-card.positive:hover {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(0, 200, 83, 0.1)
+    );
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 200, 83, 0.05);
+}
+
+.market-grid-scroll .market-card.negative:hover {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        rgba(255, 61, 0, 0.1)
+    );
+    border: 1px solid rgba(255, 61, 0, 0.2);
+    box-shadow: 0px 8px 16px 0px rgba(255, 61, 0, 0.05);
+}
+
+/* Add price color states for market cards */
+.market-grid-scroll .market-card.positive .market-price {
+    color: var(--success-color);
+}
+
+.market-grid-scroll .market-card.negative .market-price {
+    color: var(--danger-color);
+}
+
+/* Add trend icon color states for market cards */
+.market-grid-scroll .market-card.positive .material-icons-round {
+    color: var(--success-color);
+}
+
+.market-grid-scroll .market-card.negative .material-icons-round {
+    color: var(--danger-color);
+}
+
+/* Add percentage color states for market cards */
+.market-grid-scroll .market-card .title-percentage.positive {
+    color: var(--success-color);
+    background: rgba(0, 200, 83, 0.1);
+}
+
+.market-grid-scroll .market-card .title-percentage.negative {
+    color: var(--danger-color);
+    background: rgba(255, 61, 0, 0.1);
+}
+
+/* Smooth infinite scroll animation */
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-280px * 12 - var(--spacing) * 12));
+    }
+}
+
+/* Pause animation on hover */
+.market-grid-scroll:hover {
+    animation-play-state: paused;
+}
+
+/* Price update animation - CONSISTENT WHITE FLASH */
+@keyframes priceUpdate {
+    0% { color: inherit; }
+    50% { color: #FFFFFF; }
+    100% { color: inherit; }
+}
+
+.price-update {
+    animation: priceUpdate 0.5s ease;
+}
+
+/* Ensure price colors are maintained after animation */
+.watchlist-item.positive .watchlist-price,
+.market-grid-scroll .market-card.positive .market-price {
+    color: var(--success-color);
+}
+
+.watchlist-item.negative .watchlist-price,
+.market-grid-scroll .market-card.negative .market-price {
+    color: var(--danger-color);
+}
+
+/* Remove any other color transitions that might interfere */
+.watchlist-price,
+.market-price {
+    transition: none;
+}
+
+/* Add styles for the add to watchlist popup */
+.watchlist-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(45deg, rgba(18, 18, 26, 0.95), rgba(41, 98, 255, 0.048));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.watchlist-popup.active {
+    display: block;
+    animation: popupFadeIn 0.3s ease;
+}
+
+.watchlist-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.watchlist-popup-title {
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.watchlist-popup-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--tertiary-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.watchlist-popup-close:hover {
+    background: rgba(255, 61, 0, 0.1);
+    border-color: rgba(255, 61, 0, 0.2);
+    color: var(--danger-color);
+}
+
+.watchlist-popup-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.watchlist-popup-input {
+    background: #1a1a2457;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text-primary);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+.watchlist-popup-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.1);
+}
+
+.watchlist-popup-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.watchlist-popup-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.watchlist-popup-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.watchlist-popup-btn.cancel {
+    background: rgba(255, 61, 0, 0.1);
+    border: 1px solid rgba(255, 61, 0, 0.2);
+    color: var(--danger-color);
+}
+
+.watchlist-popup-btn.add {
+    background: rgba(41, 98, 255, 0.1);
+    border: 1px solid rgba(41, 98, 255, 0.2);
+    color: var(--accent-color);
+}
+
+.watchlist-popup-btn:hover {
+    transform: translateY(-1px);
+}
+
+.watchlist-popup-btn:active {
+    transform: translateY(1px);
+}
+
+.watchlist-popup-btn.cancel:hover {
+    background: rgba(255, 61, 0, 0.1);
+    border-color: rgba(255, 61, 0, 0.2);
+    color: var(--danger-color);
+    box-shadow: 0 4px 12px rgba(255, 61, 0, 0.1);
+}
+
+.watchlist-popup-btn.add:hover {
+    background: rgba(41, 98, 255, 0.15);
+    border-color: rgba(41, 98, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.1);
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Add styles for watchlist messages */
+.watchlist-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin: 8px 0;
+    font-size: 13px;
+    animation: slideIn 0.3s ease;
+    transition: all 0.3s ease;
+}
+
+.watchlist-message.success {
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    color: var(--success-color);
+}
+
+.watchlist-message.warning {
+    background: rgba(255, 171, 0, 0.1);
+    border: 1px solid rgba(255, 171, 0, 0.2);
+    color: #FFAB00;
+}
+
+.watchlist-message.error {
+    background: rgba(255, 61, 0, 0.1);
+    border: 1px solid rgba(255, 61, 0, 0.2);
+    color: var(--danger-color);
+}
+
+.watchlist-message .material-icons-round {
+    font-size: 16px;
+}
+
+.watchlist-message.fade-out {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Style for disabled button state */
+.watchlist-popup-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Update the add button loading state */
+.watchlist-popup-btn.add:disabled {
+    background: rgba(41, 98, 255, 0.05);
+    border-color: rgba(41, 98, 255, 0.1);
+}
+
+/* Message slide in animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure messages are properly positioned in the popup */
+.watchlist-popup-content {
+    position: relative;
+}
+
+.watchlist-message {
+    position: relative;
+    z-index: 1;
+}
+
+/* Wallet Tracker Styles */
+.wallet-tracker {
+    background: linear-gradient(
+        45deg,
+        var(--tertiary-bg),
+        var(--secondary-bg)
+    );
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: clamp(12px, 1.5vw, 16px);
+    transition: padding 0.1s ease;
+    border-radius: 8px;
+}
+
+.wallet-tracker-title {
+    font-size: clamp(13px, 1.1vw, 14px);
+    margin-bottom: clamp(8px, 1vw, 12px);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.wallet-tracker-title .material-icons-round {
+    font-size: clamp(16px, 1.2vw, 18px);
+}
+
+.wallet-tracker-content {
+    width: 100%;
+}
+
+.wallet-btn {
+    width: 100%;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    padding: clamp(8px, 1vw, 10px);
+    border-radius: 6px;
+    font-size: clamp(12px, 1vw, 14px);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.wallet-btn:hover {
+    background: var(--tertiary-bg);
+    border: 1px solid rgba(18, 233, 204, 0.6);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1),
+                0 0 10px rgba(18, 233, 204, 0.4),
+                0 0 2px rgba(18, 233, 204, 0.8);
+    transform: translateY(-1px);
+}
+
+.wallet-btn:active {
+    transform: translateY(1px);
+}
+
+/* Update mobile styles */
+@media (max-width: 768px) {
+    .wallet-tracker {
+        padding: 10px;
+    }
+
+    .wallet-btn {
+        padding: 8px;
+        font-size: 13px;
+    }
+}
+
+
+
+/* Wallet Tracker Bottom Sheet */
+.wallet-tracker-sheet {
+    position: fixed;
+    bottom: -100vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    max-width: 90vw;
+    background: linear-gradient(45deg, rgba(18, 18, 26, 0.95), rgba(41, 98, 255, 0.048));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2);
+    transition: bottom 0.3s ease-in-out;
+    z-index: 10000;
+    border: 1px solid var(--border-color);
+}
+
+.wallet-tracker-sheet.active {
+    bottom: 0;
+}
+
+.wallet-tracker-sheet .bottom-sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    background: #20202b21;
+}
+
+.wallet-tracker-sheet .wallet-tracker-content {
+    padding: 16px;
+    max-height: 70vh;
+    overflow-y: auto;
+    background: #0a0a0f2d;
+}
+
+.wallet-input-section {
+    margin-bottom: 16px;
+}
+
+.wallet-input-section .input-group {
+    display: flex;
+    gap: 8px;
+    background: rgba(10, 10, 15, 0.85);
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.wallet-input-section input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(10, 10, 15, 0.5);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: 'Roboto Mono', monospace;
+    transition: all 0.2s ease;
+}
+
+.wallet-input-section input:focus {
+    border-color: rgba(41, 98, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.1);
+    outline: none;
+}
+
+.wallet-input-section .add-wallet-btn {
+    padding: 8px;
+    border-radius: 8px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wallet-input-section .add-wallet-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.tracked-wallets {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.wallet-card {
+    background: rgba(10, 10, 15, 0.85);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.2s ease;
+}
+
+.wallet-card:hover {
+    border-color: rgba(41, 98, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 0 8px rgba(41, 98, 255, 0.267); /* Added glow effect */
+}
+.wallet-address {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    word-break: break-all;
+    padding: 4px 8px;
+    background: rgba(41, 98, 255, 0.1);
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center; /* Add center alignment */
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    min-height: 24px;
+    width: auto;
+    max-width: 140px;
+    box-shadow: 0 0 5px rgba(41, 98, 255, 0.5); /* Added border glow */
+}
+
+.wallet-address:hover {
+    background: rgba(41, 98, 255, 0.15);
+    color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(41, 98, 255, 0.7); /* Enhanced border glow on hover */
+}
+
+/* Unique classes for wallet address copy success */
+.wallet-address.wallet-copy-success {
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    width: 140px; /* Fixed width to match max-width */
+    justify-content: center; /* Ensure center alignment */
+}
+
+.wallet-copy-success-content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px; /* Reduced gap */
+    color: var(--success-color);
+    font-size: 12px;
+    height: 100%;
+    width: 100%; /* Take full width of parent */
+    white-space: nowrap;
+}
+
+.wallet-copy-success-content .material-icons-round {
+    font-size: 14px;
+    color: var(--success-color);
+}
+
+.wallet-copy-success-text {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    color: var(--success-color);
+    white-space: nowrap;
+}
+
+.wallet-holdings {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.token-holding {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: rgba(10, 10, 15, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    min-height: 52px; /* Increased to account for both states */
+}
+
+.token-holding:hover {
+    border-color: rgba(41, 98, 255, 0.3);
+    background: rgba(41, 98, 255, 0.05);
+}
+
+.token-holding.copy-success {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.2);
+}
+
+.token-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px; /* Ensure consistent width */
+}
+
+.token-values {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 100px; /* Ensure consistent width */
+}
+
+.token-amount {
+    font-family: 'Roboto Mono', monospace;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.token-usd {
+    font-size: 11px;
+    font-family: 'Roboto Mono', monospace;
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    color: var(--success-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    line-height: 1.2;
+    min-height: 20px;
+}
+
+/* Copy success content styling */
+.copy-success-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.copy-success-content .token-info {
+    color: var(--success-color);
+}
+
+.copy-success-content .material-icons-round {
+    font-size: 16px;
+    color: var(--success-color);
+}
+
+.copy-success-content .token-values {
+    opacity: 0;
+}
+
+/* Loading state */
+.loading {
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-align: center;
+    padding: 12px;
+    background: rgba(10, 10, 15, 0.5);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.no-holdings {
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-align: center;
+    padding: 12px;
+    background: rgba(10, 10, 15, 0.5);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .wallet-tracker-sheet {
+        width: 100%;
+        max-width: 100%;
+        height: 80vh;
+        border-radius: 16px 16px 0 0;
+        position: fixed;
+        bottom: -100vh;
+        left: 0;
+        transform: none;
+        margin: 0;
+    }
+
+    .wallet-tracker-sheet.active {
+        bottom: 0;
+    }
+
+    .wallet-tracker-sheet .wallet-tracker-content {
+        height: calc(80vh - 60px);
+        max-height: none;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Wallet Tracker Bottom Sheet Button Styles */
+.wallet-tracker-sheet .close-wallet-sheet {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wallet-tracker-sheet .close-wallet-sheet:hover {
+    background: rgba(255, 61, 0, 0.1);
+   
+    color: var(--danger-color);
+}
+
+.wallet-tracker-sheet .add-wallet-btn {
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(10, 10, 15, 0.5);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wallet-tracker-sheet .add-wallet-btn:hover {
+    background: rgba(18, 233, 204, 0.1);
+    border: 1px solid rgba(18, 233, 204, 0.6);
+    box-shadow: 0 0 10px rgba(18, 233, 204, 0.4),
+                0 0 2px rgba(18, 233, 204, 0.8);
+    color: rgb(18, 233, 204);
+    transform: translateY(-1px);
+}
+
+.wallet-tracker-sheet .add-wallet-btn:active {
+    transform: translateY(1px);
+}
+
+.wallet-tracker-sheet .add-wallet-btn .material-icons-round {
+    font-size: 20px;
+    transition: all 0.2s ease;
+}
+
+.wallet-tracker-sheet .close-wallet-sheet .material-icons-round {
+    font-size: 20px;
+    transition: all 0.2s ease;
+}
+
+/* Update input styling to match Jupiter */
+.wallet-tracker-sheet .wallet-input-section input {
+    background: rgba(10, 10, 15, 0.5);
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.wallet-tracker-sheet .wallet-input-section input:focus {
+    border: 1px solid rgba(18, 233, 204, 0.6);
+    box-shadow: 0 0 10px rgba(18, 233, 204, 0.4),
+                0 0 2px rgba(18, 233, 204, 0.8);
+    outline: none;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .wallet-tracker-sheet .close-wallet-sheet,
+    .wallet-tracker-sheet .add-wallet-btn {
+        padding: 6px;
+    }
+
+    .wallet-tracker-sheet .close-wallet-sheet .material-icons-round,
+    .wallet-tracker-sheet .add-wallet-btn .material-icons-round {
+        font-size: 18px;
+    }
+}
+
+/* Jupiter Bottom Sheet Close Button - Updated to match wallet tracker */
+.jupiter-bottom-sheet .close-bottom-sheet {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.jupiter-bottom-sheet .close-bottom-sheet:hover {
+    background: rgba(255, 61, 0, 0.1);
+   
+    color: var(--danger-color);
+}
+
+.jupiter-bottom-sheet .close-bottom-sheet .material-icons-round {
+    font-size: 20px;
+    transition: all 0.2s ease;
+}
+
+/* Mobile responsiveness for Jupiter close button */
+@media (max-width: 768px) {
+    .jupiter-bottom-sheet .close-bottom-sheet {
+        padding: 6px;
+    }
+
+    .jupiter-bottom-sheet .close-bottom-sheet .material-icons-round {
+        font-size: 18px;
+    }
+}
+
+/* Wallet Holdings Expandable Styles */
+.wallet-holdings {
+    position: relative;
+    transition: max-height 0.3s ease;
+    overflow: hidden;  /* Ensure content doesn't spill out */
+}
+
+.wallet-holdings.collapsed {
+    max-height: 120px;
+}
+
+.wallet-holdings.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -16px;  /* Extend beyond the padding */
+    right: -16px; /* Extend beyond the padding */
+    height: 60px;
+    background: linear-gradient(
+        to bottom,
+        rgba(10, 10, 15, 0) 0%,
+        rgba(10, 10, 15, 0.8) 40%,
+        rgba(10, 10, 15, 0.95) 100%
+    );
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Ensure the holdings list has proper spacing */
+.holdings-list {
+    padding: 0 0 16px 0; /* Add bottom padding for fade out */
+}
+
+
+.expand-holdings .material-icons-round {
+    font-size: 16px;
+    transition: transform 0.2s ease;
+}
+
+.wallet-holdings:not(.collapsed) .expand-holdings .material-icons-round {
+    transform: rotate(180deg);
+}
+
+/* Token holding copy success message */
+.token-holding {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.token-holding:hover {
+    background: rgba(41, 98, 255, 0.1);
+}
+
+.token-holding.copy-success {
+    background: rgba(0, 200, 83, 0.1);
+    border-color: rgba(0, 200, 83, 0.2);
+}
+
+.token-holding .copy-success-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    animation: fadeIn 0.2s ease;
+    padding: 0 4px;
+}
+
+.token-holding .copy-success-content .success-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--success-color);
+    font-size: 14px;
+}
+
+.token-holding .copy-success-content .success-right {
+    width: 80px; /* Match approximate width of token values */
+    height: 100%;
+}
+
+.token-holding .copy-success-content .material-icons-round {
+    font-size: 16px;
+    color: var(--success-color);
+}
+
+/* Update token values to have consistent width */
+.token-values {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 80px; /* Add minimum width to match success message */
+}
+
+/* Wallet Card Header Styles */
+.wallet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.wallet-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+/* Add wallet separator styles */
+.wallet-separator {
+    height: 1px;
+    background: linear-gradient(
+        to right,
+        rgba(41, 98, 255, 0.05),
+        rgba(41, 98, 255, 0.15),
+        rgba(41, 98, 255, 0.05)
+    );
+    margin: 12px -16px;
+    border: none;
+}
+
+.wallet-name:hover {
+    background: rgba(41, 98, 255, 0.1);
+}
+
+.wallet-name .edit-icon {
+    font-size: 14px;
+    color: var(--text-secondary);
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.wallet-name:hover .edit-icon {
+    opacity: 0.7;
+}
+
+.remove-wallet {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.wallet-card:hover .remove-wallet {
+    opacity: 0.7;
+}
+
+.remove-wallet:hover {
+    background: rgba(255, 61, 0, 0.1);
+    color: var(--danger-color);
+    opacity: 1;
+}
+
+.remove-wallet .material-icons-round {
+    font-size: 16px;
+}
+
+/* No Wallets Message */
+.no-wallets-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px 16px;
+    text-align: center;
+    background: rgba(10, 10, 15, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+}
+
+.no-wallets-message .material-icons-round {
+    font-size: 32px;
+    margin-bottom: 8px;
+    opacity: 0.7;
+}
+
+.no-wallets-message span:nth-child(2) {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.no-wallets-subtitle {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* Wallet Modals */
+.wallet-modals {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10001;
+    pointer-events: none;
+}
+
+.wallet-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(10, 10, 15, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: auto;
+}
+
+.wallet-modal.active {
+    opacity: 1;
+}
+
+.wallet-modal-content {
+    background: #0a0a0f2d;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.wallet-modal.active .wallet-modal-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--text-primary);
+    background: #0a0a0f2d;
+    border-radius: 16px 16px 0 0;
+}
+
+.modal-header .material-icons-round {
+    font-size: 20px;
+    color: #c2c7d5;
+}
+
+.modal-body {
+    padding: 20px;
+    background: #0a0a0f2d;
+}
+
+.modal-body .input-group {
+    margin-bottom: 12px;
+}
+
+.modal-body .rename-input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(10, 10, 15, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.modal-body .rename-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.1);
+    outline: none;
+}
+
+.wallet-address-display {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    background: rgba(41, 98, 255, 0.1);
+    border-radius: 6px;
+    text-align: center;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
+    background: #0a0a0f2d;
+    border-radius: 0 0 16px 16px;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.modal-actions .cancel-btn {
+    background: rgba(255, 61, 0, 0.1);
+    border: 1px solid rgba(255, 61, 0, 0.2);
+    color: var(--danger-color);
+}
+
+.modal-actions .cancel-btn:hover {
+    background: rgba(255, 61, 0, 0.15);
+    border-color: rgba(255, 61, 0, 0.3);
+    transform: translateY(-1px);
+}
+
+.modal-actions .confirm-btn {
+    background: rgba(41, 98, 255, 0.1);
+    border: 1px solid rgba(41, 98, 255, 0.2);
+    color: var(--accent-color);
+}
+
+.modal-actions .confirm-btn:hover {
+    background: rgba(41, 98, 255, 0.15);
+    border-color: rgba(41, 98, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.modal-actions .delete-btn {
+    background: rgba(41, 98, 255, 0.1);
+    border: 1px solid rgba(41, 98, 255, 0.2);
+    color: var(--accent-color);
+}
+
+.modal-actions .delete-btn:hover {
+    background: rgba(41, 98, 255, 0.15);
+    border-color: rgba(41, 98, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.15);
+}
+
+.modal-actions .material-icons-round {
+    font-size: 18px;
+}
+
+/* Delete Modal Specific Styles */
+.delete-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: rgb(39, 19, 21);
+    border: 1px solid rgb(82, 28, 18);
+    border-radius: 8px;
+    color: #ec3801;
+    margin-bottom: 16px;
+}
+
+.delete-warning .material-icons-round {
+    font-size: 20px;
+}
+
+.wallet-info {
+    text-align: center;
+}
+
+.wallet-info .wallet-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .wallet-modal-content {
+        width: 95%;
+        margin: 0 10px;
+    }
+}
+
+/* Custom Error Message Styles */
+.custom-error-message {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    filter: blur(8px);
+    transition: all 0.3s ease;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
+/* Red error styling */
+.custom-error-message.error {
+    background: linear-gradient(45deg, 
+        rgba(255, 61, 0, 0.15),
+        rgba(255, 61, 0, 0.05)
+    );
+    border: 1px solid rgba(255, 61, 0, 0.3);
+    color: var(--danger-color);
+    box-shadow: 0 4px 12px rgba(255, 61, 0, 0.1),
+                0 0 0 1px rgba(255, 61, 0, 0.1);
+}
+
+/* Yellow warning styling */
+.custom-error-message.warning {
+    background: linear-gradient(45deg, 
+        rgba(255, 171, 0, 0.15),
+        rgba(255, 171, 0, 0.05)
+    );
+    border: 1px solid rgba(255, 171, 0, 0.3);
+    color: #FFAB00;
+    box-shadow: 0 4px 12px rgba(255, 171, 0, 0.1),
+                0 0 0 1px rgba(255, 171, 0, 0.1);
+}
+
+.custom-error-message.active {
+    opacity: 1;
+    filter: blur(0);
+}
+
+.custom-error-message.removing {
+    opacity: 0;
+    filter: blur(8px);
+}
+
+.error-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.error-content .material-icons-round {
+    font-size: 18px;
+}
+
+/* Icon colors based on message type */
+.custom-error-message.error .material-icons-round {
+    color: var(--danger-color);
+}
+
+.custom-error-message.warning .material-icons-round {
+    color: #FFAB00;
+}
+
+.error-text {
+    font-family: 'Roboto Mono', monospace;
+    letter-spacing: 0.3px;
+    font-weight: 600;
+}
+
+/* Text gradient based on message type */
+.custom-error-message.error .error-text {
+    background: linear-gradient(45deg, #ff3d00, #ff6e40);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.custom-error-message.warning .error-text {
+    background: linear-gradient(45deg, #FFAB00, #FFD740);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Make input section relative for error positioning */
+.wallet-input-section {
+    position: relative;
+}
+
+/* Token Holdings Styling Updates */
+.holdings-list {
+    position: relative;
+    z-index: 1;
+    padding: 8px 0;
+    margin: -1px;
+}
+
+.token-holding {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: rgba(10, 10, 15, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    min-height: 42px;
+    margin-bottom: 6px;
+    position: relative;
+}
+
+.token-holding:hover {
+    border-color: rgba(41, 98, 255, 0.3);
+    background: rgba(41, 98, 255, 0.05);
+    transform: translateY(-1px);
+}
+
+/* Update collapsed state and blur */
+.wallet-holdings.collapsed {
+    max-height: 120px;
+    overflow: hidden;
+    position: relative;
+    isolation: isolate; /* Create new stacking context */
+}
+
+.wallet-holdings.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -16px;
+    right: -16px;
+    height: 80px; /* Increased height for better coverage */
+    background: linear-gradient(
+        to bottom,
+        rgba(10, 10, 15, 0) 0%,
+        rgba(10, 10, 15, 0.9) 40%,
+        rgba(10, 10, 15, 1) 100%
+    );
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: auto; /* Changed to auto */
+    cursor: default; /* Prevent cursor changes */
+    z-index: 10; /* Higher z-index */
+}
+
+
+
+.token-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 80px;
+    font-size: 13px;
+}
+
+.token-values {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    min-width: 80px;
+}
+
+.token-amount {
+    font-family: 'Roboto Mono', monospace;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.token-usd {
+    font-size: 10px;
+    font-family: 'Roboto Mono', monospace;
+    background: rgba(0, 200, 83, 0.1);
+    border: 1px solid rgba(0, 200, 83, 0.2);
+    color: var(--success-color);
+    padding: 1px 4px;
+    border-radius: 4px;
+    line-height: 1.2;
+    min-height: 18px;
+}
+
+/* Update holdings container to prevent cutoff */
+.wallet-holdings {
+    position: relative;
+    transition: max-height 0.3s ease;
+    overflow: visible;  /* Changed from hidden to visible */
+    padding: 1px;  /* Add 1px padding to prevent border cutoff */
+}
+
+.holdings-list {
+    padding: 8px 0;  /* Add vertical padding */
+    margin: -1px;  /* Compensate for parent padding */
+}
+
+/* Update collapsed state */
+.wallet-holdings.collapsed {
+    max-height: 120px;
+    overflow: hidden;  /* Only hide overflow when collapsed */
+}
+
+.wallet-holdings.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -16px;
+    right: -16px;
+    height: 60px;
+    background: linear-gradient(
+        to bottom,
+        rgba(10, 10, 15, 0) 0%,
+        rgba(10, 10, 15, 0.8) 40%,
+        rgba(10, 10, 15, 0.95) 100%
+    );
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Update expand button to float */
+.expand-holdings {
+    position: sticky;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 11;
+    background: rgba(41, 98, 255, 0.15);
+    border: 1px solid rgba(41, 98, 255, 0.3);
+    color: var(--accent-color);
+    padding: 4px 16px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    white-space: nowrap;
+    margin: 0 auto;
+    width: fit-content;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.expand-holdings:hover {
+    background: rgba(41, 98, 255, 0.2);
+    border-color: rgba(41, 98, 255, 0.4);
+    transform: translateX(-50%) translateY(-1px);
+    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.15);
+}
+
+/* Update collapsed state for better visibility */
+.wallet-holdings.collapsed {
+    max-height: 120px;
+    overflow: hidden;
+    padding-bottom: 40px; /* Add space for floating button */
+}
+
+
+/* Add container for better button positioning */
+.holdings-list {
+    position: relative;
+    z-index: 1;
+    padding: 8px 0;
+    margin: -1px;
+    padding-bottom: 40px; /* Space for floating button */
+}
+/* Floating Wallet Tracker Button for Mobile */
+.floating-wallet-btn {
+    position: fixed;
+    right: 0;
+    top: 33%;
+    transform: translateY(-50%);
+    background: linear-gradient(
+        135deg,
+        rgba(41, 98, 255, 0.2),
+        rgba(41, 98, 255, 0.35),
+        rgba(41, 98, 255, 0.2)
+    );
+    border: 1px solid rgba(18, 233, 204, 0.18);
+    border-right: none;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 8px;
+    border-radius: 10px 0 0 10px;
+    cursor: pointer;
+    z-index: 999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    box-shadow: -2px 0 10px rgba(18, 233, 204, 0.1);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: wallet-button-glow 3s ease infinite;
+    will-change: transform, background;
+}
+
+.floating-wallet-btn::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(
+        135deg,
+        transparent,
+        rgba(18, 233, 204, 0.1),
+        transparent
+    );
+    background-size: 200% 200%;
+    border-radius: inherit;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: wallet-shimmer 2s ease infinite;
+    pointer-events: none;
+}
+
+.floating-wallet-btn:hover {
+    background: rgba(18, 75, 233, 0.151);
+    padding-right: 14px;
+    box-shadow: -4px 0 15px rgba(18, 233, 204, 0.15);
+    transform: translateY(-50%) translateX(-2px);
+}
+
+.floating-wallet-btn:hover::before {
+    opacity: 1;
+}
+
+.floating-wallet-btn:active {
+    transform: translateY(-50%) translateX(1px);
+    box-shadow: -2px 0 8px rgba(18, 233, 204, 0.1);
+}
+
+.floating-wallet-btn .material-icons-round {
+    font-size: 20px;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    z-index: 2;
+    position: relative;
+    animation: wallet-icon-glow 2s ease-in-out infinite;
+}
+
+.floating-wallet-btn:hover .material-icons-round {
+    transform: scale(1.1);
+    animation: wallet-icon-glow-hover 1.5s ease-in-out infinite;
+}
+
+.floating-wallet-btn.hidden {
+    transform: translate(100%, -50%);
+    opacity: 0;
+    visibility: hidden;
+}
+
+@keyframes wallet-button-glow {
+    0%, 100% {
+        background: linear-gradient(
+            135deg,
+            rgba(18, 111, 233, 0.164),
+            rgba(18, 93, 233, 0.103)
+        );
+    }
+    50% {
+        background: linear-gradient(
+            135deg,
+            rgba(18, 111, 233, 0.2),
+            rgba(18, 93, 233, 0.15)
+        );
+    }
+}
+
+@keyframes wallet-shimmer {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes wallet-icon-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 2px rgba(18, 233, 204, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 0 8px rgba(18, 233, 204, 0.6));
+    }
+}
+
+@keyframes wallet-icon-glow-hover {
+    0%, 100% {
+        filter: drop-shadow(0 0 4px rgba(18, 233, 204, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 0 12px rgba(18, 233, 204, 0.8));
+    }
+}
+
+/* Show floating buttons only on mobile */
+@media (max-width: 768px) {
+    .floating-wallet-btn {
+        display: flex;
+    }
+}
+
+/* Add loading animation for the add button */
+.watchlist-popup-btn .material-icons-round.loading,
+.material-icons-round.loading {
+    animation: spin 1s linear infinite;
+    background: none;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    color: inherit; /* Inherit color from parent button */
+}
+
+.watchlist-popup-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+    min-height: 36px;
+    gap: 8px;
+    padding: 8px 16px;
+}
+
+.watchlist-popup-btn span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit; /* Ensure span inherits color */
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Style for disabled button state */
+.watchlist-popup-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Update the add button loading state */
+.watchlist-popup-btn.add:disabled {
+    background: rgba(41, 98, 255, 0.05);
+    border-color: rgba(41, 98, 255, 0.1);
+}

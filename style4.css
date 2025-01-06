@@ -1,0 +1,489 @@
+/* Notification Dropdown Styles */
+.notification-dropdown {
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #ff3d00;
+    color: white;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 10px;
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border: 2px solid var(--primary-bg);
+}
+
+.notification-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 360px;
+    max-width: 90vw;
+    background: linear-gradient(
+        45deg,
+        rgba(18, 18, 26, 0.95),
+        rgba(41, 98, 255, 0.05)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+.notification-dropdown.active .notification-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.notification-header .clear-all {
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.notification-header .clear-all:hover {
+    opacity: 1;
+    color: var(--danger-color);
+}
+
+.notification-items {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.notification-item {
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(10, 10, 15, 0.5);
+    border: 1px solid var(--border-color);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.notification-item:hover {
+    background: rgba(41, 98, 255, 0.1);
+    border-color: rgba(41, 98, 255, 0.2);
+    transform: translateX(4px);
+}
+
+.notification-item.unread {
+    background: rgba(41, 98, 255, 0.05);
+    border-color: rgba(41, 98, 255, 0.1);
+}
+
+.notification-item .transaction-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.notification-item .token-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--tertiary-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-item .token-icon img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.notification-item .transaction-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-item .transaction-type {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.notification-item .transaction-amount {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    color: var(--success-color);
+}
+
+.notification-item .transaction-time {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.notification-item .wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: rgba(41, 98, 255, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    width: fit-content;
+}
+
+.notification-item .wallet-info .material-icons-round {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.notification-footer {
+    padding: 12px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+}
+
+.view-all-btn {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    background: rgba(41, 98, 255, 0.1);
+    border: 1px solid rgba(41, 98, 255, 0.2);
+    color: var(--accent-color);
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.view-all-btn:hover {
+    background: rgba(41, 98, 255, 0.15);
+    border-color: rgba(41, 98, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .notification-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        left: auto;
+        width: 300px;
+        max-height: 80vh;
+        border-radius: 12px;
+        transform: translateY(-8px);
+    }
+
+    .notification-dropdown.active .notification-menu {
+        transform: translateY(0);
+    }
+
+    .notification-items {
+        max-height: calc(80vh - 120px);
+    }
+
+    /* Add positioning context for the dropdown */
+    .notification-dropdown {
+        position: relative;
+        margin-right: 8px;
+    }
+
+    /* Ensure the dropdown stays above other content */
+    .notification-dropdown.active {
+        z-index: 1000;
+    }
+} 
+
+
+
+/* Search Bar */
+.search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--tertiary-bg);
+    border-radius: 6px;
+    padding: 0;
+    margin: 0 10px;
+    height: 28px;
+    min-width: 140px;
+    max-width: 180px;
+    flex: 0.5;
+    transition: all 0.2s ease;
+}
+
+.search-bar:focus-within {
+    background: var(--secondary-bg);
+    box-shadow: 0 0 0 1px var(--border-color),
+               0 0 0 4px rgba(41, 98, 255, 0.1),
+               0 4px 12px rgba(41, 98, 255, 0.1);
+}
+
+.search-bar:focus-within .material-icons-round {
+    color: var(--accent-color);
+}
+
+.search-bar input {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    padding: 0 28px 0 28px;
+}
+
+.search-bar input:focus::placeholder {
+    color: var(--accent-color);
+    opacity: 0.5;
+}
+
+.search-bar .material-icons-round {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.search-bar .clear-btn {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 3px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.search-bar.has-value .clear-btn {
+    display: flex;
+    opacity: 0.7;
+}
+
+.search-bar .clear-btn:hover {
+    background: var(--secondary-bg);
+    opacity: 1;
+}
+
+.search-bar .clear-btn .material-icons-round {
+    font-size: 14px;
+    position: static;
+    transform: none;
+    pointer-events: auto;
+}
+
+.search-bar.has-value .clear-btn {
+    display: flex;
+}
+
+@media (max-width: 768px) {
+    .search-bar {
+        margin: 0 8px;
+        height: 32px;
+        min-width: 0;
+    }
+
+    .search-bar input {
+        font-size: 13px;
+        padding: 0 32px 0 32px;
+    }
+
+    .search-bar input::placeholder {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-bar {
+        margin: 0 4px;
+    }
+}
+
+
+
+/* Prevent zoom on input focus for mobile */
+@media (max-width: 768px) {
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    input[type="tel"],
+    select,
+    textarea {
+        font-size: var(--mobile-input-font-size) !important;
+        touch-action: manipulation;
+    }
+
+    .search-bar input,
+    #jupiter-terminal-instance input {
+        font-size: var(--mobile-input-font-size) !important;
+    }
+}
+
+/* Search Loading State */
+.search-bar.is-loading .search-icon {
+    display: none;
+}
+
+.search-bar.is-loading .loading-spinner {
+    display: flex;
+}
+
+.loading-spinner {
+    display: none;
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loading-spinner::before {
+    content: 'bolt';
+    font-family: 'Material Icons Round';
+    font-size: 14px;
+    color: var(--accent-color);
+    animation: glow 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 2px var(--accent-color));
+}
+
+@keyframes pulse {
+    0% {
+        transform: translateY(-50%) scale(0.95);
+        filter: drop-shadow(0 0 2px var(--accent-color));
+    }
+    50% {
+        transform: translateY(-50%) scale(1.05);
+        filter: drop-shadow(0 0 8px var(--accent-color));
+    }
+    100% {
+        transform: translateY(-50%) scale(0.95);
+        filter: drop-shadow(0 0 2px var(--accent-color));
+    }
+}
+
+@keyframes glow {
+    0% {
+        opacity: 0.7;
+        color: var(--accent-color);
+        text-shadow: 0 0 4px var(--accent-color),
+                     0 0 8px var(--accent-color),
+                     0 0 12px var(--accent-color);
+    }
+    50% {
+        opacity: 1;
+        color: #fff;
+        text-shadow: 0 0 8px var(--accent-color),
+                     0 0 15px var(--accent-color),
+                     0 0 20px var(--accent-color);
+    }
+    100% {
+        opacity: 0.7;
+        color: var(--accent-color);
+        text-shadow: 0 0 4px var(--accent-color),
+                     0 0 8px var(--accent-color),
+                     0 0 12px var(--accent-color);
+    }
+}
+
+/* Ensure the loading state transitions smoothly */
+.search-bar .material-icons-round,
+.loading-spinner {
+    transition: opacity 0.2s ease;
+}
+
+.search-bar.is-loading .material-icons-round {
+    opacity: 0;
+}
+
+.search-bar.is-loading .loading-spinner {
+    opacity: 1;
+}
+
+/* Keyboard Shortcut Badge */
+.shortcut-badge {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1px 4px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-family: 'Roboto Mono', monospace;
+    opacity: 0.7;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    display: none; /* Hide by default */
+    align-items: center;
+    gap: 2px;
+}
+
+/* Only show on desktop */
+@media (min-width: 769px) {
+    .shortcut-badge {
+        display: flex;
+    }
+}
+
+.shortcut-badge span {
+    line-height: 1;
+}
+
+.search-bar.has-value .shortcut-badge,
+.search-bar.focused .shortcut-badge {
+    display: none;
+}
+
+/* Update mobile styles to ensure proper spacing */
+@media (max-width: 768px) {
+    .search-bar input {
+        padding-right: 32px; /* Keep consistent padding for clear button */
+    }
+}
