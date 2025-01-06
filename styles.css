@@ -1838,6 +1838,7 @@ body {
 #jupiter-terminal ::after,
 #jupiter-terminal {
     font-family: 'Roboto Mono', monospace !important;
+    border-radius: 30px !important;
 }
 
 #jupiter-terminal-instance .text-white {
