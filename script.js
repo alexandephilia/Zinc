@@ -657,27 +657,6 @@ const searchBar = document.querySelector('.search-bar');
 const searchInput = searchBar.querySelector('input');
 const clearBtn = searchBar.querySelector('.clear-btn');
 
-// Add keyboard shortcut badge
-const shortcutBadge = document.createElement('div');
-shortcutBadge.className = 'shortcut-badge';
-shortcutBadge.innerHTML = `<span>Ctrl</span>+<span>K</span>`;
-searchBar.appendChild(shortcutBadge);
-
-// Add keyboard shortcut listener
-document.addEventListener('keydown', (e) => {
-    // Check for Ctrl+K or Cmd+K (Mac)
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault(); // Prevent default browser behavior
-        searchInput.focus();
-    }
-    
-    // Add Escape key to blur search
-    if (e.key === 'Escape' && document.activeElement === searchInput) {
-        searchInput.blur();
-        clearSearch();
-    }
-});
-
 // Focus handling
 searchInput.addEventListener('focus', () => {
     searchBar.classList.add('focused');
@@ -710,8 +689,7 @@ function formatVolume(volume) {
 
 // Cache for recent searches
 const searchCache = new Map();
-const CACHE_EXPIRY = 60000; // Increased to 60 seconds for better caching
-let currentSearchController = null; // For cancelling in-flight requests
+const CACHE_EXPIRY = 30000; // 30 seconds
 
 // Function to search DexScreener pairs with caching
 async function searchDexScreenerPairs(query) {
@@ -720,7 +698,7 @@ async function searchDexScreenerPairs(query) {
     // Add loading state
     searchBar.classList.add('is-loading');
     
-    // Check cache first with case-insensitive key
+    // Check cache first
     const cacheKey = query.toLowerCase();
     const cachedResult = searchCache.get(cacheKey);
     if (cachedResult && (Date.now() - cachedResult.timestamp) < CACHE_EXPIRY) {
@@ -729,20 +707,8 @@ async function searchDexScreenerPairs(query) {
     }
     
     try {
-        // Cancel any in-flight request
-        if (currentSearchController) {
-            currentSearchController.abort();
-        }
-        
-        // Create new AbortController for this request
-        currentSearchController = new AbortController();
-        
         // Add chain filter directly in the query for better performance
-        const response = await fetch(
-            `https://api.dexscreener.com/latest/dex/search/?q=${encodeURIComponent(query)}%20chain%3Asolana`,
-            { signal: currentSearchController.signal }
-        );
-        
+        const response = await fetch(`https://api.dexscreener.com/latest/dex/search/?q=${encodeURIComponent(query)}%20chain%3Asolana`);
         const data = await response.json();
         
         // Additional filter to ensure only Solana pairs
@@ -754,31 +720,20 @@ async function searchDexScreenerPairs(query) {
             timestamp: Date.now()
         });
         
-        // Cleanup old cache entries
-        if (searchCache.size > 100) { // Prevent cache from growing too large
-            const oldestKey = Array.from(searchCache.keys())[0];
-            searchCache.delete(oldestKey);
-        }
+        // Remove loading state
+        searchBar.classList.remove('is-loading');
         
         return solanaPairs;
     } catch (error) {
-        if (error.name === 'AbortError') {
-            // Request was cancelled, do nothing
-            return;
-        }
         console.error('Error searching pairs:', error);
-        return [];
-    } finally {
-        // Remove loading state
+        // Remove loading state on error
         searchBar.classList.remove('is-loading');
-        currentSearchController = null;
+        return [];
     }
 }
 
 // Optimize DOM operations in result display
 function displaySearchResults(pairs) {
-    if (!pairs) return; // Don't process if pairs is undefined (from aborted request)
-    
     let resultsContainer = document.querySelector('.search-results');
     
     if (!resultsContainer) {
@@ -790,7 +745,10 @@ function displaySearchResults(pairs) {
     // Create document fragment for better performance
     const fragment = document.createDocumentFragment();
     
-    if (!pairs.length) {
+    // Filter for Solana pairs only
+    const solanaPairs = pairs.filter(pair => pair.chainId === 'solana');
+    
+    if (solanaPairs.length === 0) {
         const noResults = document.createElement('div');
         noResults.className = 'no-results';
         noResults.textContent = 'No pairs found on Solana';
@@ -802,73 +760,70 @@ function displaySearchResults(pairs) {
             maximumFractionDigits: 8
         });
         
-        // Use requestAnimationFrame for smoother rendering
-        requestAnimationFrame(() => {
-            pairs.slice(0, 10).forEach(pair => {
-                const resultItem = document.createElement('div');
-                resultItem.className = 'search-result-item';
-                
-                const price = parseFloat(pair.priceUsd);
-                const formattedPrice = price < 0.01 ? 
-                    formatter.format(price) : 
-                    formatter.format(price);
+        solanaPairs.slice(0, 10).forEach(pair => {
+            const resultItem = document.createElement('div');
+            resultItem.className = 'search-result-item';
+            
+            const price = parseFloat(pair.priceUsd);
+            const formattedPrice = price < 0.01 ? 
+                formatter.format(price) : 
+                formatter.format(price);
 
-                const priceChange24h = parseFloat(pair.priceChange.h24);
-                const priceChangeClass = priceChange24h >= 0 ? 'positive' : 'negative';
-                const priceChangeSign = priceChange24h >= 0 ? '+' : '';
+            const priceChange24h = parseFloat(pair.priceChange.h24);
+            const priceChangeClass = priceChange24h >= 0 ? 'positive' : 'negative';
+            const priceChangeSign = priceChange24h >= 0 ? '+' : '';
 
-                const shortContractAddress = pair.baseToken.address ? 
-                    `${pair.baseToken.address.slice(0, 6)}...${pair.baseToken.address.slice(-4)}` : '';
-                const shortPairAddress = pair.pairAddress ? 
-                    `${pair.pairAddress.slice(0, 6)}...${pair.pairAddress.slice(-4)}` : '';
-                
-                // Use template literal for better performance
-                resultItem.innerHTML = `
-                    <div class="result-pair">
-                        <div class="result-symbol">
-                            ${pair.baseToken.symbol}/${pair.quoteToken.symbol}
-                            <span class="chain-tag" data-chain="sol">SOL</span>
-                        </div>
-                        <div class="result-name-row">
-                            <span class="result-name">${pair.baseToken.name || 'Unknown Token'}</span>
-                            <span class="title-percentage ${priceChangeClass}">${priceChangeSign}${priceChange24h.toFixed(2)}%</span>
-                        </div>
-                        ${pair.baseToken.address ? `
-                            <div class="result-addresses">
-                                <div class="mini-contract-info">
-                                    <span class="mini-label">Contract:</span>
-                                    <span class="mini-address">${shortContractAddress}</span>
-                                </div>
-                                <div class="mini-contract-info">
-                                    <span class="mini-label">Pair:</span>
-                                    <span class="mini-address">${shortPairAddress}</span>
-                                </div>
+            const shortContractAddress = pair.baseToken.address ? 
+                `${pair.baseToken.address.slice(0, 6)}...${pair.baseToken.address.slice(-4)}` : '';
+            const shortPairAddress = pair.pairAddress ? 
+                `${pair.pairAddress.slice(0, 6)}...${pair.pairAddress.slice(-4)}` : '';
+            
+            // Use template literal for better performance than complex DOM creation
+            resultItem.innerHTML = `
+                <div class="result-pair">
+                    <div class="result-symbol">
+                        ${pair.baseToken.symbol}/${pair.quoteToken.symbol}
+                        <span class="chain-tag" data-chain="sol">SOL</span>
+                    </div>
+                    <div class="result-name-row">
+                        <span class="result-name">${pair.baseToken.name || 'Unknown Token'}</span>
+                        <span class="title-percentage ${priceChangeClass}">${priceChangeSign}${priceChange24h.toFixed(2)}%</span>
+                    </div>
+                    ${pair.baseToken.address ? `
+                        <div class="result-addresses">
+                            <div class="mini-contract-info">
+                                <span class="mini-label">Contract:</span>
+                                <span class="mini-address">${shortContractAddress}</span>
                             </div>
-                        ` : ''}
-                    </div>
-                    <div class="result-info">
-                        <div class="chain-tag" data-dex="${pair.dexId.toLowerCase()}" style="margin: 0 0 4px 0;">${pair.dexId}</div>
-                        <div class="result-price">$${formattedPrice}</div>
-                        <div class="result-volume">Vol $${formatVolume(pair.volume.h24)}</div>
-                        <div class="result-mcap">MCap $${formatVolume(pair.fdv)}</div>
-                    </div>
-                `;
-                
-                // Use event delegation for better performance
-                resultItem.addEventListener('click', () => {
-                    showPairChart(pair);
-                    clearSearch();
-                });
-                
-                fragment.appendChild(resultItem);
+                            <div class="mini-contract-info">
+                                <span class="mini-label">Pair:</span>
+                                <span class="mini-address">${shortPairAddress}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="result-info">
+                    <div class="chain-tag" data-dex="${pair.dexId.toLowerCase()}" style="margin: 0 0 4px 0;">${pair.dexId}</div>
+                    <div class="result-price">$${formattedPrice}</div>
+                    <div class="result-volume">Vol $${formatVolume(pair.volume.h24)}</div>
+                    <div class="result-mcap">MCap $${formatVolume(pair.fdv)}</div>
+                </div>
+            `;
+            
+            // Use event delegation for better performance
+            resultItem.addEventListener('click', () => {
+                showPairChart(pair);
+                clearSearch();
             });
             
-            // Clear and append in one operation
-            resultsContainer.innerHTML = '';
-            resultsContainer.appendChild(fragment);
-            resultsContainer.style.display = 'block';
+            fragment.appendChild(resultItem);
         });
     }
+    
+    // Clear and append in one operation
+    resultsContainer.innerHTML = '';
+    resultsContainer.appendChild(fragment);
+    resultsContainer.style.display = 'block';
 }
 
 // Function to clear search
@@ -882,23 +837,13 @@ function clearSearch() {
 }
 
 // Input handling with optimized debounce
-let searchTimeout;
 searchInput.addEventListener('input', (e) => {
     const query = e.target.value.trim();
     searchBar.classList.toggle('has-value', query.length > 0);
     
-    // Clear any existing timeout
-    clearTimeout(searchTimeout);
-    
     if (query.length >= 2) {
-        // Show loading state immediately
         searchBar.classList.add('is-loading');
-        
-        // Set a new timeout with reduced delay
-        searchTimeout = setTimeout(async () => {
-            const pairs = await searchDexScreenerPairs(query);
-            displaySearchResults(pairs);
-        }, 100); // Reduced from 150ms to 100ms for faster response
+        debouncedSearch(query);
     } else {
         searchBar.classList.remove('is-loading');
         const resultsContainer = document.querySelector('.search-results');
@@ -907,6 +852,16 @@ searchInput.addEventListener('input', (e) => {
         }
     }
 });
+
+// Reduce debounce time for faster response
+const debouncedSearch = debounce(async (query) => {
+    try {
+        const pairs = await searchDexScreenerPairs(query);
+        displaySearchResults(pairs);
+    } finally {
+        searchBar.classList.remove('is-loading');
+    }
+}, 150); // Reduced from 300ms to 150ms for faster response
 
 // Clear button
 clearBtn.addEventListener('click', () => {
@@ -1086,3 +1041,15 @@ const next = () => {
 
 // Start text scramble animation
 next();
+
+// Add keyboard shortcut handler
+document.addEventListener('keydown', function(e) {
+    // Check if Ctrl+K was pressed
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault(); // Prevent default browser behavior
+        const searchInput = document.querySelector('.search-bar input');
+        if (searchInput) {
+            searchInput.focus();
+        }
+    }
+});

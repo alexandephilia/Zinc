@@ -18,12 +18,48 @@ class WalletTracker {
             document.body.appendChild(modalsContainer);
         }
         
-        // Initialize Solana connection using Jupiter's RPC
-        this.connection = new solanaWeb3.Connection('https://mainnet.helius-rpc.com/?api-key=28ed041d-fd1f-47f3-8217-f87e8c1126a7');
+        // Initialize multiple RPC endpoints
+        this.rpcEndpoints = [
+            'https://mainnet.helius-rpc.com/?api-key=864eec10-224c-49c8-a275-fcd031e4c2d7',
+            'https://go.getblock.io/285683280f0e4402aed5d9a7788d8bef'
+        ];
+        this.currentRpcIndex = 0;
+        this.initializeConnection();
         
         // Load saved wallets from localStorage
         this.loadSavedWallets();
         this.initializeEventListeners();
+    }
+
+    initializeConnection() {
+        try {
+            this.connection = new solanaWeb3.Connection(this.rpcEndpoints[this.currentRpcIndex]);
+            console.log('Connected to RPC:', this.rpcEndpoints[this.currentRpcIndex]);
+        } catch (error) {
+            console.error('Failed to connect to primary RPC, switching to fallback');
+            this.switchRpcEndpoint();
+        }
+    }
+
+    switchRpcEndpoint() {
+        this.currentRpcIndex = (this.currentRpcIndex + 1) % this.rpcEndpoints.length;
+        this.initializeConnection();
+        return this.connection;
+    }
+
+    async retryWithFallback(operation) {
+        for (let attempt = 0; attempt < this.rpcEndpoints.length; attempt++) {
+            try {
+                return await operation(this.connection);
+            } catch (error) {
+                console.error(`RPC error (endpoint ${this.currentRpcIndex}):`, error);
+                if (attempt < this.rpcEndpoints.length - 1) {
+                    this.connection = this.switchRpcEndpoint();
+                } else {
+                    throw error;
+                }
+            }
+        }
     }
 
     loadSavedWallets() {
@@ -386,18 +422,22 @@ class WalletTracker {
             const pubKey = new solanaWeb3.PublicKey(address);
             console.log('Public key created successfully:', pubKey.toString());
 
-            // Get native SOL balance
-            const solBalance = await this.connection.getBalance(pubKey);
+            // Get native SOL balance with fallback
+            const solBalance = await this.retryWithFallback(async (connection) => {
+                return await connection.getBalance(pubKey);
+            });
             console.log('SOL balance:', solBalance / solanaWeb3.LAMPORTS_PER_SOL);
 
-            // Get all token accounts owned by this wallet
+            // Get all token accounts owned by this wallet with fallback
             console.log('Fetching token accounts...');
-            const accounts = await this.connection.getParsedTokenAccountsByOwner(
-                pubKey,
-                {
-                    programId: new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
-                }
-            );
+            const accounts = await this.retryWithFallback(async (connection) => {
+                return await connection.getParsedTokenAccountsByOwner(
+                    pubKey,
+                    {
+                        programId: new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
+                    }
+                );
+            });
             
             console.log('Raw accounts data:', accounts);
 

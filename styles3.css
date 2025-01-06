@@ -592,10 +592,6 @@
         display: flex;
     }
 
-    .nav-actions {
-        margin-left: 0;
-        gap: 2px;
-    }
 
     .nav-actions .icon-btn {
         width: 32px;

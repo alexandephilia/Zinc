@@ -205,17 +205,30 @@
         max-height: calc(80vh - 120px);
     }
 
-    /* Add positioning context for the dropdown */
+    /* Updated positioning for mobile */
     .notification-dropdown {
         position: relative;
-        margin-right: 8px;
+        margin-left: auto; /* Push to the far right */
+        margin-right: 0; /* Remove right margin */
     }
 
     /* Ensure the dropdown stays above other content */
     .notification-dropdown.active {
         z-index: 1000;
     }
-} 
+}
+
+@media (max-width: 480px) {
+    .notification-dropdown {
+        margin-left: 8px; /* Add some spacing from the search bar */
+    }
+    
+    .search-bar {
+        margin: 0 4px;
+        flex: 1; /* Allow search bar to take remaining space */
+        max-width: none; /* Remove max-width constraint */
+    }
+}
 
 
 
@@ -289,18 +302,10 @@
     display: none;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.search-bar.has-value .clear-btn {
-    display: flex;
-    opacity: 0.7;
 }
 
 .search-bar .clear-btn:hover {
     background: var(--secondary-bg);
-    opacity: 1;
 }
 
 .search-bar .clear-btn .material-icons-round {
@@ -315,11 +320,7 @@
 }
 
 @media (max-width: 768px) {
-    .search-bar {
-        margin: 0 8px;
-        height: 32px;
-        min-width: 0;
-    }
+   
 
     .search-bar input {
         font-size: 13px;
@@ -445,45 +446,30 @@
 }
 
 /* Keyboard Shortcut Badge */
-.shortcut-badge {
+.search-bar .shortcut-badge {
     position: absolute;
-    right: 4px;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    background: var(--secondary-bg);
+    background: var(--tertiary-bg);
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    padding: 1px 4px;
+    padding: 2px 4px;
     font-size: 10px;
     color: var(--text-secondary);
     font-family: 'Roboto Mono', monospace;
     opacity: 0.7;
     pointer-events: none;
     transition: opacity 0.2s ease;
-    display: none; /* Hide by default */
-    align-items: center;
-    gap: 2px;
-}
-
-/* Only show on desktop */
-@media (min-width: 769px) {
-    .shortcut-badge {
-        display: flex;
-    }
-}
-
-.shortcut-badge span {
-    line-height: 1;
 }
 
 .search-bar.has-value .shortcut-badge,
-.search-bar.focused .shortcut-badge {
+.search-bar:focus-within .shortcut-badge {
     display: none;
 }
 
-/* Update mobile styles to ensure proper spacing */
 @media (max-width: 768px) {
-    .search-bar input {
-        padding-right: 32px; /* Keep consistent padding for clear button */
+    .search-bar .shortcut-badge {
+        display: none;
     }
 }

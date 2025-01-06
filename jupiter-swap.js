@@ -1,10 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Jupiter Terminal with a slight delay to ensure DOM is ready
-    setTimeout(() => {
+    // RPC configuration
+    const rpcEndpoints = [
+        'https://mainnet.helius-rpc.com/?api-key=864eec10-224c-49c8-a275-fcd031e4c2d7',
+        'https://go.getblock.io/285683280f0e4402aed5d9a7788d8bef'
+    ];
+    let currentRpcIndex = 0;
+
+    // Function to initialize Jupiter with current RPC
+    const initJupiter = (rpcEndpoint) => {
         window.Jupiter.init({
             displayMode: "integrated",
             integratedTargetId: "integrated-terminal",
-            endpoint: "https://mainnet.helius-rpc.com/?api-key=28ed041d-fd1f-47f3-8217-f87e8c1126a7",
+            endpoint: rpcEndpoint,
             platformFeeAndAccounts: {
                 feeBps: 10,
                 feeAccounts: {}
@@ -82,8 +89,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 }
+            },
+            onError: (error) => {
+                console.error('Jupiter Terminal error:', error);
+                // If we get an RPC error, try switching to the fallback RPC
+                if (error.message && (
+                    error.message.includes('Failed to fetch') || 
+                    error.message.includes('Network Error') ||
+                    error.message.includes('timeout')
+                )) {
+                    currentRpcIndex = (currentRpcIndex + 1) % rpcEndpoints.length;
+                    console.log('Switching to fallback RPC:', rpcEndpoints[currentRpcIndex]);
+                    // Reinitialize Jupiter with new RPC
+                    initJupiter(rpcEndpoints[currentRpcIndex]);
+                }
             }
         });
+    };
+
+    // Initialize Jupiter Terminal with a slight delay to ensure DOM is ready
+    setTimeout(() => {
+        initJupiter(rpcEndpoints[currentRpcIndex]);
     }, 100);
 
     // Bottom sheet functionality
