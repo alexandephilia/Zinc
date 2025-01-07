@@ -519,13 +519,26 @@ class WalletTracker {
         }
 
         try {
-            // Sort holdings by amount (but keep SOL first)
-            const sortedHoldings = holdings.sort((a, b) => {
-                if (a.isNativeSol) return -1;
-                if (b.isNativeSol) return 1;
-                return (parseFloat(b.tokenAmount.uiAmountString) * (b.tokenAmount.uiPrice || 1)) - 
-                       (parseFloat(a.tokenAmount.uiAmountString) * (a.tokenAmount.uiPrice || 1));
+            // First, fetch all token metadata in parallel
+            const metadataPromises = holdings.map(token => this.getTokenMetadata(token.mint));
+            const metadataResults = await Promise.allSettled(metadataPromises);
+            
+            // Calculate USD values and create enhanced holdings array
+            const enhancedHoldings = holdings.map((token, index) => {
+                const metadata = metadataResults[index].status === 'fulfilled' ? metadataResults[index].value : null;
+                const priceUsd = metadata?.priceUsd ? parseFloat(metadata.priceUsd) : 0;
+                const usdValue = token.tokenAmount.uiAmount * priceUsd;
+                
+                return {
+                    ...token,
+                    metadata,
+                    usdValue,
+                    priceUsd
+                };
             });
+
+            // Sort by USD value, no special treatment for SOL
+            const sortedHoldings = enhancedHoldings.sort((a, b) => b.usdValue - a.usdValue);
 
             // Create container for holdings
             holdingsContainer.innerHTML = `
@@ -551,21 +564,22 @@ class WalletTracker {
                 expandText.textContent = holdingsContainer.classList.contains('collapsed') ? 'Show More' : 'Show Less';
             });
 
-            // First, show SOL balance immediately
-            const solToken = sortedHoldings.find(t => t.isNativeSol);
-            if (solToken) {
-                const solMetadata = await this.getTokenMetadata(solToken.mint);
-                const solUsdValue = solMetadata?.priceUsd ? 
-                    (solToken.tokenAmount.uiAmount * parseFloat(solMetadata.priceUsd)).toFixed(2) : null;
+            // Process all holdings in sorted order
+            sortedHoldings.forEach(token => {
+                const metadata = token.metadata;
+                if (!metadata) return; // Skip if no metadata
+                
+                const symbol = token.isNativeSol ? 'SOL' : metadata.symbol;
+                const name = token.isNativeSol ? 'Solana' : metadata.name;
                 
                 const holdingHTML = `
-                    <div class="token-holding" data-address="So11111111111111111111111111111111111111112">
+                    <div class="token-holding" data-address="${token.mint}">
                         <div class="token-info">
-                            <span title="Solana">SOL</span>
+                            <span title="${name}">${symbol}</span>
                         </div>
                         <div class="token-values">
-                            <span class="token-amount">${this.formatAmount(solToken.tokenAmount.uiAmount)}</span>
-                            ${solUsdValue ? `<span class="token-usd">$${this.formatUsdValue(solUsdValue)}</span>` : ''}
+                            <span class="token-amount">${this.formatAmount(token.tokenAmount.uiAmount)}</span>
+                            ${token.usdValue ? `<span class="token-usd">$${this.formatUsdValue(token.usdValue)}</span>` : ''}
                         </div>
                     </div>
                 `;
@@ -574,43 +588,9 @@ class WalletTracker {
                 const holdingElement = tempDiv.firstElementChild;
                 this.addCopyToClipboardHandler(holdingElement);
                 holdingsList.appendChild(holdingElement);
-            }
-
-            // Batch process other tokens
-            const otherTokens = sortedHoldings.filter(t => !t.isNativeSol);
-            const tokenMetadataPromises = otherTokens.map(token => this.getTokenMetadata(token.mint));
-            
-            // Wait for all metadata to be fetched
-            const tokenMetadataResults = await Promise.allSettled(tokenMetadataPromises);
-            
-            // Process results and update UI
-            otherTokens.forEach((token, index) => {
-                const metadataResult = tokenMetadataResults[index];
-                if (metadataResult.status === 'fulfilled' && metadataResult.value) {
-                    const tokenInfo = metadataResult.value;
-                    const usdValue = tokenInfo.priceUsd ? 
-                        (token.tokenAmount.uiAmount * parseFloat(tokenInfo.priceUsd)).toFixed(2) : null;
-                    
-                    const holdingHTML = `
-                        <div class="token-holding" data-address="${token.mint}">
-                            <div class="token-info">
-                                <span title="${tokenInfo.name}">${tokenInfo.symbol}</span>
-                            </div>
-                            <div class="token-values">
-                                <span class="token-amount">${this.formatAmount(token.tokenAmount.uiAmount)}</span>
-                                ${usdValue ? `<span class="token-usd">$${this.formatUsdValue(usdValue)}</span>` : ''}
-                            </div>
-                        </div>
-                    `;
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = holdingHTML;
-                    const holdingElement = tempDiv.firstElementChild;
-                    this.addCopyToClipboardHandler(holdingElement);
-                    holdingsList.appendChild(holdingElement);
-                }
             });
 
-            // If no tokens were added (except SOL), show no holdings message
+            // If no tokens were added, show no holdings message
             if (holdingsList.children.length === 0) {
                 holdingsContainer.innerHTML = '<div class="no-holdings">No tokens found</div>';
             }
