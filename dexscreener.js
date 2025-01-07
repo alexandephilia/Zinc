@@ -1,37 +1,118 @@
 // Token configuration for trending cards
-window.TRENDING_TOKENS = {
-    SPX: {
-        address: '9t1H1uDJ558iMPNkEPSN1fqkpC4XSPQ6cqSf6uEsTfTR',
-         name: 'SPX6900 (Wormhole)',
-        symbol: 'SPX'
-    },
-    POPCAT: {
-        address: 'FRhB8L7Y9Qq41qZXYLtC2nw8An1RJfLLxRF2x9RwLLMo',
-        name: 'Pop Cat',
-        symbol: 'POPCAT'
-    },
-    JUP: {
-        address: 'C1MgLojNLWBKADvu9BHdtgzz1oZX4dZ5zGdGcgvvW8Wz',
-        name: 'Jupiter',
-        symbol: 'JUP'
-    },
-    PENGU: {
-        address: 'B4Vwozy1FGtp8SELXSXydWSzavPUGnJ77DURV2k4MhUV',
-        name: 'Penguin',
-        symbol: 'PENGU'
-    },
-    ZEUS: {
-        address: 'e5x7mwprg8pdaqbt5hj1ehu4crasgukux5mwcjutuszu',
-        name: 'Zeus',
-        symbol: 'ZEUS'
-    },
-    NOS: {
-        address: 'dx76uas2ckv4f13kb5zkivd5rlevjyjrsxhnharaujvb',
-        name: 'Nosana',
-        symbol: 'NOS'
+window.TRENDING_TOKENS = {};
+
+// Function to fetch trending tokens from DexScreener
+window.fetchTrendingTokens = async function() {
+    try {
+        // Fetch token boosts from DexScreener
+        const response = await fetch('https://api.dexscreener.com/token-boosts/latest/v1');
+        const data = await response.json();
+        
+        // Process only Solana tokens
+        const solanaTokens = data.filter(token => token.chainId === 'solana');
+        
+        // Get market grid and store current scroll position
+        const marketGridScroll = document.getElementById('marketGridScroll');
+        const currentScrollPosition = marketGridScroll ? marketGridScroll.scrollTop : 0;
+        
+        // Update TRENDING_TOKENS with new data
+        window.TRENDING_TOKENS = {};
+
+        // Process each token
+        solanaTokens.forEach(token => {
+            // Extract token symbol and name from description
+            let symbol = '';
+            let name = '';
+            
+            if (token.description) {
+                // Try to extract $SYMBOL from the start of description
+                const symbolMatch = token.description.match(/^\$?([A-Za-z0-9]+)/);
+                if (symbolMatch) {
+                    symbol = symbolMatch[1].toUpperCase(); // Convert to uppercase
+                    // Get the rest as name, removing the symbol part
+                    name = token.description.replace(/^\$?[A-Za-z0-9]+\s*/, '').trim();
+                } else {
+                    // If no symbol found in description, try to extract from token address
+                    symbol = token.tokenAddress.slice(0, 6).toUpperCase();
+                    name = token.description;
+                }
+            } else {
+                // Fallback to token address if no description
+                symbol = token.tokenAddress.slice(0, 6).toUpperCase();
+                name = symbol;
+            }
+            
+            window.TRENDING_TOKENS[symbol] = {
+                address: token.tokenAddress,
+                name: name || symbol,
+                symbol: symbol,
+                description: token.description || '',
+                priceUsd: '0',
+                volume24h: 0,
+                liquidity: 0,
+                priceChange: { h24: 0 }
+            };
+        });
+        
+        // Fetch price data for each token
+        const pricePromises = Object.values(window.TRENDING_TOKENS).map(async (token) => {
+            try {
+                const url = `https://api.dexscreener.com/latest/dex/tokens/${token.address}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.pairs && data.pairs.length > 0) {
+                    // Find the Solana pair with highest liquidity
+                    const solanaPair = data.pairs
+                        .filter(pair => pair.chainId === 'solana')
+                        .sort((a, b) => parseFloat(b.liquidity?.usd || 0) - parseFloat(a.liquidity?.usd || 0))[0];
+
+                    if (solanaPair) {
+                        // Update token information from pair data
+                        if (solanaPair.baseToken) {
+                            token.symbol = solanaPair.baseToken.symbol;
+                            // Only update name if it's not just the symbol repeated
+                            if (solanaPair.baseToken.name && solanaPair.baseToken.name !== solanaPair.baseToken.symbol) {
+                                token.name = solanaPair.baseToken.name;
+                            }
+                        }
+                        
+                        token.priceUsd = solanaPair.priceUsd;
+                        token.volume24h = solanaPair.volume?.h24 || 0;
+                        token.liquidity = solanaPair.liquidity?.usd || 0;
+                        token.priceChange = solanaPair.priceChange || { h24: 0 };
+                        token.pairAddress = solanaPair.pairAddress;
+                    }
+                }
+            } catch (error) {
+                console.error(`Error fetching price data for ${token.symbol}:`, error);
+            }
+        });
+
+        // Wait for all price data to be fetched
+        await Promise.all(pricePromises);
+        
+        // Initialize market cards only if they don't exist
+        if (marketGridScroll && marketGridScroll.children.length === 0) {
+            const tokens = Object.values(window.TRENDING_TOKENS);
+            // Generate initial set of cards (3 sets for smooth scrolling)
+            const cardsHTML = tokens.map(token => generateMarketCard(token)).join('') +
+                            tokens.map(token => generateMarketCard(token)).join('') +
+                            tokens.map(token => generateMarketCard(token)).join('');
+            
+            marketGridScroll.innerHTML = cardsHTML;
+
+            // Set initial scroll position to middle set
+            const middleHeight = marketGridScroll.scrollHeight / 3;
+            marketGridScroll.scrollTop = middleHeight;
+        } else if (marketGridScroll) {
+            // Restore scroll position
+            marketGridScroll.scrollTop = currentScrollPosition;
+        }
+    } catch (error) {
+        console.error('Error fetching trending tokens:', error);
     }
-    // Add more trending tokens here
-};
+}
 
 // Helper function to get token by symbol from trending list
 window.getTrendingToken = function(symbol) {
@@ -41,10 +122,10 @@ window.getTrendingToken = function(symbol) {
 // Function to get pair address for a trending token symbol
 window.getTrendingPairAddress = function(symbol) {
     const token = window.getTrendingToken(symbol);
-    return token ? token.address : null;
+    return token ? token.pairAddress : null;
 }
 
-// Function to fetch pair data from DexScreener (shared functionality)
+// Function to fetch pair data from DexScreener
 window.fetchPairData = async function(symbol, pairAddress) {
     if (!pairAddress) {
         console.error(`No pair address found for symbol: ${symbol}`);
@@ -67,6 +148,28 @@ window.updateMarketCard = function(symbol, pair) {
     marketCards.forEach(marketCard => {
         if (!marketCard || !pair) return;
 
+        // Update token information if available
+        const token = window.TRENDING_TOKENS[symbol];
+        if (pair.baseToken && token) {
+            token.symbol = pair.baseToken.symbol;
+            if (pair.baseToken.name && pair.baseToken.name !== pair.baseToken.symbol) {
+                token.name = pair.baseToken.name;
+            }
+        }
+
+        // Format symbol with $ prefix
+        const formattedSymbol = `$${token.symbol}`;
+
+        // Update title and subtitle
+        const titleElement = marketCard.querySelector('.market-pair');
+        const subtitleElement = marketCard.querySelector('.market-subtitle');
+        if (titleElement) {
+            titleElement.textContent = `${formattedSymbol}/SOL`;
+        }
+        if (subtitleElement) {
+            subtitleElement.textContent = token.name || formattedSymbol;
+        }
+
         // Update price
         const priceElement = marketCard.querySelector('.market-price');
         if (priceElement) {
@@ -81,7 +184,7 @@ window.updateMarketCard = function(symbol, pair) {
         // Update 24h change and card state
         const percentageElement = marketCard.querySelector('.title-percentage');
         if (percentageElement) {
-            const priceChange = parseFloat(pair.priceChange.h24);
+            const priceChange = parseFloat(pair.priceChange?.h24 || 0);
             percentageElement.textContent = `${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%`;
             percentageElement.className = `title-percentage ${priceChange >= 0 ? 'positive' : 'negative'}`;
             
@@ -93,18 +196,18 @@ window.updateMarketCard = function(symbol, pair) {
             const trendIcon = marketCard.querySelector('.market-trend-icon');
             if (trendIcon) {
                 trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
-                trendIcon.style.color = `var(--${priceChange >= 0 ? 'success' : 'danger'}-color)`;
+                trendIcon.style.color = priceChange >= 0 ? '#00FF88' : '#FF3B69'; // Direct color values
             }
         }
 
-        // Update volume and 24h stats
+        // Update volume and stats
         const statsElement = marketCard.querySelector('.market-stats');
         if (statsElement) {
-            const volume = parseFloat(pair.volume.h24);
-            const mcap = parseFloat(pair.fdv);
+            const volume = parseFloat(pair.volume?.h24 || 0);
+            const liquidity = parseFloat(pair.liquidity?.usd || 0);
             statsElement.innerHTML = `
-                <span>Vol ${formatNumber(volume)}</span>
-                <span>MCap: $${formatNumber(mcap)}</span>
+                <span>Vol $${formatNumber(volume)}</span>
+                <span>Liq: $${formatNumber(liquidity)}</span>
             `;
         }
     });
@@ -256,29 +359,106 @@ function formatNumber(num) {
 
 // Function to generate market card HTML
 function generateMarketCard(token) {
-    const isInWatchlist = window.WATCHLIST_TOKENS[token.symbol];
+    const isInWatchlist = window.WATCHLIST_TOKENS?.[token.symbol];
+    const priceChange = parseFloat(token.priceChange?.h24 || 0);
+    const trendClass = priceChange >= 0 ? 'positive' : 'negative';
+    const trendIcon = priceChange >= 0 ? 'trending_up' : 'trending_down';
+    const trendColor = priceChange >= 0 ? '#00FF88' : '#FF3B69'; // Direct color values instead of CSS variables
+    
+    // Format symbol with $ prefix
+    const formattedSymbol = token.symbol.startsWith('$') ? token.symbol : `$${token.symbol}`;
+    
     return `
-        <div class="market-card negative" data-symbol="${token.symbol}">
+        <div class="market-card ${trendClass}" data-symbol="${token.symbol}" data-pair-address="${token.pairAddress}">
             <button class="add-to-watchlist ${isInWatchlist ? 'added' : ''}" title="${isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}">
                 <span class="material-icons-round">${isInWatchlist ? 'done' : 'add'}</span>
             </button>
             <div class="market-header">
                 <div class="market-title-group">
                     <div class="market-title">
-                        <span class="material-icons-round market-trend-icon" style="font-size: 16px; color: var(--danger-color);">trending_down</span>
-                        <span class="market-pair">${token.symbol}/SOL</span>
+                        <span class="material-icons-round market-trend-icon" style="font-size: 16px; color: ${trendColor};">${trendIcon}</span>
+                        <span class="market-pair">${formattedSymbol}/SOL</span>
                     </div>
-                    <div class="market-subtitle">${token.name}</div>
+                    <div class="market-subtitle">${token.name && token.name !== token.symbol ? token.name : formattedSymbol}</div>
                 </div>
-                <span class="title-percentage negative">0.00%</span>
+                <span class="title-percentage ${trendClass}">${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%</span>
             </div>
-            <div class="market-price">$0.00000000</div>
+            <div class="market-price">$${parseFloat(token.priceUsd || 0).toFixed(8)}</div>
             <div class="market-stats">
-                <span>Vol $0.00</span>
-                <span>MCap: $0.00</span>
+                <span>Vol $${formatNumber(token.volume24h || 0)}</span>
+                <span>Liq: $${formatNumber(token.liquidity || 0)}</span>
             </div>
         </div>
     `;
+}
+
+// Function to handle infinite scroll
+function handleInfiniteScroll() {
+    const marketGridScroll = document.getElementById('marketGridScroll');
+    if (!marketGridScroll) return;
+
+    // Get all current cards
+    const cards = marketGridScroll.querySelectorAll('.market-card');
+    const cardHeight = cards[0]?.offsetHeight || 0;
+    const containerHeight = marketGridScroll.offsetHeight;
+    const scrollPosition = marketGridScroll.scrollTop;
+    const totalScrollHeight = marketGridScroll.scrollHeight;
+
+    // If we're near the end of the scroll (within 2 card heights)
+    if (scrollPosition + containerHeight > totalScrollHeight - (cardHeight * 2)) {
+        // Get current tokens
+        const tokens = Object.values(window.TRENDING_TOKENS);
+        if (tokens.length === 0) return;
+
+        // Add another set of cards
+        const newCardsHTML = tokens.map(token => generateMarketCard(token)).join('');
+        
+        // Create a temporary container to hold the new cards
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = newCardsHTML;
+        
+        // Append each new card with a slight delay for smooth animation
+        Array.from(tempContainer.children).forEach((card, index) => {
+            setTimeout(() => {
+                marketGridScroll.appendChild(card);
+            }, index * 50);
+        });
+    }
+
+    // If we're near the start of the scroll (within 2 card heights)
+    if (scrollPosition < cardHeight * 2) {
+        // Get current tokens
+        const tokens = Object.values(window.TRENDING_TOKENS);
+        if (tokens.length === 0) return;
+
+        // Add cards to the beginning
+        const newCardsHTML = tokens.map(token => generateMarketCard(token)).join('');
+        
+        // Create a temporary container
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = newCardsHTML;
+        
+        // Store the current scroll position
+        const currentScroll = marketGridScroll.scrollTop;
+        
+        // Add new cards to the beginning
+        Array.from(tempContainer.children).reverse().forEach((card, index) => {
+            setTimeout(() => {
+                marketGridScroll.insertBefore(card, marketGridScroll.firstChild);
+                // Maintain scroll position
+                marketGridScroll.scrollTop = currentScroll + card.offsetHeight;
+            }, index * 50);
+        });
+    }
+
+    // Cleanup: Remove excess cards to prevent memory issues
+    const maxCards = 100; // Maximum number of cards to keep in DOM
+    const allCards = marketGridScroll.querySelectorAll('.market-card');
+    if (allCards.length > maxCards) {
+        // Remove cards from the opposite end of where we're scrolling
+        const cardsToRemove = Array.from(allCards).slice(0, allCards.length - maxCards);
+        cardsToRemove.forEach(card => card.remove());
+    }
 }
 
 // Function to initialize market cards
@@ -286,23 +466,21 @@ window.initializeMarketCards = function() {
     const marketGridScroll = document.getElementById('marketGridScroll');
     if (!marketGridScroll) return;
 
-    // Generate HTML for all cards (original + two duplicates for seamless scroll)
-    const tokens = Object.values(window.TRENDING_TOKENS);
-    const cardsHTML = tokens.map(token => generateMarketCard(token)).join('') +
-                     tokens.map(token => generateMarketCard(token)).join('') +
-                     tokens.map(token => generateMarketCard(token)).join('');
+    // Initial fetch of trending tokens
+    window.fetchTrendingTokens();
     
-    marketGridScroll.innerHTML = cardsHTML;
-
-    // Initial trending update
-    window.updateTrendingData();
+    // Set up trending update interval (every 30 seconds for token list, 2 seconds for prices)
+    const trendingTokensInterval = setInterval(window.fetchTrendingTokens, 30000);
+    const trendingDataInterval = setInterval(window.updateTrendingData, 2000);
     
-    // Set up trending update interval (every 2 seconds instead of 500ms)
-    const trendingInterval = setInterval(window.updateTrendingData, 2000);
+    // Add scroll event listener for infinite scroll
+    marketGridScroll.addEventListener('scroll', handleInfiniteScroll);
     
     // Clean up on page unload
     window.addEventListener('beforeunload', () => {
-        clearInterval(trendingInterval);
+        clearInterval(trendingTokensInterval);
+        clearInterval(trendingDataInterval);
+        marketGridScroll.removeEventListener('scroll', handleInfiniteScroll);
     });
 
     // Add click handlers for market cards and watchlist buttons
@@ -337,10 +515,12 @@ window.initializeMarketCards = function() {
 
         if (card) {
             const symbol = card.getAttribute('data-symbol');
-            const pairAddress = window.getTrendingPairAddress(symbol);
+            const pairAddress = card.getAttribute('data-pair-address');
+            if (pairAddress) {
             const pair = await window.fetchPairData(symbol, pairAddress);
             if (pair) {
                 window.showPairChart(pair);
+                }
             }
         }
     });
