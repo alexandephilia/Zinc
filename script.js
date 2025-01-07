@@ -12,6 +12,7 @@ let contentLoaded = false;
 // Chart Style Toggle functionality
 let currentChartStyle = 1; // 1 for candles, 3 for bars
 let sideToolbarVisible = false; // Track side toolbar visibility state
+let topToolbarVisible = false; // Track top toolbar visibility state
 
 resizer.addEventListener('mousedown', initResize);
 document.addEventListener('mousemove', resize);
@@ -82,10 +83,10 @@ function initTradingViewWidget(container, symbol, interval) {
         "toolbar_bg": "#131722",
         "enable_publishing": false,
         "hide_side_toolbar": !sideToolbarVisible,
+        "hide_top_toolbar": !topToolbarVisible,
         "allow_symbol_change": true,
         "save_image": false,
         "container_id": "tradingview_solana",
-        "hide_top_toolbar": true,
         "studies": [],
         "show_popup_button": false,
         "popup_width": "1000",
@@ -172,6 +173,32 @@ document.querySelector('.chart-controls .icon-btn:nth-child(2)').addEventListene
     
     // Update chart with new toolbar visibility
     updateChartStyle(currentChartStyle);
+});
+
+// Add click handler for widgets toggle
+document.querySelector('.chart-controls .icon-btn:nth-child(3)').addEventListener('click', () => {
+    const widgetsButton = document.querySelector('.chart-controls .icon-btn:nth-child(3)');
+    const icon = widgetsButton.querySelector('.material-icons-round');
+    
+    // Toggle top toolbar visibility
+    topToolbarVisible = !topToolbarVisible;
+    
+    // Update button appearance
+    if (topToolbarVisible) {
+        widgetsButton.classList.add('active');
+        icon.style.color = 'var(--primary-color)';
+    } else {
+        widgetsButton.classList.remove('active');
+        icon.style.color = '';
+    }
+    
+    // Get current chart state
+    const container = document.getElementById('tradingview_solana');
+    const symbol = container.getAttribute('data-symbol') || 'BINANCE:SOLUSDT';
+    const interval = container.getAttribute('data-interval') || '15';
+    
+    // Reinitialize chart with new toolbar state
+    initTradingViewWidget(container, symbol, interval);
 });
 
 // Market Filter functionality

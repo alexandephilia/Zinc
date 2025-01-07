@@ -1,20 +1,88 @@
 // Token configuration for trending cards
 window.TRENDING_TOKENS = {};
 
-// Function to fetch trending tokens from DexScreener
-window.fetchTrendingTokens = async function() {
+// Rate limiting configuration
+window.API_CONFIG = {
+    lastFetchTimestamp: 0,
+    minFetchInterval: 500, // Minimum 500ms between requests
+    consecutiveErrors: 0,
+    backoffDelay: 1000, // Initial backoff delay
+    maxBackoffDelay: 30000, // Maximum backoff delay
+    rateLimitCooldown: false
+};
+
+// Function to handle rate limiting and backoff
+async function withRateLimit(apiCall) {
+    const now = Date.now();
+    const timeSinceLastFetch = now - window.API_CONFIG.lastFetchTimestamp;
+    
+    // Enforce minimum interval between requests
+    if (timeSinceLastFetch < window.API_CONFIG.minFetchInterval) {
+        await new Promise(resolve => 
+            setTimeout(resolve, window.API_CONFIG.minFetchInterval - timeSinceLastFetch)
+        );
+    }
+
+    // If in cooldown, wait
+    if (window.API_CONFIG.rateLimitCooldown) {
+        await new Promise(resolve => 
+            setTimeout(resolve, window.API_CONFIG.maxBackoffDelay)
+        );
+        window.API_CONFIG.rateLimitCooldown = false;
+    }
+
     try {
-        // Fetch token boosts from DexScreener
-        const response = await fetch('https://api.dexscreener.com/token-boosts/top/v1');
+        window.API_CONFIG.lastFetchTimestamp = Date.now();
+        const result = await apiCall();
+        
+        // Reset error count on success
+        window.API_CONFIG.consecutiveErrors = 0;
+        window.API_CONFIG.backoffDelay = 1000;
+        
+        return result;
+    } catch (error) {
+        // Handle rate limiting specifically
+        if (error.message.includes('429') || error.message.toLowerCase().includes('rate limit')) {
+            window.API_CONFIG.rateLimitCooldown = true;
+            window.API_CONFIG.consecutiveErrors++;
+            
+            // Exponential backoff
+            const backoffDelay = Math.min(
+                window.API_CONFIG.backoffDelay * Math.pow(2, window.API_CONFIG.consecutiveErrors),
+                window.API_CONFIG.maxBackoffDelay
+            );
+            
+            console.warn(`Rate limit detected, backing off for ${backoffDelay}ms`);
+            await new Promise(resolve => setTimeout(resolve, backoffDelay));
+        }
+        throw error;
+    }
+}
+
+// Function to fetch trending tokens with retry mechanism
+window.fetchTrendingTokens = async function(retryCount = 0) {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 2000; // Increased to 2 seconds
+
+    try {
+        const response = await withRateLimit(() => 
+            fetch('https://api.dexscreener.com/token-boosts/top/v1')
+        );
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         
         // Process only Solana tokens
         const solanaTokens = data.filter(token => token.chainId === 'solana');
         
-        // Get market grid and store current scroll position
-        const marketGridScroll = document.getElementById('marketGridScroll');
-        const currentScrollPosition = marketGridScroll ? marketGridScroll.scrollTop : 0;
-        
+        if (solanaTokens.length === 0 && retryCount < MAX_RETRIES) {
+            console.warn(`No Solana tokens found, retrying... (${retryCount + 1}/${MAX_RETRIES})`);
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+            return window.fetchTrendingTokens(retryCount + 1);
+        }
+
         // Update TRENDING_TOKENS with new data
         window.TRENDING_TOKENS = {};
 
@@ -25,53 +93,51 @@ window.fetchTrendingTokens = async function() {
             let name = '';
             
             if (token.description) {
-                // Try to extract $SYMBOL from the start of description
                 const symbolMatch = token.description.match(/^\$?([A-Za-z0-9]+)/);
                 if (symbolMatch) {
-                    symbol = symbolMatch[1].toUpperCase(); // Convert to uppercase
-                    // Get the rest as name, removing the symbol part
+                    symbol = symbolMatch[1].toUpperCase();
                     name = token.description.replace(/^\$?[A-Za-z0-9]+\s*/, '').trim();
                 } else {
-                    // If no symbol found in description, use token address
                     symbol = token.tokenAddress.slice(0, 6).toUpperCase();
-                    name = symbol; // Use symbol as name instead of description
+                    name = symbol;
                 }
             } else {
-                // Fallback to token address for symbol
                 symbol = token.tokenAddress.slice(0, 6).toUpperCase();
-                name = symbol; // Use symbol as name
+                name = symbol;
             }
             
             window.TRENDING_TOKENS[symbol] = {
                 address: token.tokenAddress,
-                name: name || symbol, // Ensure name falls back to symbol
+                name: name || symbol,
                 symbol: symbol,
-                description: symbol, // Use symbol as fallback for description
+                description: symbol,
                 priceUsd: '0',
                 volume24h: 0,
                 liquidity: 0,
-                priceChange: { h24: 0 }
+                priceChange: { h24: 0 },
+                pairAddress: null // Initialize pairAddress
             };
         });
-        
-        // Fetch price data for each token
-        const pricePromises = Object.values(window.TRENDING_TOKENS).map(async (token) => {
+
+        // Fetch price data with retry mechanism
+        const fetchPriceWithRetry = async (token, retryCount = 0) => {
             try {
-                const url = `https://api.dexscreener.com/latest/dex/tokens/${token.address}`;
-                const response = await fetch(url);
+                const response = await withRateLimit(() =>
+                    fetch(`https://api.dexscreener.com/latest/dex/tokens/${token.address}`)
+                );
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const data = await response.json();
                 
                 if (data.pairs && data.pairs.length > 0) {
-                    // Find the Solana pair with highest liquidity
                     const solanaPair = data.pairs
                         .filter(pair => pair.chainId === 'solana')
                         .sort((a, b) => parseFloat(b.liquidity?.usd || 0) - parseFloat(a.liquidity?.usd || 0))[0];
 
                     if (solanaPair) {
-                        // Update token information from pair data
                         if (solanaPair.baseToken) {
                             token.symbol = solanaPair.baseToken.symbol;
-                            // Only update name if it's not just the symbol repeated
                             if (solanaPair.baseToken.name && solanaPair.baseToken.name !== solanaPair.baseToken.symbol) {
                                 token.name = solanaPair.baseToken.name;
                             }
@@ -85,40 +151,33 @@ window.fetchTrendingTokens = async function() {
                     }
                 }
             } catch (error) {
-                console.error(`Error fetching price data for ${token.symbol}:`, error);
+                if (retryCount < MAX_RETRIES) {
+                    console.warn(`Retrying price fetch for ${token.symbol}... (${retryCount + 1}/${MAX_RETRIES})`);
+                    await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+                    return fetchPriceWithRetry(token, retryCount + 1);
+                }
+                console.error(`Failed to fetch price data for ${token.symbol}:`, error);
             }
-        });
+        };
 
-        // Wait for all price data to be fetched
-        await Promise.all(pricePromises);
-        
-        // Initialize market cards only if they don't exist
-        if (marketGridScroll && marketGridScroll.children.length === 0) {
-            const tokens = Object.values(window.TRENDING_TOKENS);
-            if (tokens.length === 0) return;
-
-            // Calculate how many sets we need to fill viewport plus buffer
-            const dummyCard = document.createElement('div');
-            dummyCard.className = 'market-card';
-            marketGridScroll.appendChild(dummyCard);
-            const cardHeight = dummyCard.offsetHeight;
-            dummyCard.remove();
-
-            const viewportHeight = marketGridScroll.offsetHeight;
-            const setsNeeded = Math.ceil((viewportHeight * 3) / (cardHeight * tokens.length));
-            
-            // Generate enough cards to fill viewport plus buffer
-            const cardsHTML = Array(setsNeeded).fill(tokens.map(token => generateMarketCard(token)).join('')).join('');
-            marketGridScroll.innerHTML = cardsHTML;
-
-            // Set initial scroll position to middle
-            marketGridScroll.scrollTop = (marketGridScroll.scrollHeight - viewportHeight) / 2;
-        } else if (marketGridScroll) {
-            // Restore scroll position
-            marketGridScroll.scrollTop = currentScrollPosition;
+        // Fetch prices in parallel with a concurrency limit
+        const CONCURRENT_REQUESTS = 5;
+        const tokens = Object.values(window.TRENDING_TOKENS);
+        for (let i = 0; i < tokens.length; i += CONCURRENT_REQUESTS) {
+            const batch = tokens.slice(i, i + CONCURRENT_REQUESTS);
+            await Promise.all(batch.map(token => fetchPriceWithRetry(token)));
         }
+
+        return true; // Indicate successful fetch
     } catch (error) {
         console.error('Error fetching trending tokens:', error);
+        if (retryCount < MAX_RETRIES) {
+            const backoffDelay = RETRY_DELAY * Math.pow(2, retryCount);
+            console.warn(`Retrying trending tokens fetch... (${retryCount + 1}/${MAX_RETRIES}) after ${backoffDelay}ms`);
+            await new Promise(resolve => setTimeout(resolve, backoffDelay));
+            return window.fetchTrendingTokens(retryCount + 1);
+        }
+        throw error; // Re-throw if all retries failed
     }
 }
 
@@ -402,13 +461,12 @@ function generateMarketCard(token) {
     const priceChange = parseFloat(token.priceChange?.h24 || 0);
     const trendClass = priceChange >= 0 ? 'positive' : 'negative';
     const trendIcon = priceChange >= 0 ? 'trending_up' : 'trending_down';
-    const trendColor = priceChange >= 0 ? '#00FF88' : '#FF3B69';
     
     // Format symbol with $ prefix
     const formattedSymbol = token.symbol.startsWith('$') ? token.symbol : `$${token.symbol}`;
     
     // Ensure description doesn't exceed max length and add ellipsis if needed
-    const maxDescLength = 20; // Adjust this value based on your needs
+    const maxDescLength = 20;
     let displayName = token.name && token.name !== token.symbol ? token.name : formattedSymbol;
     if (displayName.length > maxDescLength) {
         displayName = displayName.substring(0, maxDescLength) + '...';
@@ -422,7 +480,7 @@ function generateMarketCard(token) {
             <div class="market-header">
                 <div class="market-title-group">
                     <div class="market-title">
-                        <span class="material-icons-round market-trend-icon" style="font-size: 16px; color: ${trendColor};">${trendIcon}</span>
+                        <span class="material-icons-round market-trend-icon" style="font-size: 16px; color: var(${priceChange >= 0 ? '--success-color' : '--danger-color'});">${trendIcon}</span>
                         <span class="market-pair">${formattedSymbol}/SOL</span>
                     </div>
                     <div class="market-subtitle" title="${token.name || formattedSymbol}">${displayName}</div>
@@ -443,77 +501,123 @@ function handleInfiniteScroll() {
     const marketGridScroll = document.getElementById('marketGridScroll');
     if (!marketGridScroll) return;
 
-    // Get all current cards and container dimensions
     const cards = marketGridScroll.querySelectorAll('.market-card');
     if (cards.length === 0) return;
 
-    const cardHeight = cards[0].offsetHeight;
-    const containerHeight = marketGridScroll.offsetHeight;
-    const scrollPosition = marketGridScroll.scrollTop;
-    const totalScrollHeight = marketGridScroll.scrollHeight;
-        const tokens = Object.values(window.TRENDING_TOKENS);
-        if (tokens.length === 0) return;
+    const tokens = Object.values(window.TRENDING_TOKENS);
+    if (tokens.length === 0) return;
 
-    // Calculate dynamic threshold based on viewport
-    const threshold = containerHeight;
+    // FIXED VALUES - NO MORE DYNAMIC BULLSHIT
+    const FIXED_TOTAL_SETS = 10; // We maintain exactly 10 sets at all times
     const setSize = tokens.length;
+    const cardHeight = cards[0].offsetHeight;
+    const scrollPosition = marketGridScroll.scrollTop;
+    const containerHeight = marketGridScroll.offsetHeight;
+    const totalScrollHeight = marketGridScroll.scrollHeight;
     
-    // If scrolled near the bottom
-    if (scrollPosition + containerHeight > totalScrollHeight - threshold) {
-        // Calculate how many sets to add based on scroll speed
-        const scrollSpeed = Math.abs(marketGridScroll.lastScrollTop - scrollPosition) || 0;
-        marketGridScroll.lastScrollTop = scrollPosition;
-        const setsToAdd = Math.max(1, Math.floor(scrollSpeed / (cardHeight * setSize)));
-        
-        // Clone and append sets
-        for (let i = 0; i < setsToAdd; i++) {
-            const startIdx = (Math.floor(scrollPosition / (cardHeight * setSize)) * setSize) % cards.length;
-            const cardsToClone = Array.from(cards).slice(startIdx, startIdx + setSize);
-            
-            cardsToClone.forEach(card => {
-                const clone = card.cloneNode(true);
-                marketGridScroll.appendChild(clone);
-            });
-        }
-        
-        // Remove excess sets from top
-        while (cards.length > setSize * 5) {
+    // Calculate the current set index based on scroll position
+    const currentSetIndex = Math.floor(scrollPosition / (cardHeight * setSize));
+    
+    // If we're near the bottom, recycle top sets to bottom
+    if (scrollPosition + containerHeight > totalScrollHeight - (cardHeight * setSize * 2)) {
+        // Only remove from top if we have more than FIXED_TOTAL_SETS
+        if (Math.floor(cards.length / setSize) >= FIXED_TOTAL_SETS) {
+            // Remove one set from top
             for (let i = 0; i < setSize; i++) {
-                cards[i].remove();
+                cards[i]?.remove();
             }
-            // Adjust scroll position
+            
+            // Add one set to bottom
+            tokens.forEach(token => {
+                const cardHTML = generateMarketCard(token);
+                marketGridScroll.insertAdjacentHTML('beforeend', cardHTML);
+            });
+            
+            // Adjust scroll position to prevent jump
             marketGridScroll.scrollTop = scrollPosition - (cardHeight * setSize);
+        } else {
+            // Just add if we're under the fixed total
+            tokens.forEach(token => {
+                const cardHTML = generateMarketCard(token);
+                marketGridScroll.insertAdjacentHTML('beforeend', cardHTML);
+            });
         }
     }
-    
-    // If scrolled near the top
-    if (scrollPosition < threshold) {
-        // Calculate how many sets to add based on scroll speed
-        const scrollSpeed = Math.abs(marketGridScroll.lastScrollTop - scrollPosition) || 0;
-        marketGridScroll.lastScrollTop = scrollPosition;
-        const setsToAdd = Math.max(1, Math.floor(scrollSpeed / (cardHeight * setSize)));
-        
-        // Clone and prepend sets
-        for (let i = 0; i < setsToAdd; i++) {
-            const endIdx = Math.floor((scrollPosition + containerHeight) / (cardHeight * setSize)) * setSize;
-            const cardsToClone = Array.from(cards).slice(endIdx - setSize, endIdx);
-            
-            cardsToClone.reverse().forEach(card => {
-                const clone = card.cloneNode(true);
-                marketGridScroll.insertBefore(clone, marketGridScroll.firstChild);
-            });
-            
-            // Adjust scroll position to maintain viewport
-            marketGridScroll.scrollTop = scrollPosition + (cardHeight * setSize);
-        }
-        
-        // Remove excess sets from bottom
-        while (cards.length > setSize * 5) {
+
+    // If we're near the top, recycle bottom sets to top
+    if (scrollPosition < cardHeight * setSize * 2) {
+        // Only remove from bottom if we have more than FIXED_TOTAL_SETS
+        if (Math.floor(cards.length / setSize) >= FIXED_TOTAL_SETS) {
+            // Remove one set from bottom
             for (let i = 0; i < setSize; i++) {
-                cards[cards.length - 1 - i].remove();
+                cards[cards.length - 1 - i]?.remove();
+            }
+            
+            // Add one set to top
+            const heightBeforeAdd = marketGridScroll.scrollHeight;
+            tokens.forEach(token => {
+                const cardHTML = generateMarketCard(token);
+                marketGridScroll.insertAdjacentHTML('afterbegin', cardHTML);
+            });
+        
+            // Maintain scroll position
+        marketGridScroll.scrollTop = scrollPosition + (marketGridScroll.scrollHeight - heightBeforeAdd);
+        } else {
+            // Just add if we're under the fixed total
+            tokens.forEach(token => {
+                const cardHTML = generateMarketCard(token);
+                marketGridScroll.insertAdjacentHTML('afterbegin', cardHTML);
+            });
+        }
+    }
+
+    // ENFORCE MAXIMUM SETS - This is our safety net
+    const currentSets = Math.floor(cards.length / setSize);
+    if (currentSets > FIXED_TOTAL_SETS) {
+        const excessSets = currentSets - FIXED_TOTAL_SETS;
+        const cardsToRemove = excessSets * setSize;
+        
+        // Remove excess from whichever end is further from the viewport
+        if (scrollPosition > totalScrollHeight / 2) {
+            // Remove from top
+            for (let i = 0; i < cardsToRemove; i++) {
+                if (cards[i]) {
+                    const cardHeight = cards[i].offsetHeight;
+                    cards[i].remove();
+                    marketGridScroll.scrollTop -= cardHeight;
+                }
+            }
+        } else {
+            // Remove from bottom
+            for (let i = 0; i < cardsToRemove; i++) {
+                cards[cards.length - 1 - i]?.remove();
             }
         }
     }
+}
+
+// Function to generate skeleton card HTML
+function generateSkeletonCard() {
+    return `
+        <div class="market-card skeleton">
+            <div class="skeleton-button"></div>
+            <div class="market-header">
+                <div class="market-title-group">
+                    <div class="market-title">
+                        <div class="skeleton-icon"></div>
+                        <div class="skeleton-text-long"></div>
+                    </div>
+                    <div class="skeleton-text-short"></div>
+                </div>
+                <div class="skeleton-text-short"></div>
+            </div>
+            <div class="skeleton-text-long"></div>
+            <div class="market-stats">
+                <div class="skeleton-text-medium"></div>
+                <div class="skeleton-text-medium"></div>
+            </div>
+        </div>
+    `;
 }
 
 // Function to initialize market cards
@@ -521,29 +625,103 @@ window.initializeMarketCards = function() {
     const marketGridScroll = document.getElementById('marketGridScroll');
     if (!marketGridScroll) return;
 
-    // Initial fetch of trending tokens
-    window.fetchTrendingTokens();
-    
-    // Set up trending update interval (every 30 seconds for token list, 2 seconds for prices)
-    const trendingTokensInterval = setInterval(window.fetchTrendingTokens, 30000);
-    const trendingDataInterval = setInterval(window.updateTrendingData, 2000);
-    
-    // Add scroll event listener with throttling for better performance
+    let isInitialLoad = true;
+    let retryAttempt = 0;
+    const MAX_INIT_RETRIES = 3;
+
+    const initializeWithRetry = async () => {
+        try {
+            // Show skeleton loading first
+            if (isInitialLoad) {
+                const approximateVisibleCards = Math.ceil(window.innerHeight / 100) * 2;
+                const skeletonCards = Array(approximateVisibleCards).fill(generateSkeletonCard()).join('');
+                marketGridScroll.innerHTML = skeletonCards;
+            }
+
+            // Initial fetch of trending tokens
+            await window.fetchTrendingTokens();
+            const tokens = Object.values(window.TRENDING_TOKENS);
+            
+            if (tokens.length === 0) {
+                throw new Error('No tokens fetched');
+            }
+
+            // Calculate initial sets needed
+            const cardHeight = 100;
+            const containerHeight = marketGridScroll.offsetHeight;
+            const setsInViewport = Math.ceil(containerHeight / (cardHeight * tokens.length));
+            const totalSetsNeeded = setsInViewport + 2;
+
+            // Generate initial cards
+            const initialCards = Array(totalSetsNeeded).fill(tokens)
+                .flat()
+                .map(token => generateMarketCard(token))
+                .join('');
+
+            // Quick transition
+            marketGridScroll.style.opacity = '0';
+            marketGridScroll.innerHTML = initialCards;
+
+            requestAnimationFrame(() => {
+                marketGridScroll.style.transition = 'opacity 0.15s ease-out';
+                marketGridScroll.style.opacity = '1';
+                marketGridScroll.scrollTop = cardHeight * tokens.length;
+                
+                setTimeout(() => {
+                    marketGridScroll.style.transition = '';
+                }, 150);
+            });
+
+            isInitialLoad = false;
+
+            // Set up intervals with more conservative timing
+            if (!window.trendingUpdateIntervals) {
+                window.trendingUpdateIntervals = {
+                    tokens: setInterval(window.fetchTrendingTokens, 60000), // Every 60 seconds
+                    data: setInterval(window.updateTrendingData, 5000)      // Every 5 seconds
+                };
+            }
+
+        } catch (error) {
+            console.error('Failed to initialize market cards:', error);
+            retryAttempt++;
+            
+            if (retryAttempt < MAX_INIT_RETRIES) {
+                console.warn(`Retrying initialization... (${retryAttempt}/${MAX_INIT_RETRIES})`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                await initializeWithRetry();
+            } else {
+                // Show error state in UI
+                marketGridScroll.innerHTML = `
+                    <div class="error-state">
+                        <span class="material-icons-round">error_outline</span>
+                        <p>Failed to load trending tokens</p>
+                        <button onclick="window.initializeMarketCards()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+    };
+
+    // Start initialization
+    initializeWithRetry();
+
+    // More responsive scroll handling
     let scrollTimeout;
     marketGridScroll.addEventListener('scroll', () => {
         if (!scrollTimeout) {
             scrollTimeout = setTimeout(() => {
                 handleInfiniteScroll();
                 scrollTimeout = null;
-            }, 100); // Throttle to 100ms
+            }, 30);
         }
     });
-    
+
     // Clean up on page unload
     window.addEventListener('beforeunload', () => {
         clearInterval(trendingTokensInterval);
         clearInterval(trendingDataInterval);
-        marketGridScroll.removeEventListener('scroll', handleInfiniteScroll);
+        clearTimeout(loadingTimeout);
     });
 
     // Add click handlers for market cards and watchlist buttons
@@ -588,6 +766,181 @@ window.initializeMarketCards = function() {
         }
     });
 }
+
+// Add CSS styles for skeleton loading
+const style = document.createElement('style');
+style.textContent = `
+    .skeleton {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .skeleton > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .skeleton::before,
+    .skeleton::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .skeleton::before {
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.05) 20%,
+            rgba(255, 255, 255, 0.1) 60%,
+            rgba(255, 255, 255, 0.05) 80%,
+            transparent 100%
+        );
+        transform: translateX(-100%);
+        animation: shimmerWave 2s infinite;
+        z-index: 2;
+    }
+
+    .skeleton::after {
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.02) 50%,
+            transparent 100%
+        );
+        transform: translateX(-100%);
+        animation: shimmerWave 2s infinite 0.5s;
+        z-index: 1;
+    }
+
+    @keyframes shimmerWave {
+        0% {
+            transform: translateX(-100%);
+        }
+        50%, 100% {
+            transform: translateX(100%);
+        }
+    }
+
+    .skeleton-button {
+        width: 24px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        margin: 8px;
+    }
+
+    .skeleton-icon {
+        width: 16px;
+        height: 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+    .skeleton-text-short,
+    .skeleton-text-medium,
+    .skeleton-text-long {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        margin: 4px 0;
+        transform: translateZ(0);
+        will-change: transform;
+    }
+
+    .skeleton-text-short {
+        width: 60px;
+        height: 16px;
+    }
+
+    .skeleton-text-medium {
+        width: 100px;
+        height: 16px;
+    }
+
+    .skeleton-text-long {
+        width: 140px;
+        height: 16px;
+    }
+
+    /* Enhance skeleton card appearance */
+    .market-card.skeleton {
+        background: rgb(22, 21, 21);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform: translateZ(0);
+        will-change: transform;
+    }
+
+    /* Add subtle pulse animation to elements */
+    .skeleton-text-short,
+    .skeleton-text-medium,
+    .skeleton-text-long,
+    .skeleton-button,
+    .skeleton-icon {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 0.8;
+        }
+        50% {
+            opacity: 0.4;
+        }
+    }
+
+    /* Hardware acceleration for smoother animations */
+    .skeleton,
+    .skeleton::before,
+    .skeleton::after {
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        transform: translateZ(0);
+        perspective: 1000px;
+        will-change: transform;
+    }
+`;
+
+document.head.appendChild(style);
+
+// Add error state styles
+const errorStyles = `
+    .error-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        gap: 16px;
+        color: var(--text-primary);
+    }
+
+    .error-state .material-icons-round {
+        font-size: 48px;
+        color: var(--danger-color);
+    }
+
+    .error-state button {
+        padding: 8px 16px;
+        border-radius: 8px;
+        background: var(--primary-color);
+        border: none;
+        color: white;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .error-state button:hover {
+        opacity: 0.8;
+    }
+`;
+
+style.textContent += errorStyles;
 
 // Initialize market cards when DOM is loaded
 window.addEventListener('DOMContentLoaded', window.initializeMarketCards);

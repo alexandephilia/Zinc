@@ -371,6 +371,12 @@
         font-size: 18px;
     }
 
+    @media (max-width: 768px) {
+        .chart-title .material-icons-round {
+            font-size: 12px;
+        }
+    }
+
     .chart-title > div > div:first-child {
         font-size: 13px;
         font-weight: 600;
