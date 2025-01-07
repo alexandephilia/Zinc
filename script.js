@@ -254,7 +254,7 @@ window.showTrendingView = function() {
     sectionHeader.innerHTML = `
         <div class="section-title">
             <span class="material-icons-round" style="animation: glowPulse 2s ease-in-out infinite;">trending_up</span>
-            Trending
+            Degen Trending
         </div>
     `;
 
