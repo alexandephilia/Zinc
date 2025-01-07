@@ -46,7 +46,7 @@ window.fetchTrendingTokens = async function() {
                 address: token.tokenAddress,
                 name: name || symbol, // Ensure name falls back to symbol
                 symbol: symbol,
-                description: token.description || symbol, // Use symbol as fallback for description
+                description: symbol, // Use symbol as fallback for description
                 priceUsd: '0',
                 volume24h: 0,
                 liquidity: 0,
@@ -95,16 +95,24 @@ window.fetchTrendingTokens = async function() {
         // Initialize market cards only if they don't exist
         if (marketGridScroll && marketGridScroll.children.length === 0) {
             const tokens = Object.values(window.TRENDING_TOKENS);
-            // Generate initial set of cards (3 sets for smooth scrolling)
-            const cardsHTML = tokens.map(token => generateMarketCard(token)).join('') +
-                            tokens.map(token => generateMarketCard(token)).join('') +
-                            tokens.map(token => generateMarketCard(token)).join('');
+            if (tokens.length === 0) return;
+
+            // Calculate how many sets we need to fill viewport plus buffer
+            const dummyCard = document.createElement('div');
+            dummyCard.className = 'market-card';
+            marketGridScroll.appendChild(dummyCard);
+            const cardHeight = dummyCard.offsetHeight;
+            dummyCard.remove();
+
+            const viewportHeight = marketGridScroll.offsetHeight;
+            const setsNeeded = Math.ceil((viewportHeight * 3) / (cardHeight * tokens.length));
             
+            // Generate enough cards to fill viewport plus buffer
+            const cardsHTML = Array(setsNeeded).fill(tokens.map(token => generateMarketCard(token)).join('')).join('');
             marketGridScroll.innerHTML = cardsHTML;
 
-            // Set initial scroll position to middle set
-            const middleHeight = marketGridScroll.scrollHeight / 3;
-            marketGridScroll.scrollTop = middleHeight;
+            // Set initial scroll position to middle
+            marketGridScroll.scrollTop = (marketGridScroll.scrollHeight - viewportHeight) / 2;
         } else if (marketGridScroll) {
             // Restore scroll position
             marketGridScroll.scrollTop = currentScrollPosition;
@@ -142,6 +150,28 @@ window.fetchPairData = async function(symbol, pairAddress) {
     }
 }
 
+// Function to format price with smart decimal notation
+function formatTokenPrice(price) {
+    if (!price) return '$0.00';
+    
+    const numPrice = parseFloat(price);
+    if (numPrice === 0) return '$0.00';
+    
+    // For prices >= 0.00000001, show normal format
+    if (numPrice >= 0.00000001) {
+        return `$${numPrice.toFixed(8)}`;
+    }
+    
+    // For very small numbers, use special notation
+    const priceStr = numPrice.toFixed(10);
+    const zeroCount = priceStr.match(/^0\.0*/)[0].length - 2; // Count zeros after decimal
+    
+    // Extract significant digits after zeros
+    const significantDigits = priceStr.slice(zeroCount + 2, zeroCount + 6);
+    
+    return `$0.00(${zeroCount})${significantDigits}`;
+}
+
 // Function to update market card
 window.updateMarketCard = function(symbol, pair) {
     const marketCards = document.querySelectorAll(`.market-card[data-symbol="${symbol}"]`);
@@ -170,10 +200,10 @@ window.updateMarketCard = function(symbol, pair) {
             subtitleElement.textContent = token.name || formattedSymbol;
         }
 
-        // Update price
+        // Update price with new formatting
         const priceElement = marketCard.querySelector('.market-price');
         if (priceElement) {
-            const newPrice = `$${parseFloat(pair.priceUsd).toFixed(8)}`;
+            const newPrice = formatTokenPrice(pair.priceUsd);
             if (priceElement.textContent !== newPrice) {
                 priceElement.textContent = newPrice;
                 priceElement.classList.add('price-update');
@@ -196,7 +226,7 @@ window.updateMarketCard = function(symbol, pair) {
             const trendIcon = marketCard.querySelector('.market-trend-icon');
             if (trendIcon) {
                 trendIcon.textContent = priceChange >= 0 ? 'trending_up' : 'trending_down';
-                trendIcon.style.color = priceChange >= 0 ? '#00FF88' : '#FF3B69'; // Direct color values
+                trendIcon.style.color = priceChange >= 0 ? '#00FF88' : '#FF3B69';
             }
         }
 
@@ -340,6 +370,9 @@ async function copyToClipboard(text, clickedButton) {
 
 // Function to update trending cards data only
 window.updateTrendingData = async function() {
+    const marketGridScroll = document.getElementById('marketGridScroll');
+    if (!marketGridScroll) return;
+
     for (const symbol of Object.keys(window.TRENDING_TOKENS)) {
         const pairAddress = window.getTrendingPairAddress(symbol);
         const pair = await window.fetchPairData(symbol, pairAddress);
@@ -363,7 +396,7 @@ function generateMarketCard(token) {
     const priceChange = parseFloat(token.priceChange?.h24 || 0);
     const trendClass = priceChange >= 0 ? 'positive' : 'negative';
     const trendIcon = priceChange >= 0 ? 'trending_up' : 'trending_down';
-    const trendColor = priceChange >= 0 ? '#00FF88' : '#FF3B69'; // Direct color values instead of CSS variables
+    const trendColor = priceChange >= 0 ? '#00FF88' : '#FF3B69';
     
     // Format symbol with $ prefix
     const formattedSymbol = token.symbol.startsWith('$') ? token.symbol : `$${token.symbol}`;
@@ -383,7 +416,7 @@ function generateMarketCard(token) {
                 </div>
                 <span class="title-percentage ${trendClass}">${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%</span>
             </div>
-            <div class="market-price">$${parseFloat(token.priceUsd || 0).toFixed(8)}</div>
+            <div class="market-price">${formatTokenPrice(token.priceUsd)}</div>
             <div class="market-stats">
                 <span>Vol $${formatNumber(token.volume24h || 0)}</span>
                 <span>Liq: $${formatNumber(token.liquidity || 0)}</span>
@@ -405,49 +438,65 @@ function handleInfiniteScroll() {
     const containerHeight = marketGridScroll.offsetHeight;
     const scrollPosition = marketGridScroll.scrollTop;
     const totalScrollHeight = marketGridScroll.scrollHeight;
-    const tokens = Object.values(window.TRENDING_TOKENS);
-    
-    // Calculate threshold for scroll detection (1.5 viewport height)
-    const threshold = containerHeight * 1.5;
+        const tokens = Object.values(window.TRENDING_TOKENS);
+        if (tokens.length === 0) return;
+
+    // Calculate dynamic threshold based on viewport
+    const threshold = containerHeight;
+    const setSize = tokens.length;
     
     // If scrolled near the bottom
     if (scrollPosition + containerHeight > totalScrollHeight - threshold) {
-        // Clone the first set of cards and append them
-        const firstSetCount = tokens.length;
-        const firstSetCards = Array.from(cards).slice(0, firstSetCount);
+        // Calculate how many sets to add based on scroll speed
+        const scrollSpeed = Math.abs(marketGridScroll.lastScrollTop - scrollPosition) || 0;
+        marketGridScroll.lastScrollTop = scrollPosition;
+        const setsToAdd = Math.max(1, Math.floor(scrollSpeed / (cardHeight * setSize)));
         
-        firstSetCards.forEach(card => {
-            const clone = card.cloneNode(true);
-            marketGridScroll.appendChild(clone);
-        });
+        // Clone and append sets
+        for (let i = 0; i < setsToAdd; i++) {
+            const startIdx = (Math.floor(scrollPosition / (cardHeight * setSize)) * setSize) % cards.length;
+            const cardsToClone = Array.from(cards).slice(startIdx, startIdx + setSize);
+            
+            cardsToClone.forEach(card => {
+                const clone = card.cloneNode(true);
+                marketGridScroll.appendChild(clone);
+            });
+        }
         
-        // If we have too many cards, remove some from the top
-        if (cards.length > firstSetCount * 4) {
-            for (let i = 0; i < firstSetCount; i++) {
+        // Remove excess sets from top
+        while (cards.length > setSize * 5) {
+            for (let i = 0; i < setSize; i++) {
                 cards[i].remove();
             }
-            // Adjust scroll position to maintain viewport
-            marketGridScroll.scrollTop = scrollPosition - (cardHeight * firstSetCount);
+            // Adjust scroll position
+            marketGridScroll.scrollTop = scrollPosition - (cardHeight * setSize);
         }
     }
     
     // If scrolled near the top
     if (scrollPosition < threshold) {
-        // Clone the last set of cards and prepend them
-        const lastSetCount = tokens.length;
-        const lastSetCards = Array.from(cards).slice(-lastSetCount);
+        // Calculate how many sets to add based on scroll speed
+        const scrollSpeed = Math.abs(marketGridScroll.lastScrollTop - scrollPosition) || 0;
+        marketGridScroll.lastScrollTop = scrollPosition;
+        const setsToAdd = Math.max(1, Math.floor(scrollSpeed / (cardHeight * setSize)));
         
-        lastSetCards.reverse().forEach(card => {
-            const clone = card.cloneNode(true);
-            marketGridScroll.insertBefore(clone, marketGridScroll.firstChild);
-        });
+        // Clone and prepend sets
+        for (let i = 0; i < setsToAdd; i++) {
+            const endIdx = Math.floor((scrollPosition + containerHeight) / (cardHeight * setSize)) * setSize;
+            const cardsToClone = Array.from(cards).slice(endIdx - setSize, endIdx);
+            
+            cardsToClone.reverse().forEach(card => {
+                const clone = card.cloneNode(true);
+                marketGridScroll.insertBefore(clone, marketGridScroll.firstChild);
+            });
+            
+            // Adjust scroll position to maintain viewport
+            marketGridScroll.scrollTop = scrollPosition + (cardHeight * setSize);
+        }
         
-        // Adjust scroll position to maintain viewport
-        marketGridScroll.scrollTop = scrollPosition + (cardHeight * lastSetCount);
-        
-        // If we have too many cards, remove some from the bottom
-        if (cards.length > lastSetCount * 4) {
-            for (let i = 0; i < lastSetCount; i++) {
+        // Remove excess sets from bottom
+        while (cards.length > setSize * 5) {
+            for (let i = 0; i < setSize; i++) {
                 cards[cards.length - 1 - i].remove();
             }
         }
@@ -518,9 +567,9 @@ window.initializeMarketCards = function() {
             const symbol = card.getAttribute('data-symbol');
             const pairAddress = card.getAttribute('data-pair-address');
             if (pairAddress) {
-                const pair = await window.fetchPairData(symbol, pairAddress);
-                if (pair) {
-                    window.showPairChart(pair);
+            const pair = await window.fetchPairData(symbol, pairAddress);
+            if (pair) {
+                window.showPairChart(pair);
                 }
             }
         }
