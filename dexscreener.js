@@ -32,21 +32,21 @@ window.fetchTrendingTokens = async function() {
                     // Get the rest as name, removing the symbol part
                     name = token.description.replace(/^\$?[A-Za-z0-9]+\s*/, '').trim();
                 } else {
-                    // If no symbol found in description, try to extract from token address
+                    // If no symbol found in description, use token address
                     symbol = token.tokenAddress.slice(0, 6).toUpperCase();
-                    name = token.description;
+                    name = symbol; // Use symbol as name instead of description
                 }
             } else {
-                // Fallback to token address if no description
+                // Fallback to token address for symbol
                 symbol = token.tokenAddress.slice(0, 6).toUpperCase();
-                name = symbol;
+                name = symbol; // Use symbol as name
             }
             
             window.TRENDING_TOKENS[symbol] = {
                 address: token.tokenAddress,
-                name: name || symbol,
+                name: name || symbol, // Ensure name falls back to symbol
                 symbol: symbol,
-                description: token.description || '',
+                description: token.description || symbol, // Use symbol as fallback for description
                 priceUsd: '0',
                 volume24h: 0,
                 liquidity: 0,
