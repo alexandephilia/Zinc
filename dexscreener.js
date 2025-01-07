@@ -190,14 +190,20 @@ window.updateMarketCard = function(symbol, pair) {
         // Format symbol with $ prefix
         const formattedSymbol = `$${token.symbol}`;
 
-        // Update title and subtitle
+        // Update title and subtitle with ellipsis
         const titleElement = marketCard.querySelector('.market-pair');
         const subtitleElement = marketCard.querySelector('.market-subtitle');
         if (titleElement) {
             titleElement.textContent = `${formattedSymbol}/SOL`;
         }
         if (subtitleElement) {
-            subtitleElement.textContent = token.name || formattedSymbol;
+            const maxDescLength = 20;
+            let displayName = token.name && token.name !== token.symbol ? token.name : formattedSymbol;
+            if (displayName.length > maxDescLength) {
+                displayName = displayName.substring(0, maxDescLength) + '...';
+            }
+            subtitleElement.textContent = displayName;
+            subtitleElement.title = token.name || formattedSymbol; // Full text in tooltip
         }
 
         // Update price with new formatting
@@ -401,6 +407,13 @@ function generateMarketCard(token) {
     // Format symbol with $ prefix
     const formattedSymbol = token.symbol.startsWith('$') ? token.symbol : `$${token.symbol}`;
     
+    // Ensure description doesn't exceed max length and add ellipsis if needed
+    const maxDescLength = 20; // Adjust this value based on your needs
+    let displayName = token.name && token.name !== token.symbol ? token.name : formattedSymbol;
+    if (displayName.length > maxDescLength) {
+        displayName = displayName.substring(0, maxDescLength) + '...';
+    }
+    
     return `
         <div class="market-card ${trendClass}" data-symbol="${token.symbol}" data-pair-address="${token.pairAddress}">
             <button class="add-to-watchlist ${isInWatchlist ? 'added' : ''}" title="${isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}">
@@ -412,7 +425,7 @@ function generateMarketCard(token) {
                         <span class="material-icons-round market-trend-icon" style="font-size: 16px; color: ${trendColor};">${trendIcon}</span>
                         <span class="market-pair">${formattedSymbol}/SOL</span>
                     </div>
-                    <div class="market-subtitle">${token.name && token.name !== token.symbol ? token.name : formattedSymbol}</div>
+                    <div class="market-subtitle" title="${token.name || formattedSymbol}">${displayName}</div>
                 </div>
                 <span class="title-percentage ${trendClass}">${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%</span>
             </div>
