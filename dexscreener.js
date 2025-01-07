@@ -5,7 +5,7 @@ window.TRENDING_TOKENS = {};
 window.fetchTrendingTokens = async function() {
     try {
         // Fetch token boosts from DexScreener
-        const response = await fetch('https://api.dexscreener.com/token-boosts/latest/v1');
+        const response = await fetch('https://api.dexscreener.com/token-boosts/top/v1');
         const data = await response.json();
         
         // Process only Solana tokens
