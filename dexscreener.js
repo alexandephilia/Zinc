@@ -397,67 +397,60 @@ function handleInfiniteScroll() {
     const marketGridScroll = document.getElementById('marketGridScroll');
     if (!marketGridScroll) return;
 
-    // Get all current cards
+    // Get all current cards and container dimensions
     const cards = marketGridScroll.querySelectorAll('.market-card');
-    const cardHeight = cards[0]?.offsetHeight || 0;
+    if (cards.length === 0) return;
+
+    const cardHeight = cards[0].offsetHeight;
     const containerHeight = marketGridScroll.offsetHeight;
     const scrollPosition = marketGridScroll.scrollTop;
     const totalScrollHeight = marketGridScroll.scrollHeight;
-
-    // If we're near the end of the scroll (within 2 card heights)
-    if (scrollPosition + containerHeight > totalScrollHeight - (cardHeight * 2)) {
-        // Get current tokens
-        const tokens = Object.values(window.TRENDING_TOKENS);
-        if (tokens.length === 0) return;
-
-        // Add another set of cards
-        const newCardsHTML = tokens.map(token => generateMarketCard(token)).join('');
+    const tokens = Object.values(window.TRENDING_TOKENS);
+    
+    // Calculate threshold for scroll detection (1.5 viewport height)
+    const threshold = containerHeight * 1.5;
+    
+    // If scrolled near the bottom
+    if (scrollPosition + containerHeight > totalScrollHeight - threshold) {
+        // Clone the first set of cards and append them
+        const firstSetCount = tokens.length;
+        const firstSetCards = Array.from(cards).slice(0, firstSetCount);
         
-        // Create a temporary container to hold the new cards
-        const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = newCardsHTML;
-        
-        // Append each new card with a slight delay for smooth animation
-        Array.from(tempContainer.children).forEach((card, index) => {
-            setTimeout(() => {
-                marketGridScroll.appendChild(card);
-            }, index * 50);
+        firstSetCards.forEach(card => {
+            const clone = card.cloneNode(true);
+            marketGridScroll.appendChild(clone);
         });
+        
+        // If we have too many cards, remove some from the top
+        if (cards.length > firstSetCount * 4) {
+            for (let i = 0; i < firstSetCount; i++) {
+                cards[i].remove();
+            }
+            // Adjust scroll position to maintain viewport
+            marketGridScroll.scrollTop = scrollPosition - (cardHeight * firstSetCount);
+        }
     }
-
-    // If we're near the start of the scroll (within 2 card heights)
-    if (scrollPosition < cardHeight * 2) {
-        // Get current tokens
-        const tokens = Object.values(window.TRENDING_TOKENS);
-        if (tokens.length === 0) return;
-
-        // Add cards to the beginning
-        const newCardsHTML = tokens.map(token => generateMarketCard(token)).join('');
+    
+    // If scrolled near the top
+    if (scrollPosition < threshold) {
+        // Clone the last set of cards and prepend them
+        const lastSetCount = tokens.length;
+        const lastSetCards = Array.from(cards).slice(-lastSetCount);
         
-        // Create a temporary container
-        const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = newCardsHTML;
-        
-        // Store the current scroll position
-        const currentScroll = marketGridScroll.scrollTop;
-        
-        // Add new cards to the beginning
-        Array.from(tempContainer.children).reverse().forEach((card, index) => {
-            setTimeout(() => {
-                marketGridScroll.insertBefore(card, marketGridScroll.firstChild);
-                // Maintain scroll position
-                marketGridScroll.scrollTop = currentScroll + card.offsetHeight;
-            }, index * 50);
+        lastSetCards.reverse().forEach(card => {
+            const clone = card.cloneNode(true);
+            marketGridScroll.insertBefore(clone, marketGridScroll.firstChild);
         });
-    }
-
-    // Cleanup: Remove excess cards to prevent memory issues
-    const maxCards = 100; // Maximum number of cards to keep in DOM
-    const allCards = marketGridScroll.querySelectorAll('.market-card');
-    if (allCards.length > maxCards) {
-        // Remove cards from the opposite end of where we're scrolling
-        const cardsToRemove = Array.from(allCards).slice(0, allCards.length - maxCards);
-        cardsToRemove.forEach(card => card.remove());
+        
+        // Adjust scroll position to maintain viewport
+        marketGridScroll.scrollTop = scrollPosition + (cardHeight * lastSetCount);
+        
+        // If we have too many cards, remove some from the bottom
+        if (cards.length > lastSetCount * 4) {
+            for (let i = 0; i < lastSetCount; i++) {
+                cards[cards.length - 1 - i].remove();
+            }
+        }
     }
 }
 
@@ -473,8 +466,16 @@ window.initializeMarketCards = function() {
     const trendingTokensInterval = setInterval(window.fetchTrendingTokens, 30000);
     const trendingDataInterval = setInterval(window.updateTrendingData, 2000);
     
-    // Add scroll event listener for infinite scroll
-    marketGridScroll.addEventListener('scroll', handleInfiniteScroll);
+    // Add scroll event listener with throttling for better performance
+    let scrollTimeout;
+    marketGridScroll.addEventListener('scroll', () => {
+        if (!scrollTimeout) {
+            scrollTimeout = setTimeout(() => {
+                handleInfiniteScroll();
+                scrollTimeout = null;
+            }, 100); // Throttle to 100ms
+        }
+    });
     
     // Clean up on page unload
     window.addEventListener('beforeunload', () => {
@@ -517,9 +518,9 @@ window.initializeMarketCards = function() {
             const symbol = card.getAttribute('data-symbol');
             const pairAddress = card.getAttribute('data-pair-address');
             if (pairAddress) {
-            const pair = await window.fetchPairData(symbol, pairAddress);
-            if (pair) {
-                window.showPairChart(pair);
+                const pair = await window.fetchPairData(symbol, pairAddress);
+                if (pair) {
+                    window.showPairChart(pair);
                 }
             }
         }
