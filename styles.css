@@ -1559,6 +1559,14 @@ body {
     bottom: 0 !important;
     z-index: 9999 !important;
 }
+/* *(Analyzing the context and requirements)* */
+/* *(Ensuring proper formatting and specificity)* */
+/* *(Adding !important to override existing styles)* */
+
+#jupiter-terminal-instance .p-5 {
+    padding: 1.25rem !important;
+    border-radius: 20% !important;
+}
 
 
 #jupiter-terminal-instance .w-full {
