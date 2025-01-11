@@ -725,8 +725,8 @@ body {
 .chart-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: clamp(12px, 2vw, 16px);
+    justify-content: start;
+    /* padding: clamp(12px, 2vw, 16px); */
     background: var(--primary-bg);
     border-bottom: 1px solid var(--border-color);
     gap: clamp(12px, 2vw, 16px);
