@@ -645,11 +645,12 @@ window.showTokenAnalysis = async function(contractAddress, symbol) {
         else if (liquidityUsd > 50000) safetyScore += 10;     // $50K+ is moderate
         else if (liquidityUsd > 10000) safetyScore += 5;      // $10K+ is minimum
 
-        // Volume check (10 points) - relative to liquidity
-        const volumeToLiquidityRatio = (volume24h / liquidityUsd) * 100;
-        if (volumeToLiquidityRatio > 100) safetyScore += 10;        // Volume > Liquidity (very active)
-        else if (volumeToLiquidityRatio > 50) safetyScore += 7;     // Volume > 50% of Liquidity (active)
-        else if (volumeToLiquidityRatio > 20) safetyScore += 5;     // Volume > 20% of Liquidity (moderate)
+        // Volume check (10 points) - based on absolute volume
+        if (volume24h > 1000000) safetyScore += 10;        // Over $1M (very high volume)
+        else if (volume24h > 500000) safetyScore += 8;     // Over $500K (high volume)
+        else if (volume24h > 100000) safetyScore += 6;     // Over $100K (moderate volume)
+        else if (volume24h > 50000) safetyScore += 4;      // Over $50K (low volume)
+        else if (volume24h > 10000) safetyScore += 2;      // Over $10K (very low volume)
 
         // Transaction count check (10 points) - relative to volume
         const avgTradeSize = volume24h / txCount24h;
@@ -706,12 +707,23 @@ window.showTokenAnalysis = async function(contractAddress, symbol) {
                         ${analysis.liquidityStatus.amount < 10000 ? 'Critical' : analysis.liquidityStatus.amount < 50000 ? 'Moderate' : 'Good'} liquidity ($${formatNumber(analysis.liquidityStatus.amount)})
                     </div>
                     <div class="separator-line"></div>
-                    <div class="metric-row ${volumeToLiquidityRatio < 10 ? 'warning' : volumeToLiquidityRatio > 200 ? 'warning' : 'neutral'}">
-                        ${volumeToLiquidityRatio < 10 ? 'Very low' : volumeToLiquidityRatio > 200 ? 'Unusually high' : 'Normal'} volume (${volumeToLiquidityRatio.toFixed(1)}% of liquidity)
+                    <div class="metric-row ${volume24h < 10000 ? 'warning' : volume24h > 1000000 ? 'success' : 'neutral'}">
+                        ${volume24h > 1000000 ? 'Very high' : 
+                          volume24h > 500000 ? 'High' : 
+                          volume24h > 100000 ? 'Moderate' :
+                          volume24h > 50000 ? 'Low' : 'Very low'} trading volume ($${formatNumber(volume24h)}/24h)
                     </div>
                     <div class="separator-line"></div>
-                    <div class="metric-row ${txPerHour < 2 ? 'warning' : avgTradeSize < 10 ? 'warning' : 'neutral'}">
-                        ${txPerHour < 2 ? 'Very low activity' : avgTradeSize < 10 ? 'Small trades' : 'Normal trading'} (${txPerHour.toFixed(1)} tx/hour, avg $${avgTradeSize.toFixed(0)})
+                    <div class="metric-row ${
+                        txPerHour > 50 ? 'success' :
+                        txPerHour > 20 ? 'neutral' :
+                        txPerHour > 5 ? 'warning' : 'critical'
+                    }">
+                        ${txPerHour > 50 ? 'Very high activity' : 
+                          txPerHour > 20 ? 'High activity' : 
+                          txPerHour > 5 ? 'Moderate activity' : 
+                          txPerHour > 1 ? 'Low activity' : 'Very low activity'} 
+                        (${txPerHour.toFixed(1)} tx/hour, avg $${avgTradeSize.toFixed(0)})
                     </div>
                 </div>
             `;
@@ -873,8 +885,14 @@ window.showTokenAnalysis = async function(contractAddress, symbol) {
                                 <h3>24h Volume</h3>
                             </div>
                             <div class="zinc-metric-value">$${formatNumber(analysis.liquidityStatus.volume24h)}</div>
-                            <div class="zinc-metric-label ${analysis.liquidityStatus.volume24h > 50000 ? 'success' : 'warning'}">
-                                ${analysis.liquidityStatus.volume24h > 50000 ? 'Active' : 'Low'}
+                            <div class="zinc-metric-label ${
+                                analysis.liquidityStatus.volume24h > 1000000 ? 'success' : 
+                                analysis.liquidityStatus.volume24h > 100000 ? 'neutral' : 'warning'
+                            }">
+                                ${analysis.liquidityStatus.volume24h > 1000000 ? 'Very High Volume' : 
+                                  analysis.liquidityStatus.volume24h > 500000 ? 'High Volume' :
+                                  analysis.liquidityStatus.volume24h > 100000 ? 'Moderate Volume' :
+                                  analysis.liquidityStatus.volume24h > 50000 ? 'Low Volume' : 'Very Low Volume'}
                             </div>
                         </div>
 
@@ -884,8 +902,16 @@ window.showTokenAnalysis = async function(contractAddress, symbol) {
                                 <h3>24h Transactions</h3>
                             </div>
                             <div class="zinc-metric-value">${analysis.liquidityStatus.txCount24h}</div>
-                            <div class="zinc-metric-label ${analysis.liquidityStatus.txCount24h > 500 ? 'success' : 'warning'}">
-                                ${analysis.liquidityStatus.txCount24h > 500 ? 'High Activity' : 'Low Activity'}
+                            <div class="zinc-metric-label ${
+                                analysis.liquidityStatus.txCount24h > 1200 ? 'success' :  // > 50/hour
+                                analysis.liquidityStatus.txCount24h > 480 ? 'neutral' :   // > 20/hour
+                                analysis.liquidityStatus.txCount24h > 120 ? 'warning' :   // > 5/hour
+                                'critical'                                                // < 5/hour
+                            }">
+                                ${analysis.liquidityStatus.txCount24h > 1200 ? 'Very High Activity' : 
+                                  analysis.liquidityStatus.txCount24h > 480 ? 'High Activity' :
+                                  analysis.liquidityStatus.txCount24h > 120 ? 'Moderate Activity' :
+                                  analysis.liquidityStatus.txCount24h > 24 ? 'Low Activity' : 'Very Low Activity'}
                             </div>
                         </div>
                     </div>
@@ -2096,7 +2122,7 @@ modalStyles.textContent = `
         }
 
         .zinc-metric-label {
-            font-size: 10px;
+            font-size: 12px;
             padding: 2px 6px;
         }
     }
