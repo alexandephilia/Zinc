@@ -62,7 +62,7 @@ async function withRateLimit(apiCall) {
 // Function to fetch trending tokens with retry mechanism
 window.fetchTrendingTokens = async function(retryCount = 0) {
     const MAX_RETRIES = 3;
-    const RETRY_DELAY = 2000; // Increased to 2 seconds
+    const RETRY_DELAY = 2000;
 
     try {
         const response = await withRateLimit(() => 
@@ -88,34 +88,18 @@ window.fetchTrendingTokens = async function(retryCount = 0) {
 
         // Process each token
         solanaTokens.forEach(token => {
-            // Extract token symbol and name from description
-            let symbol = '';
-            let name = '';
-            
-            if (token.description) {
-                const symbolMatch = token.description.match(/^\$?([A-Za-z0-9]+)/);
-                if (symbolMatch) {
-                    symbol = symbolMatch[1].toUpperCase();
-                    name = token.description.replace(/^\$?[A-Za-z0-9]+\s*/, '').trim();
-                } else {
-                    symbol = token.tokenAddress.slice(0, 6).toUpperCase();
-                    name = symbol;
-                }
-            } else {
-                symbol = token.tokenAddress.slice(0, 6).toUpperCase();
-                name = symbol;
-            }
+            // Extract token symbol from address if not available
+            const symbol = token.tokenAddress.slice(0, 6).toUpperCase();
             
             window.TRENDING_TOKENS[symbol] = {
                 address: token.tokenAddress,
-                name: name || symbol,
+                name: null, // Will be updated from pair data
                 symbol: symbol,
-                description: symbol,
                 priceUsd: '0',
                 volume24h: 0,
                 liquidity: 0,
                 priceChange: { h24: 0 },
-                pairAddress: null // Initialize pairAddress
+                pairAddress: null
             };
         });
 
@@ -138,8 +122,11 @@ window.fetchTrendingTokens = async function(retryCount = 0) {
                     if (solanaPair) {
                         if (solanaPair.baseToken) {
                             token.symbol = solanaPair.baseToken.symbol;
+                            // Only set name if it exists and is not the same as symbol
                             if (solanaPair.baseToken.name && solanaPair.baseToken.name !== solanaPair.baseToken.symbol) {
                                 token.name = solanaPair.baseToken.name;
+                            } else {
+                                token.name = solanaPair.baseToken.symbol;
                             }
                         }
                         
@@ -363,7 +350,7 @@ function generateMarketCard(token) {
     // Format symbol with $ prefix
     const formattedSymbol = token.symbol.startsWith('$') ? token.symbol : `$${token.symbol}`;
     
-    // Ensure description doesn't exceed max length and add ellipsis if needed
+    // For subtitle, use name if it's different from symbol, otherwise use symbol
     const maxDescLength = 20;
     let displayName = token.name && token.name !== token.symbol ? token.name : formattedSymbol;
     if (displayName.length > maxDescLength) {
@@ -413,84 +400,43 @@ function handleInfiniteScroll() {
     const containerHeight = marketGridScroll.offsetHeight;
     const totalScrollHeight = marketGridScroll.scrollHeight;
     
-    // Calculate the current set index based on scroll position
-    const currentSetIndex = Math.floor(scrollPosition / (cardHeight * setSize));
-    
-    // If we're near the bottom, recycle top sets to bottom
-    if (scrollPosition + containerHeight > totalScrollHeight - (cardHeight * setSize * 2)) {
-        // Only remove from top if we have more than FIXED_TOTAL_SETS
-        if (Math.floor(cards.length / setSize) >= FIXED_TOTAL_SETS) {
-            // Remove one set from top
+    // If we're near the bottom, add to bottom and remove from top
+    if (scrollPosition + containerHeight > totalScrollHeight - (cardHeight * setSize)) {
+        // Add one set to bottom
+        tokens.forEach(token => {
+            const cardHTML = generateMarketCard(token);
+            marketGridScroll.insertAdjacentHTML('beforeend', cardHTML);
+        });
+        
+        // Remove one set from top only if we exceed our fixed total
+        if (marketGridScroll.querySelectorAll('.market-card').length > setSize * FIXED_TOTAL_SETS) {
             for (let i = 0; i < setSize; i++) {
                 cards[i]?.remove();
             }
-            
-            // Add one set to bottom
-            tokens.forEach(token => {
-                const cardHTML = generateMarketCard(token);
-                marketGridScroll.insertAdjacentHTML('beforeend', cardHTML);
-            });
-            
             // Adjust scroll position to prevent jump
             marketGridScroll.scrollTop = scrollPosition - (cardHeight * setSize);
-        } else {
-            // Just add if we're under the fixed total
-            tokens.forEach(token => {
-                const cardHTML = generateMarketCard(token);
-                marketGridScroll.insertAdjacentHTML('beforeend', cardHTML);
-            });
         }
     }
 
-    // If we're near the top, recycle bottom sets to top
-    if (scrollPosition < cardHeight * setSize * 2) {
-        // Only remove from bottom if we have more than FIXED_TOTAL_SETS
-        if (Math.floor(cards.length / setSize) >= FIXED_TOTAL_SETS) {
-            // Remove one set from bottom
+    // If we're near the top, add to top and remove from bottom
+    if (scrollPosition < cardHeight * setSize) {
+        // Add one set to top
+        const heightBeforeAdd = marketGridScroll.scrollHeight;
+        tokens.forEach(token => {
+            const cardHTML = generateMarketCard(token);
+            marketGridScroll.insertAdjacentHTML('afterbegin', cardHTML);
+        });
+        
+        // Remove one set from bottom only if we exceed our fixed total
+        if (marketGridScroll.querySelectorAll('.market-card').length > setSize * FIXED_TOTAL_SETS) {
+            const allCards = marketGridScroll.querySelectorAll('.market-card');
             for (let i = 0; i < setSize; i++) {
-                cards[cards.length - 1 - i]?.remove();
+                allCards[allCards.length - 1 - i]?.remove();
             }
-            
-            // Add one set to top
-            const heightBeforeAdd = marketGridScroll.scrollHeight;
-            tokens.forEach(token => {
-                const cardHTML = generateMarketCard(token);
-                marketGridScroll.insertAdjacentHTML('afterbegin', cardHTML);
-            });
+        }
         
-            // Maintain scroll position
+        // Maintain scroll position
         marketGridScroll.scrollTop = scrollPosition + (marketGridScroll.scrollHeight - heightBeforeAdd);
-        } else {
-            // Just add if we're under the fixed total
-            tokens.forEach(token => {
-                const cardHTML = generateMarketCard(token);
-                marketGridScroll.insertAdjacentHTML('afterbegin', cardHTML);
-            });
-        }
-    }
-
-    // ENFORCE MAXIMUM SETS - This is our safety net
-    const currentSets = Math.floor(cards.length / setSize);
-    if (currentSets > FIXED_TOTAL_SETS) {
-        const excessSets = currentSets - FIXED_TOTAL_SETS;
-        const cardsToRemove = excessSets * setSize;
-        
-        // Remove excess from whichever end is further from the viewport
-        if (scrollPosition > totalScrollHeight / 2) {
-            // Remove from top
-            for (let i = 0; i < cardsToRemove; i++) {
-                if (cards[i]) {
-                    const cardHeight = cards[i].offsetHeight;
-                    cards[i].remove();
-                    marketGridScroll.scrollTop -= cardHeight;
-                }
-            }
-        } else {
-            // Remove from bottom
-            for (let i = 0; i < cardsToRemove; i++) {
-                cards[cards.length - 1 - i]?.remove();
-            }
-        }
     }
 }
 
@@ -548,7 +494,7 @@ window.initializeMarketCards = function() {
             const cardHeight = 100;
             const containerHeight = marketGridScroll.offsetHeight;
             const setsInViewport = Math.ceil(containerHeight / (cardHeight * tokens.length));
-            const totalSetsNeeded = setsInViewport + 2;
+            const totalSetsNeeded = Math.min(10, setsInViewport + 2); // Never exceed 10 sets
 
             // Generate initial cards
             const initialCards = Array(totalSetsNeeded).fill(tokens)
@@ -572,11 +518,15 @@ window.initializeMarketCards = function() {
 
             isInitialLoad = false;
 
-            // Set up intervals with more conservative timing
+            // Set up data updates with more conservative timing
             if (!window.trendingUpdateIntervals) {
                 window.trendingUpdateIntervals = {
-                    tokens: setInterval(window.fetchTrendingTokens, 60000), // Every 60 seconds
-                    data: setInterval(window.updateTrendingData, 5000)      // Every 5 seconds
+                    data: setInterval(async () => {
+                        // Update data without resetting the view
+                        const currentScroll = marketGridScroll.scrollTop;
+                        await window.updateTrendingData();
+                        marketGridScroll.scrollTop = currentScroll;
+                    }, 5000)
                 };
             }
 
@@ -604,7 +554,7 @@ window.initializeMarketCards = function() {
     // Start initialization
     initializeWithRetry();
 
-    // More responsive scroll handling
+    // More responsive scroll handling with debounce
     let scrollTimeout;
     marketGridScroll.addEventListener('scroll', () => {
         if (!scrollTimeout) {
@@ -617,9 +567,9 @@ window.initializeMarketCards = function() {
 
     // Clean up on page unload
     window.addEventListener('beforeunload', () => {
-        clearInterval(trendingTokensInterval);
-        clearInterval(trendingDataInterval);
-        clearTimeout(loadingTimeout);
+        if (window.trendingUpdateIntervals) {
+            clearInterval(window.trendingUpdateIntervals.data);
+        }
     });
 
     // Add click handlers for market cards and watchlist buttons

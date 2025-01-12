@@ -84,7 +84,7 @@ class WhaleAlerts {
 
     async fetchWhaleTransactions() {
         try {
-            const response = await fetch('https://rss.app/feeds/v1.1/pij5XgqyUN4mkOak.json');
+            const response = await fetch('https://rss.app/feeds/v1.1/FXRVMXEhTDDBKLwy.json');
             
             if (!response.ok) {
                 throw new Error('Failed to fetch whale alerts');

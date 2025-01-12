@@ -28,47 +28,78 @@ window.showPairChart = function(pair) {
         const priceChange24h = parseFloat(pair.priceChange.h24);
 
         chartTitle.innerHTML = `
-            <div class="token-info-wrapper">
-                <div class="token-info-grid">
-                    <div class="token-header">
-                        <div class="name-and-metrics">
-                            <span class="token-name">${pair.baseToken.name || pair.baseToken.symbol}</span>
-                            <div class="token-metrics">
-                                <div class="metric-badge change ${priceChange24h >= 0 ? 'positive' : 'negative'}">
-                                    <span class="metric-label">24h</span>
-                                    <span class="metric-value">${priceChange24h > 0 ? '+' : ''}${priceChange24h.toFixed(2)}%</span>
+            <div class="chart-header-wrappers">
+                <div class="token-info-wrapper">
+                    <div class="token-info-grid">
+                        <div class="token-header">
+                            <div class="name-and-metrics">
+                                <div class="token-name-container">
+                                    <span class="token-name">${pair.baseToken.name || pair.baseToken.symbol}</span>
+                                    <button class="token-description-icon" onclick="showTokenDescription('${pair.baseToken.address}', '${pair.baseToken.symbol}')" title="Token Description">
+                                        <span class="material-icons-round">info</span>
+                                    </button>
                                 </div>
-                                <div class="metric-badge volume">
-                                    <span class="metric-label">24h Vol</span>
-                                    <span class="metric-value">$${volume24h}</span>
+                                <div class="token-metrics">
+                                    <div class="metric-badge change ${priceChange24h >= 0 ? 'positive' : 'negative'}">
+                                        <span class="metric-label">24h</span>
+                                        <span class="metric-value">${priceChange24h > 0 ? '+' : ''}${priceChange24h.toFixed(2)}%</span>
+                                    </div>
+                                    <div class="metric-badge volume">
+                                        <span class="metric-label">24h Vol</span>
+                                        <span class="metric-value">$${volume24h}</span>
+                                    </div>
+                                    <div class="metric-badge mcap">
+                                        <span class="metric-label">MCap</span>
+                                        <span class="metric-value">$${mcap}</span>
+                                    </div>
                                 </div>
-                                <div class="metric-badge mcap">
-                                    <span class="metric-label">MCap</span>
-                                    <span class="metric-value">$${mcap}</span>
+                            </div>
+                        </div>
+                        <div class="token-info-group">
+                            <div class="token-addresses">
+                                <div class="address-badge token-badge">
+                                    <span class="badge-label">Token</span>
+                                    <span class="badge-value">${shortContractAddress}</span>
+                                    <button class="icon-btn copy-btn contract-copy" data-copy="${pair.baseToken.address}" title="Copy token address">
+                                        <span class="material-icons-round">content_copy</span>
+                                    </button>
                                 </div>
+                                <div class="address-badge pair-badge">
+                                    <span class="badge-label">Pair</span>
+                                    <span class="badge-value">${shortPairAddress}</span>
+                                    <button class="icon-btn copy-btn pair-copy" data-copy="${pair.pairAddress}" title="Copy pair address">
+                                        <span class="material-icons-round">content_copy</span>
+                                    </button>
+                                </div>
+                                <button class="analyze-btn" onclick="showTokenAnalysis('${pair.baseToken.address}', '${pair.baseToken.symbol}')" title="Analyze Token Safety">
+                                    <span class="material-icons-round">security</span>
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div class="token-info-group">
-                        <div class="token-addresses">
-                            <div class="address-badge token-badge">
-                                <span class="badge-label">Token</span>
-                                <span class="badge-value">${shortContractAddress}</span>
-                                <button class="icon-btn copy-btn contract-copy" data-copy="${pair.baseToken.address}" title="Copy token address">
-                                    <span class="material-icons-round">content_copy</span>
-                                </button>
-                            </div>
-                            <div class="address-badge pair-badge">
-                                <span class="badge-label">Pair</span>
-                                <span class="badge-value">${shortPairAddress}</span>
-                                <button class="icon-btn copy-btn pair-copy" data-copy="${pair.pairAddress}" title="Copy pair address">
-                                    <span class="material-icons-round">content_copy</span>
-                                </button>
-                            </div>
-                            <button class="analyze-btn" onclick="showTokenAnalysis('${pair.baseToken.address}', '${pair.baseToken.symbol}')" title="Analyze Token Safety">
-                                <span class="material-icons-round">security</span>
-                            </button>
-                        </div>
+                </div>
+                <div class="token-social-wrapper">
+                    <div class="social-wrapper-header">
+                        <h3 class="social-wrapper-title">Socials</h3>
+                        <div class="social-separator"></div>
+                    </div>
+                    <div class="social-buttons-container">
+                        <button class="social-btn" onclick="openTokenWebsite('${pair.baseToken.address}')" title="Website" disabled>
+                            <span class="material-icons-round">language</span>
+                            <span class="social-btn-label">Website</span>
+                        </button>
+                        <button class="social-btn" onclick="openTokenTwitter('${pair.baseToken.address}')" title="Twitter" disabled>
+                            <span class="material-icons-round">tag</span>
+                            <span class="social-btn-label">Twitter</span>
+                        </button>
+                        <button class="social-btn" onclick="openTokenTelegram('${pair.baseToken.address}')" title="Telegram" disabled>
+                            <span class="material-icons-round">send</span>
+                            <span class="social-btn-label">Telegram</span>
+                        </button>
+                        <button class="social-btn" onclick="openTokenDiscord('${pair.baseToken.address}')" title="Discord" disabled>
+                            <span class="material-icons-round">forum</span>
+                            <span class="social-btn-label">Discord</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -132,6 +163,9 @@ window.showPairChart = function(pair) {
         }
     `;
     document.head.appendChild(styles);
+
+    // After creating the chart title HTML, enable social buttons
+    enableSocialButtons(pair.baseToken.address);
 }
 
 // Helper function to copy to clipboard
@@ -2212,3 +2246,407 @@ modalStyles.textContent = `
 `;
 
 document.head.appendChild(modalStyles);
+
+// Add these functions after the showTokenAnalysis function
+
+// Function to show token description modal
+window.showTokenDescription = async function(contractAddress, symbol) {
+    // Create modal if it doesn't exist
+    let modal = document.querySelector('.zinc-token-description-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'zinc-token-description-modal';
+        modal.innerHTML = `
+            <div class="zinc-modal-content">
+                <div class="zinc-modal-header">
+                    <div class="zinc-header-content">
+                        <div class="zinc-token-badge">
+                            <span class="material-icons-round">info</span>
+                            Token Description
+                        </div>
+                    </div>
+                    <button class="zinc-close-modal">
+                        <span class="material-icons-round">close</span>
+                    </button>
+                </div>
+                <div class="zinc-modal-body">
+                    <div class="zinc-description-loading">
+                        <span class="material-icons-round">sync</span>
+                        <p>Loading token description...</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Add styles for the new design
+        const styles = document.createElement('style');
+        styles.textContent = `
+            .zinc-token-description-modal {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(10, 10, 15, 0.8);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                z-index: 99999;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: zincFadeIn 0.2s ease;
+            }
+
+            .zinc-modal-content {
+                background: linear-gradient(135deg, rgba(18, 18, 26, 0.95), rgba(41, 98, 255, 0.048));
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                width: 100%;
+                max-width: 600px;
+                max-height: calc(100vh - 40px);
+                overflow-y: auto;
+                position: relative;
+                transform: translateZ(0);
+                will-change: transform;
+                transition: all 0.3s ease;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
+                            0 0 0 1px rgba(255, 255, 255, 0.05);
+            }
+
+            .zinc-modal-header {
+                padding: 24px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(10, 10, 15, 0.7);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-radius: 20px 20px 0 0;
+                position: sticky;
+                top: 0;
+                z-index: 2;
+            }
+
+            .zinc-token-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                background: rgba(41, 98, 255, 0.1);
+                border: 1px solid rgba(41, 98, 255, 0.2);
+                border-radius: 30px;
+                color: #2962ff;
+                font-weight: 600;
+                font-size: 14px;
+                box-shadow: 0 4px 12px rgba(41, 98, 255, 0.1);
+                transition: all 0.2s ease;
+            }
+
+            .zinc-token-badge:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 16px rgba(41, 98, 255, 0.15);
+            }
+
+            .zinc-description-content {
+                padding: 24px;
+                color: var(--text-primary);
+                background: linear-gradient(180deg, 
+                    rgba(41, 98, 255, 0.03) 0%,
+                    rgba(10, 10, 15, 0) 100%
+                );
+                max-width: 580px;
+                margin: 0 auto;
+            }
+
+            .zinc-token-name {
+                font-size: 28px;
+                font-weight: 700;
+                color: var(--text-primary);
+                margin: 0 0 4px 0;
+                letter-spacing: -0.5px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                line-height: 1.2;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            .zinc-token-name .zinc-token-symbol {
+                color: var(--text-secondary);
+                font-size: 14px;
+                font-weight: 500;
+                padding: 4px 12px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                letter-spacing: 0.5px;
+                box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+                font-family: 'Roboto Mono', monospace;
+            }
+
+            .zinc-description-separator {
+                height: 1px;
+                background: linear-gradient(
+                    90deg,
+                    rgba(41, 98, 255, 0.3),
+                    rgba(255, 255, 255, 0.05)
+                );
+                margin: 16px 0;
+                border-radius: 1px;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+
+            .zinc-description-text {
+                font-size: 14px;
+                line-height: 1.7;
+                color: var(--text-secondary);
+                margin: 0;
+                white-space: pre-wrap;
+                letter-spacing: 0.3px;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                padding: 0;
+                font-family: 'Roboto Mono', monospace;
+                font-style: italic;
+                font-weight: 400;
+                opacity: 0.9;
+            }
+
+            .zinc-token-links {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 24px;
+                padding-top: 20px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .zinc-token-links a {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 14px;
+                background: rgba(41, 98, 255, 0.1);
+                border: 1px solid rgba(41, 98, 255, 0.2);
+                border-radius: 24px;
+                color: #2962ff;
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 500;
+                transition: all 0.2s ease;
+                box-shadow: 0 2px 8px rgba(41, 98, 255, 0.1);
+                font-family: 'Roboto Mono', monospace;
+            }
+
+            .zinc-token-links a:hover {
+                background: rgba(41, 98, 255, 0.15);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(41, 98, 255, 0.2);
+            }
+
+            .zinc-token-links .material-icons-round {
+                font-size: 16px;
+            }
+
+            @media (max-width: 768px) {
+                .zinc-description-content {
+                    padding: 16px;
+                }
+
+                .zinc-token-name {
+                    font-size: 22px;
+                }
+
+                .zinc-token-name .zinc-token-symbol {
+                    font-size: 12px;
+                    padding: 3px 10px;
+                }
+
+                .zinc-description-text {
+                    font-size: 13px;
+                    line-height: 1.6;
+                }
+
+                .zinc-token-links {
+                    gap: 6px;
+                    margin-top: 20px;
+                    padding-top: 16px;
+                }
+
+                .zinc-token-links a {
+                    padding: 6px 12px;
+                    font-size: 12px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .zinc-description-content {
+                    padding: 14px;
+                }
+
+                .zinc-token-name {
+                    font-size: 20px;
+                }
+
+                .zinc-description-text {
+                    font-size: 12px;
+                    line-height: 1.5;
+                }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+
+    // Show modal with loading state
+    modal.style.display = 'flex';
+
+    try {
+        // Fetch token data from DexScreener API
+        const response = await fetch('https://api.dexscreener.com/token-boosts/top/v1');
+        const data = await response.json();
+        
+        // Find the token in the response
+        const tokenInfo = data.find(token => 
+            token.tokenAddress.toLowerCase() === contractAddress.toLowerCase()
+        );
+
+        if (tokenInfo && tokenInfo.description) {
+            modal.querySelector('.zinc-modal-body').innerHTML = `
+                <div class="zinc-description-content">
+                    <h2 class="zinc-token-name">
+                        ${tokenInfo.name || symbol}
+                        <span class="zinc-token-symbol">${symbol}</span>
+                    </h2>
+                    <div class="zinc-description-separator"></div>
+                    <p class="zinc-description-text">${tokenInfo.description}</p>
+                    ${tokenInfo.links ? `
+                        <div class="zinc-token-links">
+                            ${tokenInfo.links.map(link => `
+                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">
+                                    <span class="material-icons-round">${
+                                        link.type === 'twitter' ? 'tag' :
+                                        link.type === 'telegram' ? 'send' :
+                                        link.type === 'discord' ? 'forum' :
+                                        link.label === 'Docs' ? 'description' :
+                                        link.label === 'Youtube' ? 'play_circle' :
+                                        link.label === 'TikTok' ? 'music_video' :
+                                        'language'
+                                    }</span>
+                                    ${link.label || link.type}
+                                </a>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        } else {
+            throw new Error('Token description not found');
+        }
+    } catch (error) {
+        modal.querySelector('.zinc-modal-body').innerHTML = `
+            <div class="zinc-description-error">
+                <span class="material-icons-round">error_outline</span>
+                <p>Error loading description: Token information not available</p>
+            </div>
+        `;
+    }
+
+    // Add close button handler
+    modal.querySelector('.zinc-close-modal').onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    // Close modal when clicking outside
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+// Update social link functions to use the API data
+async function getSocialLinks(contractAddress) {
+    try {
+        const response = await fetch('https://api.dexscreener.com/token-boosts/top/v1');
+        const data = await response.json();
+        
+        const tokenInfo = data.find(token => 
+            token.tokenAddress.toLowerCase() === contractAddress.toLowerCase()
+        );
+
+        return tokenInfo?.links || [];
+    } catch (error) {
+        console.error('Error fetching social links:', error);
+        return [];
+    }
+}
+
+window.openTokenWebsite = async function(contractAddress) {
+    const links = await getSocialLinks(contractAddress);
+    const websiteLink = links.find(link => link.label === 'Website' || link.type === 'website')?.url;
+    const button = document.querySelector('.social-btn[title="Website"]');
+    if (websiteLink) {
+        button?.removeAttribute('disabled');
+        window.open(websiteLink, '_blank');
+    }
+}
+
+window.openTokenTwitter = async function(contractAddress) {
+    const links = await getSocialLinks(contractAddress);
+    const twitterLink = links.find(link => link.type === 'twitter' || link.label === 'Twitter')?.url;
+    const button = document.querySelector('.social-btn[title="Twitter"]');
+    if (twitterLink) {
+        button?.removeAttribute('disabled');
+        window.open(twitterLink, '_blank');
+    }
+}
+
+window.openTokenTelegram = async function(contractAddress) {
+    const links = await getSocialLinks(contractAddress);
+    const telegramLink = links.find(link => link.type === 'telegram' || link.label === 'Telegram')?.url;
+    const button = document.querySelector('.social-btn[title="Telegram"]');
+    if (telegramLink) {
+        button?.removeAttribute('disabled');
+        window.open(telegramLink, '_blank');
+    }
+}
+
+window.openTokenDiscord = async function(contractAddress) {
+    const links = await getSocialLinks(contractAddress);
+    const discordLink = links.find(link => link.type === 'discord' || link.label === 'Discord')?.url;
+    const button = document.querySelector('.social-btn[title="Discord"]');
+    if (discordLink) {
+        button?.removeAttribute('disabled');
+        window.open(discordLink, '_blank');
+    }
+}
+
+// Function to check and enable social buttons when loading the chart
+async function enableSocialButtons(contractAddress) {
+    const links = await getSocialLinks(contractAddress);
+    
+    // Website button
+    const websiteLink = links.find(link => link.label === 'Website' || link.type === 'website')?.url;
+    const websiteBtn = document.querySelector('.social-btn[title="Website"]');
+    if (websiteLink) {
+        websiteBtn?.removeAttribute('disabled');
+    }
+
+    // Twitter button
+    const twitterLink = links.find(link => link.type === 'twitter' || link.label === 'Twitter')?.url;
+    const twitterBtn = document.querySelector('.social-btn[title="Twitter"]');
+    if (twitterLink) {
+        twitterBtn?.removeAttribute('disabled');
+    }
+
+    // Telegram button
+    const telegramLink = links.find(link => link.type === 'telegram' || link.label === 'Telegram')?.url;
+    const telegramBtn = document.querySelector('.social-btn[title="Telegram"]');
+    if (telegramLink) {
+        telegramBtn?.removeAttribute('disabled');
+    }
+
+    // Discord button
+    const discordLink = links.find(link => link.type === 'discord' || link.label === 'Discord')?.url;
+    const discordBtn = document.querySelector('.social-btn[title="Discord"]');
+    if (discordLink) {
+        discordBtn?.removeAttribute('disabled');
+    }
+}

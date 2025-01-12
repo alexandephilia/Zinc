@@ -6,6 +6,25 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     let currentRpcIndex = 0;
 
+    // Function to calculate appropriate container height
+    const calculateContainerHeight = () => {
+        const screenHeight = window.innerHeight;
+        const screenWidth = window.innerWidth;
+        
+        // For very small heights, use percentage
+        if (screenHeight < 600) {
+            return '90vh';
+        }
+        
+        // For mobile widths
+        if (screenWidth <= 768) {
+            return Math.min(screenHeight * 0.8, 600) + 'px';
+        }
+        
+        // For desktop
+        return '35em';
+    };
+
     // Function to initialize Jupiter with current RPC
     const initJupiter = (rpcEndpoint) => {
         window.Jupiter.init({
@@ -22,12 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
             defaultExplorer: "Solscan",
             containerStyles: {
                 width: '100%',
-                minHeight: window.innerWidth <= 768 ? '38em' : '35em',
+                height: calculateContainerHeight(),
+                maxHeight: '90vh',
                 border: 'none', 
                 borderRadius: '0',
                 background: 'transparent',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                overflow: 'auto'
             },
             containerClassName: 'jupiter-terminal-container',
             theme: {
@@ -92,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             onError: (error) => {
                 console.error('Jupiter Terminal error:', error);
-                // If we get an RPC error, try switching to the fallback RPC
                 if (error.message && (
                     error.message.includes('Failed to fetch') || 
                     error.message.includes('Network Error') ||
@@ -100,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 )) {
                     currentRpcIndex = (currentRpcIndex + 1) % rpcEndpoints.length;
                     console.log('Switching to fallback RPC:', rpcEndpoints[currentRpcIndex]);
-                    // Reinitialize Jupiter with new RPC
                     initJupiter(rpcEndpoints[currentRpcIndex]);
                 }
             }
@@ -111,6 +130,20 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         initJupiter(rpcEndpoints[currentRpcIndex]);
     }, 100);
+
+    // Handle window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
+        }
+        resizeTimeout = setTimeout(() => {
+            const container = document.querySelector('.jupiter-terminal-container');
+            if (container) {
+                container.style.height = calculateContainerHeight();
+            }
+        }, 250);
+    });
 
     // Bottom sheet functionality
     const bottomSheet = document.querySelector('.jupiter-bottom-sheet');
@@ -123,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Close button handler
     closeButton.addEventListener('click', (e) => {
-        e.stopPropagation();  // Prevent event bubbling
+        e.stopPropagation();
         bottomSheet.classList.remove('active');
     });
 
