@@ -1996,28 +1996,64 @@ modalStyles.textContent = `
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
         min-width: 100px !important;
         transition: all 0.2s ease !important;
-    }
-
-    .metric-badge:hover {
-        transform: translateY(-1px);
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .metric-badge.volume,
-    .metric-badge.mcap,
-    .metric-badge.liquidity {
-        background: rgba(41, 98, 255, 0.05) !important;
-        border-color: rgba(41, 98, 255, 0.1) !important;
+        position: relative !important;
+        overflow: hidden !important;
     }
 
     .metric-badge.change.positive {
-        background: rgba(18, 233, 204, 0.05);
-        border-color: rgba(18, 233, 204, 0.1);
+        background: rgba(18, 233, 204, 0.05) !important;
+        border: 1px solid rgba(18, 233, 204, 0.2) !important;
+        box-shadow: 0 0 12px rgba(18, 233, 204, 0.15),
+                    inset 0 0 8px rgba(18, 233, 204, 0.05) !important;
     }
 
     .metric-badge.change.negative {
-        background: rgba(255, 59, 105, 0.05);
-        border-color: rgba(255, 59, 105, 0.1);
+        background: rgba(255, 59, 105, 0.05) !important;
+        border: 1px solid rgba(255, 59, 105, 0.2) !important;
+        box-shadow: 0 0 12px rgba(255, 59, 105, 0.15),
+                    inset 0 0 8px rgba(255, 59, 105, 0.05) !important;
+    }
+
+    .metric-badge.change.positive::before {
+        content: '' !important;
+        position: absolute !important;
+        inset: 0 !important;
+        background: radial-gradient(circle at center, rgba(18, 233, 204, 0.15), transparent 70%) !important;
+        opacity: 0 !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .metric-badge.change.negative::before {
+        content: '' !important;
+        position: absolute !important;
+        inset: 0 !important;
+        background: radial-gradient(circle at center, rgba(255, 59, 105, 0.15), transparent 70%) !important;
+        opacity: 0 !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .metric-badge.change:hover::before {
+        opacity: 1 !important;
+    }
+
+    .metric-badge.change.positive .metric-label,
+    .metric-badge.change.positive .metric-label .material-icons-round {
+        color: rgb(18, 233, 204) !important;
+    }
+
+    .metric-badge.change.negative .metric-label,
+    .metric-badge.change.negative .metric-label .material-icons-round {
+        color: rgb(255, 59, 105) !important;
+    }
+
+    .metric-badge.change.positive .metric-value {
+        color: rgb(18, 233, 204) !important;
+        text-shadow: 0 0 8px rgba(18, 233, 204, 0.4) !important;
+    }
+
+    .metric-badge.change.negative .metric-value {
+        color: rgb(255, 59, 105) !important;
+        text-shadow: 0 0 8px rgba(255, 59, 105, 0.4) !important;
     }
 
     .metric-label {
