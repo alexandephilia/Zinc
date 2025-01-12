@@ -375,16 +375,16 @@ class WhaleAlerts {
                 max-width: 90vw;
                 background: linear-gradient(
                     45deg,
-                    rgba(18, 18, 26, 0.95),
+                    rgba(18, 18, 26, 0.75),
                     rgba(41, 98, 255, 0.05)
                 );
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
-                border: 1px solid var(--border-color);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.05);
                 border-radius: 12px;
                 padding: 16px;
-                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-                transition: transform 0.3s ease;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 z-index: 9999;
             }
 
@@ -394,6 +394,10 @@ class WhaleAlerts {
 
             .banner-content {
                 position: relative;
+                background: rgba(18, 18, 26, 0.3);
+                padding: 12px;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.03);
             }
 
             .banner-text {

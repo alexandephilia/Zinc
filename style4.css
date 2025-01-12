@@ -856,3 +856,41 @@
         font-size: 14px;
     }
 }
+
+.zinc-description-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.zinc-description-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.zinc-description-header .token-type-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(41, 98, 255, 0.1);
+    border: 1px solid rgba(41, 98, 255, 0.2);
+    color: #2962ff;
+}
+
+/* Update existing styles */
+.zinc-description-content {
+    padding: 24px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.zinc-description-content p {
+    margin: 0 0 16px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+}

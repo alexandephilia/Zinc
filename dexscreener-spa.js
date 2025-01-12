@@ -2270,42 +2270,45 @@ modalStyles.textContent = `
     }
 
     .token-type-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        margin-right: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        background: rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        transition: all 0.2s ease;
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 4px 12px !important;
+        border-radius: 8px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
+        text-transform: uppercase !important;
+        margin-right: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: rgba(0, 0, 0, 0.2) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        transition: all 0.2s ease !important;
     }
 
     .token-type-badge:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
     }
 
     .type-label {
-        font-family: 'Roboto Mono', monospace;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
+        font-family: 'Roboto Mono', monospace !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
     }
 
     @media (max-width: 768px) {
         .token-type-badge {
-            padding: 3px 8px;
-            font-size: 10px;
+            padding: 3px 8px !important;
+            font-size: 10px !important;
+            background: rgba(0, 0, 0, 0.2) !important;
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
         }
         
         .type-label {
-            font-size: 10px;
+            font-size: 10px !important;
         }
 
         .analyze-btn {
@@ -2315,175 +2318,175 @@ modalStyles.textContent = `
         }
 
         .analyze-btn .material-icons-round {
-            margin-right: 4px;
+            margin-right: 4px !important;
         }
 
         .analyze-btn-label {
             display: inline !important;
-            font-size: 11px;
+            font-size: 11px !important;
         }
     }
 
     .token-type-badge.ai {
-        background: rgba(64, 186, 255, 0.1);
-        border-color: rgba(64, 186, 255, 0.2);
-        color: #40BAFF;
+        background: rgba(64, 186, 255, 0.1) !important;
+        border-color: rgba(64, 186, 255, 0.2) !important;
+        color: #40BAFF !important;
     }
 
     .token-type-badge.meme {
-        background: rgba(255, 64, 129, 0.1);
-        border-color: rgba(255, 64, 129, 0.2);
-        color: #FF4081;
+        background: rgba(255, 64, 129, 0.1) !important;
+        border-color: rgba(255, 64, 129, 0.2) !important;
+        color: #FF4081 !important;
     }
 
     .token-type-badge.dog {
-        background: rgba(255, 152, 0, 0.1);
-        border-color: rgba(255, 152, 0, 0.2);
-        color: #FF9800;
+        background: rgba(255, 152, 0, 0.1) !important;
+        border-color: rgba(255, 152, 0, 0.2) !important;
+        color: #FF9800 !important;
     }
 
     .token-type-badge.cat {
-        background: rgba(156, 39, 176, 0.1);
-        border-color: rgba(156, 39, 176, 0.2);
-        color: #9C27B0;
+        background: rgba(156, 39, 176, 0.1) !important;
+        border-color: rgba(156, 39, 176, 0.2) !important;
+        color: #9C27B0 !important;
     }
 
     .token-type-badge.food {
-        background: rgba(255, 87, 34, 0.1);
-        border-color: rgba(255, 87, 34, 0.2);
-        color: #FF5722;
+        background: rgba(255, 87, 34, 0.1) !important;
+        border-color: rgba(255, 87, 34, 0.2) !important;
+        color: #FF5722 !important;
     }
 
     .token-type-badge.social {
-        background: rgba(33, 150, 243, 0.1);
-        border-color: rgba(33, 150, 243, 0.2);
-        color: #2196F3;
+        background: rgba(33, 150, 243, 0.1) !important;
+        border-color: rgba(33, 150, 243, 0.2) !important;
+        color: #2196F3 !important;
     }
 
     .token-type-badge.defi {
-        background: rgba(0, 230, 118, 0.1);
-        border-color: rgba(0, 230, 118, 0.2);
-        color: #00E676;
+        background: rgba(0, 230, 118, 0.1) !important;
+        border-color: rgba(0, 230, 118, 0.2) !important;
+        color: #00E676 !important;
     }
 
     .token-type-badge.gaming {
-        background: rgba(255, 235, 59, 0.1);
-        border-color: rgba(255, 235, 59, 0.2);
-        color: #FFEB3B;
+        background: rgba(255, 235, 59, 0.1) !important;
+        border-color: rgba(255, 235, 59, 0.2) !important;
+        color: #FFEB3B !important;
     }
 
     .token-type-badge.culture {
-        background: rgba(156, 39, 176, 0.1);
-        border-color: rgba(156, 39, 176, 0.2);
-        color: #9C27B0;
+        background: rgba(156, 39, 176, 0.1) !important;
+        border-color: rgba(156, 39, 176, 0.2) !important;
+        color: #9C27B0 !important;
     }
 
     .token-type-badge.utility {
-        background: rgba(158, 158, 158, 0.1);
-        border-color: rgba(158, 158, 158, 0.2);
-        color: #9E9E9E;
+        background: rgba(158, 158, 158, 0.1) !important;
+        border-color: rgba(158, 158, 158, 0.2) !important;
+        color: #9E9E9E !important;
     }
 
     .token-type-badge.tiktok {
-        background: rgba(233, 30, 99, 0.1);
-        border-color: rgba(233, 30, 99, 0.2);
-        color: #E91E63;
+        background: rgba(233, 30, 99, 0.1) !important;
+        border-color: rgba(233, 30, 99, 0.2) !important;
+        color: #E91E63 !important;
     }
 
     .token-type-badge.anime {
-        background: rgba(244, 67, 54, 0.1);
-        border-color: rgba(244, 67, 54, 0.2);
-        color: #F44336;
+        background: rgba(244, 67, 54, 0.1) !important;
+        border-color: rgba(244, 67, 54, 0.2) !important;
+        color: #F44336 !important;
     }
 
     .token-type-badge.sports {
-        background: rgba(76, 175, 80, 0.1);
-        border-color: rgba(76, 175, 80, 0.2);
-        color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1) !important;
+        border-color: rgba(76, 175, 80, 0.2) !important;
+        color: #4CAF50 !important;
     }
 
     .token-type-badge.nsfw {
-        background: rgba(216, 27, 96, 0.1);
-        border-color: rgba(216, 27, 96, 0.2);
-        color: #D81B60;
+        background: rgba(216, 27, 96, 0.1) !important;
+        border-color: rgba(216, 27, 96, 0.2) !important;
+        color: #D81B60 !important;
     }
 
     .token-type-badge.other {
-        background: rgba(189, 189, 189, 0.1);
-        border-color: rgba(189, 189, 189, 0.2);
-        color: #BDBDBD;
+        background: rgba(189, 189, 189, 0.1) !important;
+        border-color: rgba(189, 189, 189, 0.2) !important;
+        color: #BDBDBD !important;
     }
 
     .token-type-badge.political {
-        background: rgba(41, 98, 255, 0.1);
-        border-color: rgba(41, 98, 255, 0.2);
-        color: #2962FF;
+        background: rgba(41, 98, 255, 0.1) !important;
+        border-color: rgba(41, 98, 255, 0.2) !important;
+        color: #2962FF !important;
     }
 
     .token-type-badge.trump {
-        background: rgba(244, 67, 54, 0.1);
-        border-color: rgba(244, 67, 54, 0.2);
-        color: #F44336;
+        background: rgba(244, 67, 54, 0.1) !important;
+        border-color: rgba(244, 67, 54, 0.2) !important;
+        color: #F44336 !important;
     }
 
     .token-type-badge.biden {
-        background: rgba(33, 150, 243, 0.1);
-        border-color: rgba(33, 150, 243, 0.2);
-        color: #2196F3;
+        background: rgba(33, 150, 243, 0.1) !important;
+        border-color: rgba(33, 150, 243, 0.2) !important;
+        color: #2196F3 !important;
     }
 
     .token-type-badge.music {
-        background: rgba(233, 30, 99, 0.1);
-        border-color: rgba(233, 30, 99, 0.2);
-        color: #E91E63;
+        background: rgba(233, 30, 99, 0.1) !important;
+        border-color: rgba(233, 30, 99, 0.2) !important;
+        color: #E91E63 !important;
     }
 
     .token-type-badge.space {
-        background: rgba(103, 58, 183, 0.1);
-        border-color: rgba(103, 58, 183, 0.2);
-        color: #673AB7;
+        background: rgba(103, 58, 183, 0.1) !important;
+        border-color: rgba(103, 58, 183, 0.2) !important;
+        color: #673AB7 !important;
     }
 
     .token-type-badge.environment {
-        background: rgba(76, 175, 80, 0.1);
-        border-color: rgba(76, 175, 80, 0.2);
-        color: #4CAF50;
+        background: rgba(76, 175, 80, 0.1) !important;
+        border-color: rgba(76, 175, 80, 0.2) !important;
+        color: #4CAF50 !important;
     }
 
     .token-type-badge.finance {
-        background: rgba(255, 152, 0, 0.1);
-        border-color: rgba(255, 152, 0, 0.2);
-        color: #FF9800;
+        background: rgba(255, 152, 0, 0.1) !important;
+        border-color: rgba(255, 152, 0, 0.2) !important;
+        color: #FF9800 !important;
     }
 
     .token-type-badge.health {
-        background: rgba(0, 200, 83, 0.1);
-        border-color: rgba(0, 200, 83, 0.2);
-        color: #00C853;
+        background: rgba(0, 200, 83, 0.1) !important;
+        border-color: rgba(0, 200, 83, 0.2) !important;
+        color: #00C853 !important;
     }
 
     .token-type-badge.tech {
-        background: rgba(0, 229, 255, 0.1);
-        border-color: rgba(0, 229, 255, 0.2);
-        color: #00E5FF;
+        background: rgba(0, 229, 255, 0.1) !important;
+        border-color: rgba(0, 229, 255, 0.2) !important;
+        color: #00E5FF !important;
     }
 
     .token-type-badge.luxury {
-        background: rgba(255, 215, 0, 0.1);
-        border-color: rgba(255, 215, 0, 0.2);
-        color: #FFD700;
+        background: rgba(255, 215, 0, 0.1) !important;
+        border-color: rgba(255, 215, 0, 0.2) !important;
+        color: #FFD700 !important;
     }
 
     .token-type-badge.holiday {
-        background: rgba(255, 87, 34, 0.1);
-        border-color: rgba(255, 87, 34, 0.2);
-        color: #FF5722;
+        background: rgba(255, 87, 34, 0.1) !important;
+        border-color: rgba(255, 87, 34, 0.2) !important;
+        color: #FF5722 !important;
     }
 
     .token-type-badge.crypto {
-        background: rgba(255, 193, 7, 0.1);
-        border-color: rgba(255, 193, 7, 0.2);
-        color: #FFC107;
+        background: rgba(255, 193, 7, 0.1) !important;
+        border-color: rgba(255, 193, 7, 0.2) !important;
+        color: #FFC107 !important;
     }
 `;
 
@@ -3131,17 +3134,17 @@ function getTokenTypeDisplay(description, name, symbol) {
 window.TOKEN_CACHE = {
     data: new Map(),
     lastFetch: new Map(),
-    cacheDuration: 60000, // Cache duration in milliseconds (1 minute)
+    cacheDuration: 300000, // Increase cache duration to 5 minutes
     pendingRequests: new Map()
 };
 
 // Rate limiting configuration
 window.API_CONFIG = {
     lastFetchTimestamp: 0,
-    minFetchInterval: 500, // Minimum 500ms between requests
+    minFetchInterval: 1000, // Increase minimum interval between requests to 1 second
     consecutiveErrors: 0,
-    backoffDelay: 1000, // Initial backoff delay
-    maxBackoffDelay: 30000, // Maximum backoff delay
+    backoffDelay: 2000, // Increase initial backoff delay
+    maxBackoffDelay: 30000,
     rateLimitCooldown: false
 };
 
@@ -3213,21 +3216,10 @@ async function getTokenData(contractAddress) {
     // Create a new request promise
     const requestPromise = (async () => {
         try {
-            // Fetch token boost data first (includes socials and description)
-            const [boostData, tokenData] = await Promise.all([
-                withRateLimit(() => 
-                    fetch('https://api.dexscreener.com/token-boosts/top/v1')
-                    .then(r => r.json())
-                ),
-                withRateLimit(() => 
-                    fetch(`https://api.dexscreener.com/latest/dex/tokens/${contractAddress}`)
-                    .then(r => r.json())
-                )
-            ]);
-
-            // Find token info from boost data
-            const tokenInfo = boostData.find(token => 
-                token.tokenAddress.toLowerCase() === cacheKey
+            // Only fetch token data first, then fetch boost data if needed
+            const tokenData = await withRateLimit(() => 
+                fetch(`https://api.dexscreener.com/latest/dex/tokens/${contractAddress}`)
+                .then(r => r.json())
             );
 
             // Process token data
@@ -3238,16 +3230,43 @@ async function getTokenData(contractAddress) {
                 throw new Error('No valid Solana pair found');
             }
 
+            // Only fetch boost data if we don't have description in cache
+            let description = '';
+            let links = [];
+            if (!cachedData?.description) {
+                try {
+                    const boostData = await withRateLimit(() => 
+                        fetch('https://api.dexscreener.com/token-boosts/top/v1')
+                        .then(r => r.json())
+                    );
+                    
+                    const tokenInfo = boostData.find(token => 
+                        token.tokenAddress.toLowerCase() === cacheKey
+                    );
+                    
+                    if (tokenInfo) {
+                        description = tokenInfo.description || '';
+                        links = tokenInfo.links || [];
+                    }
+                } catch (error) {
+                    console.warn('Failed to fetch boost data:', error);
+                    // Use cached description/links if available
+                    description = cachedData?.description || '';
+                    links = cachedData?.links || [];
+                }
+            } else {
+                description = cachedData.description;
+                links = cachedData.links;
+            }
+
             // Combine data
             const combinedData = {
                 ...solanaPair,
-                description: tokenInfo?.description || '',
-                links: tokenInfo?.links || [],
+                description,
+                links,
                 social: {
-                    website: tokenInfo?.links?.find(link => link.label === 'Website' || link.type === 'website')?.url,
-                    twitter: tokenInfo?.links?.find(link => link.type === 'twitter' || link.label === 'Twitter')?.url,
-                    telegram: tokenInfo?.links?.find(link => link.type === 'telegram' || link.label === 'Telegram')?.url,
-                    discord: tokenInfo?.links?.find(link => link.type === 'discord' || link.label === 'Discord')?.url
+                    website: links.find(link => link.label === 'Website' || link.type === 'website')?.url,
+                    twitter: links.find(link => link.type === 'twitter' || link.label === 'Twitter')?.url,
                 }
             };
 
