@@ -1,6 +1,7 @@
 /* Notification Dropdown Styles */
 .notification-dropdown {
     position: relative;
+    margin-right: 8px;
 }
 
 .notification-badge {
@@ -208,8 +209,8 @@
     /* Updated positioning for mobile */
     .notification-dropdown {
         position: relative;
-        margin-left: auto; /* Push to the far right */
-        margin-right: 0; /* Remove right margin */
+        margin-left: auto;
+        margin-right: 8px;
     }
 
     /* Ensure the dropdown stays above other content */
@@ -220,13 +221,13 @@
 
 @media (max-width: 480px) {
     .notification-dropdown {
-        margin-left: 8px; /* Add some spacing from the search bar */
+        margin-left: 8px;
     }
     
     .search-bar {
         margin: 0 4px;
-        flex: 1; /* Allow search bar to take remaining space */
-        max-width: none; /* Remove max-width constraint */
+        flex: 1;
+        max-width: none;
     }
 }
 

@@ -40,6 +40,9 @@ window.showPairChart = function(pair) {
                                     </button>
                                 </div>
                                 <div class="token-metrics">
+                                    <div class="token-type-badge ${classifyTokenType(pair.description, pair.baseToken.name, pair.baseToken.symbol).toLowerCase()}">
+                                        <span class="type-label">${classifyTokenType(pair.description, pair.baseToken.name, pair.baseToken.symbol)}</span>
+                                    </div>
                                     <div class="metric-badge change ${priceChange24h >= 0 ? 'positive' : 'negative'}">
                                         <span class="metric-label">24h</span>
                                         <span class="metric-value">${priceChange24h > 0 ? '+' : ''}${priceChange24h.toFixed(2)}%</span>
@@ -73,6 +76,7 @@ window.showPairChart = function(pair) {
                                 </div>
                                 <button class="analyze-btn" onclick="showTokenAnalysis('${pair.baseToken.address}', '${pair.baseToken.symbol}')" title="Analyze Token Safety">
                                     <span class="material-icons-round">security</span>
+                                    <span class="analyze-btn-label">Analyze</span>
                                 </button>
                             </div>
                         </div>
@@ -1921,16 +1925,16 @@ modalStyles.textContent = `
     .analyze-btn {
         display: flex;
         align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        padding: 0;
+        gap: 6px;
+        padding: 6px 12px;
         border-radius: 6px;
         background: rgba(41, 98, 255, 0.1);
         border: 1px solid rgba(41, 98, 255, 0.2);
         color: #2962ff;
         cursor: pointer;
         transition: all 0.2s ease;
+        font-size: 13px;
+        font-weight: 500;
     }
 
     .analyze-btn:hover {
@@ -1941,6 +1945,21 @@ modalStyles.textContent = `
 
     .analyze-btn .material-icons-round {
         font-size: 16px;
+    }
+
+    .analyze-btn-label {
+        font-family: 'Roboto Mono', monospace;
+    }
+
+    @media (max-width: 768px) {
+        .analyze-btn {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        .analyze-btn .material-icons-round {
+            font-size: 14px;
+        }
     }
 
     @media (max-width: 768px) {
@@ -2243,6 +2262,200 @@ modalStyles.textContent = `
         gap: 8px;
         align-items: center;
     }
+
+    .token-type-badge {
+        display: flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-right: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+
+    .token-type-badge.ai {
+        background: rgba(64, 186, 255, 0.1);
+        border-color: rgba(64, 186, 255, 0.2);
+        color: #40BAFF;
+    }
+
+    .token-type-badge.meme {
+        background: rgba(255, 64, 129, 0.1);
+        border-color: rgba(255, 64, 129, 0.2);
+        color: #FF4081;
+    }
+
+    .token-type-badge.dog {
+        background: rgba(255, 152, 0, 0.1);
+        border-color: rgba(255, 152, 0, 0.2);
+        color: #FF9800;
+    }
+
+    .token-type-badge.cat {
+        background: rgba(156, 39, 176, 0.1);
+        border-color: rgba(156, 39, 176, 0.2);
+        color: #9C27B0;
+    }
+
+    .token-type-badge.food {
+        background: rgba(255, 87, 34, 0.1);
+        border-color: rgba(255, 87, 34, 0.2);
+        color: #FF5722;
+    }
+
+    .token-type-badge.social {
+        background: rgba(33, 150, 243, 0.1);
+        border-color: rgba(33, 150, 243, 0.2);
+        color: #2196F3;
+    }
+
+    .token-type-badge.defi {
+        background: rgba(0, 230, 118, 0.1);
+        border-color: rgba(0, 230, 118, 0.2);
+        color: #00E676;
+    }
+
+    .token-type-badge.gaming {
+        background: rgba(255, 235, 59, 0.1);
+        border-color: rgba(255, 235, 59, 0.2);
+        color: #FFEB3B;
+    }
+
+    .token-type-badge.culture {
+        background: rgba(156, 39, 176, 0.1);
+        border-color: rgba(156, 39, 176, 0.2);
+        color: #9C27B0;
+    }
+
+    .token-type-badge.utility {
+        background: rgba(158, 158, 158, 0.1);
+        border-color: rgba(158, 158, 158, 0.2);
+        color: #9E9E9E;
+    }
+
+    .token-type-badge.tiktok {
+        background: rgba(233, 30, 99, 0.1);
+        border-color: rgba(233, 30, 99, 0.2);
+        color: #E91E63;
+    }
+
+    .token-type-badge.anime {
+        background: rgba(244, 67, 54, 0.1);
+        border-color: rgba(244, 67, 54, 0.2);
+        color: #F44336;
+    }
+
+    .token-type-badge.sports {
+        background: rgba(76, 175, 80, 0.1);
+        border-color: rgba(76, 175, 80, 0.2);
+        color: #4CAF50;
+    }
+
+    .token-type-badge.nsfw {
+        background: rgba(216, 27, 96, 0.1);
+        border-color: rgba(216, 27, 96, 0.2);
+        color: #D81B60;
+    }
+
+    .token-type-badge.other {
+        background: rgba(189, 189, 189, 0.1);
+        border-color: rgba(189, 189, 189, 0.2);
+        color: #BDBDBD;
+    }
+
+    .type-label {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 11px;
+    }
+
+    @media (max-width: 768px) {
+        .token-type-badge {
+            padding: 3px 8px;
+            font-size: 10px;
+        }
+        
+        .type-label {
+            font-size: 10px;
+        }
+    }
+
+    .token-type-badge.political {
+        background: rgba(41, 98, 255, 0.1);
+        border-color: rgba(41, 98, 255, 0.2);
+        color: #2962FF;
+    }
+
+    .token-type-badge.trump {
+        background: rgba(244, 67, 54, 0.1);
+        border-color: rgba(244, 67, 54, 0.2);
+        color: #F44336;
+    }
+
+    .token-type-badge.biden {
+        background: rgba(33, 150, 243, 0.1);
+        border-color: rgba(33, 150, 243, 0.2);
+        color: #2196F3;
+    }
+
+    .token-type-badge.music {
+        background: rgba(233, 30, 99, 0.1);
+        border-color: rgba(233, 30, 99, 0.2);
+        color: #E91E63;
+    }
+
+    .token-type-badge.space {
+        background: rgba(103, 58, 183, 0.1);
+        border-color: rgba(103, 58, 183, 0.2);
+        color: #673AB7;
+    }
+
+    .token-type-badge.environment {
+        background: rgba(76, 175, 80, 0.1);
+        border-color: rgba(76, 175, 80, 0.2);
+        color: #4CAF50;
+    }
+
+    .token-type-badge.finance {
+        background: rgba(255, 152, 0, 0.1);
+        border-color: rgba(255, 152, 0, 0.2);
+        color: #FF9800;
+    }
+
+    .token-type-badge.health {
+        background: rgba(0, 200, 83, 0.1);
+        border-color: rgba(0, 200, 83, 0.2);
+        color: #00C853;
+    }
+
+    .token-type-badge.tech {
+        background: rgba(0, 229, 255, 0.1);
+        border-color: rgba(0, 229, 255, 0.2);
+        color: #00E5FF;
+    }
+
+    .token-type-badge.luxury {
+        background: rgba(255, 215, 0, 0.1);
+        border-color: rgba(255, 215, 0, 0.2);
+        color: #FFD700;
+    }
+
+    .token-type-badge.holiday {
+        background: rgba(255, 87, 34, 0.1);
+        border-color: rgba(255, 87, 34, 0.2);
+        color: #FF5722;
+    }
+
+    .token-type-badge.crypto {
+        background: rgba(255, 193, 7, 0.1);
+        border-color: rgba(255, 193, 7, 0.2);
+        color: #FFC107;
+    }
 `;
 
 document.head.appendChild(modalStyles);
@@ -2370,16 +2583,26 @@ window.showTokenDescription = async function(contractAddress, symbol) {
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             }
 
-            .zinc-token-name .zinc-token-symbol {
-                color: var(--text-secondary);
-                font-size: 14px;
-                font-weight: 500;
+            .zinc-token-name .token-type-badge {
+                font-size: 12px;
+                font-weight: 600;
                 padding: 4px 12px;
-                background: rgba(255, 255, 255, 0.1);
                 border-radius: 16px;
                 letter-spacing: 0.5px;
                 box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
                 font-family: 'Roboto Mono', monospace;
+                text-transform: uppercase;
+            }
+
+            @media (max-width: 768px) {
+                .zinc-token-name {
+                    font-size: 22px;
+                }
+
+                .zinc-token-name .token-type-badge {
+                    font-size: 10px;
+                    padding: 3px 10px;
+                }
             }
 
             .zinc-description-separator {
@@ -2454,7 +2677,7 @@ window.showTokenDescription = async function(contractAddress, symbol) {
                     font-size: 22px;
                 }
 
-                .zinc-token-name .zinc-token-symbol {
+                .zinc-token-name .token-type-badge {
                     font-size: 12px;
                     padding: 3px 10px;
                 }
@@ -2512,7 +2735,9 @@ window.showTokenDescription = async function(contractAddress, symbol) {
                 <div class="zinc-description-content">
                     <h2 class="zinc-token-name">
                         ${tokenInfo.name || symbol}
-                        <span class="zinc-token-symbol">${symbol}</span>
+                        <div class="token-type-badge ${classifyTokenType(tokenInfo.description, tokenInfo.name || symbol, symbol).toLowerCase()}">
+                            <span class="type-label">${classifyTokenType(tokenInfo.description, tokenInfo.name || symbol, symbol)}</span>
+                        </div>
                     </h2>
                     <div class="zinc-description-separator"></div>
                     <p class="zinc-description-text">${tokenInfo.description}</p>
@@ -2649,4 +2874,146 @@ async function enableSocialButtons(contractAddress) {
     if (discordLink) {
         discordBtn?.removeAttribute('disabled');
     }
+}
+
+// Function to classify token type based on description and name
+function classifyTokenType(description = '', name = '', symbol = '') {
+    const text = `${description} ${name} ${symbol}`.toLowerCase();
+    
+    const patterns = {
+        'AI': {
+            weight: 0,
+            keywords: ['ai', 'artificial intelligence', 'gpt', 'machine learning', 'neural', 'language model', 'bot', 'intelligence', 'openai', 'chatgpt', 'llm', 'deep learning', 'transformer', 'cognitive', '🤖']
+        },
+        'MEME': {
+            weight: 0,
+            keywords: ['meme', 'pepe', 'wojak', 'doge', 'moon', 'inu', 'shib', 'elon', 'chad', 'based', '🚀', '🌙', '🐸', 'kek', 'stonk', 'copium', 'wagmi', 'ngmi', 'fud', 'fomo']
+        },
+        'POLITICAL': {
+            weight: 0,
+            keywords: ['political', 'politics', 'democracy', 'vote', 'election', 'government', 'president', 'senator', 'congress', 'parliament', 'campaign', 'ballot', 'policy', 'democratic', 'republican', 'liberal', 'conservative']
+        },
+        'TRUMP': {
+            weight: 0,
+            keywords: ['trump', 'maga', 'donald', 'lets go brandon', 'brandon', '45', 'america first', 'patriot', 'trump2024', 'djt', 'donaldtrump', '🇺🇸']
+        },
+        'BIDEN': {
+            weight: 0,
+            keywords: ['biden', 'joe biden', 'potus', 'democrat', 'sleepy joe', 'brandon', 'dark brandon', '46', 'bidenomics']
+        },
+        'DOG': {
+            weight: 0,
+            keywords: ['dog', 'puppy', 'inu', 'shiba', 'doge', 'woof', 'pup', '🐕', '🐶', 'floki', 'cheems', 'doggo', 'husky', 'corgi', 'akita']
+        },
+        'CAT': {
+            weight: 0,
+            keywords: ['cat', 'kitty', 'neko', 'meow', 'kitten', '🐱', '🐈', 'purr', 'feline', 'miau', 'whiskers', 'paw', 'sphynx']
+        },
+        'FOOD': {
+            weight: 0,
+            keywords: ['food', 'burger', 'pizza', 'sushi', 'sandwich', 'snack', 'eat', '🍕', '🍔', '🍣', '🌮', 'cuisine', 'chef', 'kitchen', 'restaurant', 'delicious', 'yummy', 'tasty']
+        },
+        'SOCIAL': {
+            weight: 0,
+            keywords: ['social', 'community', 'friend', 'chat', 'message', 'communication', 'network', 'connect', 'share', 'group', 'social media', 'followers', 'engagement']
+        },
+        'DEFI': {
+            weight: 0,
+            keywords: ['defi', 'swap', 'yield', 'farm', 'stake', 'liquidity', 'amm', 'dex', 'dao', 'governance', 'protocol', 'lending', 'borrowing', 'vault', 'pool', 'apy', 'apr']
+        },
+        'CULTURE': {
+            weight: 0,
+            keywords: ['game', 'play', 'nft', 'metaverse', 'quest', 'rpg', 'arcade', '🎮', '🎲', 'gaming', 'esports', 'player', 'gamer', 'console', 'stream', 'twitch']
+        },
+        'UTILITY': {
+            weight: 0,
+            keywords: ['utility', 'tool', 'platform', 'protocol', 'service', 'solution', 'infrastructure', 'ecosystem', 'framework', 'application', 'dapp', 'integration']
+        },
+        'TIKTOK': {
+            weight: 0,
+            keywords: ['tiktok', 'viral', 'trend', 'dance', 'challenge', 'influencer', '📱', '🎵', 'trending', 'creator', 'content', 'short video', 'reels', 'hashtag']
+        },
+        'ANIME': {
+            weight: 0,
+            keywords: ['anime', 'manga', 'waifu', 'kawaii', 'otaku', 'chan', 'san', 'kun', 'loli', 'neko', 'senpai', 'chibi', 'moe', 'weeb', 'japanese', 'hentai']
+        },
+        'SPORTS': {
+            weight: 0,
+            keywords: ['sport', 'football', 'soccer', 'basketball', 'athlete', 'team', 'game', '⚽', '🏀', 'league', 'champion', 'tournament', 'player', 'match', 'competition']
+        },
+        'NSFW': {
+            weight: 0,
+            keywords: ['nsfw', 'adult', 'xxx', 'sexy', 'hot', 'twerk', 'boob', 'ass', '🍑', '💋', 'explicit', 'onlyfans', 'model', 'lewd', 'erotic']
+        },
+        'MUSIC': {
+            weight: 0,
+            keywords: ['music', 'song', 'artist', 'band', 'concert', 'festival', 'dj', 'rap', 'hip hop', 'rock', 'pop', '🎵', '🎶', '🎸', '🎹', 'album', 'playlist']
+        },
+        'SPACE': {
+            weight: 0,
+            keywords: ['space', 'galaxy', 'star', 'moon', 'mars', 'rocket', 'cosmos', 'astro', 'planet', 'orbit', 'nasa', 'spacex', '🚀', '🌠', '🌍', 'interstellar']
+        },
+        'ENVIRONMENT': {
+            weight: 0,
+            keywords: ['eco', 'green', 'environment', 'climate', 'sustainable', 'renewable', 'carbon', 'earth', 'clean', 'nature', 'recycle', '🌱', '🌿', '♻️']
+        },
+        'FINANCE': {
+            weight: 0,
+            keywords: ['finance', 'bank', 'investment', 'trading', 'stock', 'market', 'forex', 'crypto', 'money', 'wealth', 'profit', 'dividend', '💰', '💸', '📈']
+        },
+        'HEALTH': {
+            weight: 0,
+            keywords: ['health', 'fitness', 'wellness', 'gym', 'workout', 'medical', 'medicine', 'healthcare', 'doctor', 'hospital', 'therapy', '💪', '🏥', '🧬']
+        },
+        'TECH': {
+            weight: 0,
+            keywords: ['tech', 'technology', 'software', 'hardware', 'digital', 'innovation', 'startup', 'web3', 'blockchain', 'crypto', 'internet', 'mobile', '💻', '📱']
+        },
+        'LUXURY': {
+            weight: 0,
+            keywords: ['luxury', 'premium', 'exclusive', 'elite', 'vip', 'rich', 'wealth', 'expensive', 'high-end', 'prestige', 'glamour', '💎', '👑', '🏆']
+        },
+        'HOLIDAY': {
+            weight: 0,
+            keywords: ['christmas', 'halloween', 'easter', 'valentine', 'holiday', 'festival', 'celebration', 'party', 'santa', 'xmas', '🎄', '🎃', '🎅', '🎉']
+        },
+    };
+
+    // Calculate weights for each category
+    for (const [category, data] of Object.entries(patterns)) {
+        data.keywords.forEach(keyword => {
+            const regex = new RegExp(keyword, 'gi');
+            const matches = (text.match(regex) || []).length;
+            data.weight += matches;
+            
+            // Add extra weight for matches in the name or symbol
+            if ((name.toLowerCase().match(regex) || []).length > 0) data.weight += 2;
+            if ((symbol.toLowerCase().match(regex) || []).length > 0) data.weight += 3;
+        });
+    }
+
+    // Get category with highest weight
+    let maxWeight = 0;
+    let tokenType = 'OTHER';
+
+    for (const [category, data] of Object.entries(patterns)) {
+        if (data.weight > maxWeight) {
+            maxWeight = data.weight;
+            tokenType = category;
+        }
+    }
+
+    // If no significant matches found, try to determine if it's a meme token
+    if (maxWeight === 0) {
+        // Check for common meme token patterns
+        const hasMemeCharacteristics = /^(baby|safe|moon|elon|doge|shib|pepe|wojak|chad)/i.test(symbol) ||
+            /🚀|💎|🌙|🐸|💪|🔥/.test(text) ||
+            /(to the moon|hodl|diamond hands|wagmi|lfg|moon soon)/i.test(text);
+        
+        if (hasMemeCharacteristics) {
+            tokenType = 'MEME';
+        }
+    }
+
+    return tokenType;
 }
