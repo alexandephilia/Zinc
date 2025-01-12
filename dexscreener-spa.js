@@ -27,6 +27,7 @@ window.showPairChart = async function(pair) {
         const shortContractAddress = pair.baseToken.address.slice(0, 6) + '...' + pair.baseToken.address.slice(-4);
         const shortPairAddress = pair.pairAddress.slice(0, 6) + '...' + pair.pairAddress.slice(-4);
         const volume24h = formatNumber(parseFloat(pair.volume.h24));
+        const liquidity = formatNumber(parseFloat(pair.liquidity?.usd || 0));
         const mcap = formatNumber(parseFloat(pair.fdv));
         const priceChange24h = parseFloat(pair.priceChange.h24);
 
@@ -45,15 +46,31 @@ window.showPairChart = async function(pair) {
                                 </div>
                                 <div class="token-metrics">
                                     <div class="metric-badge change ${priceChange24h >= 0 ? 'positive' : 'negative'}">
-                                        <span class="metric-label">24h</span>
+                                        <span class="metric-label">
+                                            <span class="material-icons-round">trending_up</span>
+                                            24h
+                                        </span>
                                         <span class="metric-value">${priceChange24h > 0 ? '+' : ''}${priceChange24h.toFixed(2)}%</span>
                                     </div>
                                     <div class="metric-badge volume">
-                                        <span class="metric-label">24h Vol</span>
+                                        <span class="metric-label">
+                                            <span class="material-icons-round">bar_chart</span>
+                                            24h Vol
+                                        </span>
                                         <span class="metric-value">$${volume24h}</span>
                                     </div>
+                                    <div class="metric-badge liquidity">
+                                        <span class="metric-label">
+                                            <span class="material-icons-round">water_drop</span>
+                                            Liquidity
+                                        </span>
+                                        <span class="metric-value">$${liquidity}</span>
+                                    </div>
                                     <div class="metric-badge mcap">
-                                        <span class="metric-label">MCap</span>
+                                        <span class="metric-label">
+                                            <span class="material-icons-round">pie_chart</span>
+                                            MCap
+                                        </span>
                                         <span class="metric-value">$${mcap}</span>
                                     </div>
                                 </div>
@@ -119,6 +136,170 @@ window.showPairChart = async function(pair) {
                 await copyToClipboard(textToCopy, button);
             });
         });
+
+        // Add collapsible functionality for mobile
+        const tokenInfoWrapper = chartTitle.querySelector('.token-info-wrapper');
+        if (tokenInfoWrapper) {
+            // Add expand/collapse indicator
+            const expandIndicator = document.createElement('div');
+            expandIndicator.className = 'expand-indicator';
+            expandIndicator.innerHTML = '<span class="material-icons-round">expand_more</span>';
+            tokenInfoWrapper.appendChild(expandIndicator);
+
+            // Add click handler for mobile collapse/expand
+            tokenInfoWrapper.addEventListener('click', (e) => {
+                // Don't collapse if clicking buttons or links
+                if (e.target.closest('.copy-btn') || 
+                    e.target.closest('.analyze-btn') || 
+                    e.target.closest('.token-description-icon')) {
+                    return;
+                }
+
+                if (window.innerWidth <= 768) {
+                    tokenInfoWrapper.classList.toggle('collapsed');
+                    const indicator = tokenInfoWrapper.querySelector('.expand-indicator');
+                    if (indicator) {
+                        indicator.querySelector('.material-icons-round').textContent = 
+                            tokenInfoWrapper.classList.contains('collapsed') ? 'expand_more' : 'expand_less';
+                    }
+                }
+            });
+
+            // Add styles for expand indicator
+            const expandStyles = document.createElement('style');
+            expandStyles.textContent = `
+                .expand-indicator {
+                    display: none !important;
+                    position: absolute !important;
+                    right: 8px !important;
+                    top: 60% !important;
+                    transform: translateY(-50%) !important;
+                    color: var(--text-secondary) !important;
+                    transition: all 0.3s ease !important;
+                    z-index: 5 !important;
+                }
+
+                .expand-indicator .material-icons-round {
+                    font-size: 18px !important;
+                    transition: transform 0.3s ease !important;
+                }
+
+                .token-info-wrapper:not(.collapsed) .expand-indicator .material-icons-round {
+                    transform: rotate(180deg) !important;
+                }
+
+                @media (max-width: 768px) {
+                    .expand-indicator {
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        width: 24px !important;
+                        height: 24px !important;
+                        right: 10px !important;
+                        background: rgba(41, 98, 255, 0.05) !important;
+                        border-radius: 6px !important;
+                    }
+
+                    .token-metrics {
+                        flex-wrap: wrap !important;
+                        gap: 4px !important;
+                        margin-left: 0 !important;
+                        justify-content: space-between !important;
+                        overflow: visible !important;
+                        margin-top: 8px !important;
+                    }
+
+                    .metric-badge {
+                        min-width: calc(50% - 2px) !important;
+                        padding: 4px 8px !important;
+                        flex: 0 0 calc(50% - 2px) !important;
+                    }
+
+                    .metric-label {
+                        font-size: 10px !important;
+                        letter-spacing: 0.5px !important;
+                        opacity: 0.8 !important;
+                    }
+
+                    .metric-value {
+                        font-size: 12px !important;
+                        line-height: 1.2 !important;
+                    }
+
+                    .name-and-metrics {
+                        flex-direction: column !important;
+                        align-items: flex-start !important;
+                        gap: 4px !important;
+                        width: 100% !important;
+                    }
+
+                    .token-name-container {
+                        width: 100% !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        gap: 6px !important;
+                    }
+
+                    .token-name {
+                        font-size: 14px !important;
+                        line-height: 1.2 !important;
+                        max-width: calc(100% - 80px) !important;
+                    }
+
+                    .token-type-badge {
+                        padding: 2px 6px !important;
+                        font-size: 9px !important;
+                    }
+
+                    .token-description-icon {
+                        padding: 2px !important;
+                    }
+
+                    .token-description-icon .material-icons-round {
+                        font-size: 14px !important;
+                    }
+
+                    .token-info-wrapper {
+                        padding: 8px 12px !important;
+                        padding-right: 40px !important;
+                    }
+
+                    /* Only collapse token-info-group */
+                    .token-info-wrapper.collapsed .token-info-group {
+                        height: 0 !important;
+                        opacity: 0 !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        pointer-events: none !important;
+                        transform: translateY(-8px) !important;
+                        overflow: hidden !important;
+                    }
+
+                    /* Keep token metrics always visible */
+                    .token-info-wrapper.collapsed .token-metrics {
+                        opacity: 1 !important;
+                        height: auto !important;
+                        pointer-events: auto !important;
+                        transform: none !important;
+                        margin-top: 8px !important;
+                    }
+
+                    .token-info-group {
+                        height: auto !important;
+                        opacity: 1 !important;
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                        transform: translateY(0) !important;
+                        margin-top: 8px !important;
+                    }
+
+                    /* Ensure proper spacing when collapsed */
+                    .token-info-wrapper.collapsed {
+                        padding-bottom: 8px !important;
+                    }
+                }
+            `;
+            document.head.appendChild(expandStyles);
+        }
     }
 
     // Update webpage title
@@ -1747,19 +1928,20 @@ modalStyles.textContent = `
     .token-info-wrapper {
         background: linear-gradient(180deg, 
             rgba(41, 98, 255, 0.05) 0%,
-            rgba(10, 10, 15, 0) 100%);
-        border: 1px solid rgba(41, 98, 255, 0.1);
-        border-radius: 16px;
-        padding: 16px 20px;
-        margin: 0;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        width: calc(100% + 16px);
-        box-sizing: border-box;
-        position: relative;
-        z-index: 10;
-        margin-left: -8px;
-        margin-right: -8px;
+            rgba(10, 10, 15, 0) 100%) !important;
+        border: 1px solid rgba(41, 98, 255, 0.1) !important;
+        border-radius: 16px !important;
+        padding: 16px 20px !important;
+        margin: 0 !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        width: calc(100% + 16px) !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        z-index: 10 !important;
+        margin-left: -8px !important;
+        margin-right: -8px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .token-info-grid {
@@ -1797,22 +1979,23 @@ modalStyles.textContent = `
     }
 
     .token-metrics {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: nowrap;
-        margin-left: auto;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex-wrap: nowrap !important;
+        margin-left: auto !important;
+        transition: all 0.3s ease !important;
     }
 
     .metric-badge {
-        display: flex;
-        flex-direction: column;
-        padding: 4px 12px;
-        border-radius: 8px;
-        background: rgba(10, 10, 15, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        min-width: 90px;
-        transition: all 0.2s ease;
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 4px 12px !important;
+        border-radius: 8px !important;
+        background: rgba(10, 10, 15, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        min-width: 100px !important;
+        transition: all 0.2s ease !important;
     }
 
     .metric-badge:hover {
@@ -1821,9 +2004,10 @@ modalStyles.textContent = `
     }
 
     .metric-badge.volume,
-    .metric-badge.mcap {
-        background: rgba(41, 98, 255, 0.05);
-        border-color: rgba(41, 98, 255, 0.1);
+    .metric-badge.mcap,
+    .metric-badge.liquidity {
+        background: rgba(41, 98, 255, 0.05) !important;
+        border-color: rgba(41, 98, 255, 0.1) !important;
     }
 
     .metric-badge.change.positive {
@@ -1837,11 +2021,19 @@ modalStyles.textContent = `
     }
 
     .metric-label {
-        font-size: 11px;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        opacity: 0.8;
+        font-size: 11px !important;
+        color: var(--text-secondary) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        opacity: 0.8 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+
+    .metric-label .material-icons-round {
+        font-size: 12px !important;
+        opacity: 0.8 !important;
     }
 
     .metric-value {
