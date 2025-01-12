@@ -2000,6 +2000,17 @@ modalStyles.textContent = `
         overflow: hidden !important;
     }
 
+    .metric-badge:hover {
+        transform: translateY(-1px) !important;
+    }
+
+    .metric-badge.volume,
+    .metric-badge.mcap,
+    .metric-badge.liquidity {
+        background: rgba(41, 98, 255, 0.05) !important;
+        border-color: rgba(41, 98, 255, 0.1) !important;
+    }
+
     .metric-badge.change.positive {
         background: rgba(18, 233, 204, 0.05) !important;
         border: 1px solid rgba(18, 233, 204, 0.2) !important;
@@ -2034,6 +2045,22 @@ modalStyles.textContent = `
 
     .metric-badge.change:hover::before {
         opacity: 1 !important;
+    }
+
+    .metric-badge.volume .metric-label,
+    .metric-badge.mcap .metric-label,
+    .metric-badge.liquidity .metric-label,
+    .metric-badge.volume .metric-label .material-icons-round,
+    .metric-badge.mcap .metric-label .material-icons-round,
+    .metric-badge.liquidity .metric-label .material-icons-round {
+        color: #2962ff !important;
+        opacity: 0.8 !important;
+    }
+
+    .metric-badge.volume .metric-value,
+    .metric-badge.mcap .metric-value,
+    .metric-badge.liquidity .metric-value {
+        color: #2962ff !important;
     }
 
     .metric-badge.change.positive .metric-label,
