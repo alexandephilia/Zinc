@@ -2058,24 +2058,27 @@ modalStyles.textContent = `
         gap: 4px !important;
     }
 
-    .metric-label .material-icons-round {
-        font-size: 12px !important;
-        opacity: 0.8 !important;
-        color: var(--text-secondary) !important;
-    }
-
     .metric-value {
         color: var(--text-primary) !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        font-family: 'Roboto Mono', monospace !important;
+    }
+
+    .metric-badge.change.positive .metric-label,
+    .metric-badge.change.positive .metric-label .material-icons-round {
+        color: rgb(18, 233, 204) !important;
+    }
+
+    .metric-badge.change.negative .metric-label,
+    .metric-badge.change.negative .metric-label .material-icons-round {
+        color: rgb(255, 59, 105) !important;
     }
 
     .metric-badge.change.positive .metric-value {
+        color: rgb(18, 233, 204) !important;
         text-shadow: 0 0 8px rgba(18, 233, 204, 0.4) !important;
     }
 
     .metric-badge.change.negative .metric-value {
+        color: rgb(255, 59, 105) !important;
         text-shadow: 0 0 8px rgba(255, 59, 105, 0.4) !important;
     }
 
