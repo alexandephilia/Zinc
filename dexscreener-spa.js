@@ -2047,42 +2047,6 @@ modalStyles.textContent = `
         opacity: 1 !important;
     }
 
-    .metric-badge.volume .metric-label,
-    .metric-badge.mcap .metric-label,
-    .metric-badge.liquidity .metric-label,
-    .metric-badge.volume .metric-label .material-icons-round,
-    .metric-badge.mcap .metric-label .material-icons-round,
-    .metric-badge.liquidity .metric-label .material-icons-round {
-        color: #2962ff !important;
-        opacity: 0.8 !important;
-    }
-
-    .metric-badge.volume .metric-value,
-    .metric-badge.mcap .metric-value,
-    .metric-badge.liquidity .metric-value {
-        color: #2962ff !important;
-    }
-
-    .metric-badge.change.positive .metric-label,
-    .metric-badge.change.positive .metric-label .material-icons-round {
-        color: rgb(18, 233, 204) !important;
-    }
-
-    .metric-badge.change.negative .metric-label,
-    .metric-badge.change.negative .metric-label .material-icons-round {
-        color: rgb(255, 59, 105) !important;
-    }
-
-    .metric-badge.change.positive .metric-value {
-        color: rgb(18, 233, 204) !important;
-        text-shadow: 0 0 8px rgba(18, 233, 204, 0.4) !important;
-    }
-
-    .metric-badge.change.negative .metric-value {
-        color: rgb(255, 59, 105) !important;
-        text-shadow: 0 0 8px rgba(255, 59, 105, 0.4) !important;
-    }
-
     .metric-label {
         font-size: 11px !important;
         color: var(--text-secondary) !important;
@@ -2097,23 +2061,22 @@ modalStyles.textContent = `
     .metric-label .material-icons-round {
         font-size: 12px !important;
         opacity: 0.8 !important;
+        color: var(--text-secondary) !important;
     }
 
     .metric-value {
-        font-size: 13px;
-        font-weight: 600;
-        font-family: 'Roboto Mono', monospace;
-        color: var(--text-primary);
+        color: var(--text-primary) !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        font-family: 'Roboto Mono', monospace !important;
     }
 
-    .change.positive .metric-value {
-        color: rgb(18, 233, 204);
-        text-shadow: 0 0 8px rgba(18, 233, 204, 0.4);
+    .metric-badge.change.positive .metric-value {
+        text-shadow: 0 0 8px rgba(18, 233, 204, 0.4) !important;
     }
 
-    .change.negative .metric-value {
-        color: rgb(255, 59, 105);
-        text-shadow: 0 0 8px rgba(255, 59, 105, 0.4);
+    .metric-badge.change.negative .metric-value {
+        text-shadow: 0 0 8px rgba(255, 59, 105, 0.4) !important;
     }
 
     .token-addresses {
