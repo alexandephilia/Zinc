@@ -1,5 +1,8 @@
 // Function to show DexScreener chart (unified functionality)
-window.showPairChart = function(pair) {
+window.showPairChart = async function(pair) {
+    // Get full token data first
+    const fullTokenData = await getTokenData(pair.baseToken.address);
+    
     // Hide market grid and show full chart
     const marketGridContainer = document.querySelector('.market-grid-container');
     const chartSection = document.querySelector('.chart-section');
@@ -38,11 +41,9 @@ window.showPairChart = function(pair) {
                                     <button class="token-description-icon" onclick="showTokenDescription('${pair.baseToken.address}', '${pair.baseToken.symbol}')" title="Token Description">
                                         <span class="material-icons-round">info</span>
                                     </button>
+                                    ${getTokenTypeDisplay(fullTokenData.description, pair.baseToken.name, pair.baseToken.symbol)}
                                 </div>
                                 <div class="token-metrics">
-                                    <div class="token-type-badge ${classifyTokenType(pair.description, pair.baseToken.name, pair.baseToken.symbol).toLowerCase()}">
-                                        <span class="type-label">${classifyTokenType(pair.description, pair.baseToken.name, pair.baseToken.symbol)}</span>
-                                    </div>
                                     <div class="metric-badge change ${priceChange24h >= 0 ? 'positive' : 'negative'}">
                                         <span class="metric-label">24h</span>
                                         <span class="metric-value">${priceChange24h > 0 ? '+' : ''}${priceChange24h.toFixed(2)}%</span>
@@ -281,11 +282,7 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
         }
 
         try {
-            const response = await fetch(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
+            const data = await fetchWithRetry(`https://api.dexscreener.com/latest/dex/pairs/solana/${pairAddress}`);
             
             if (data.pair) {
                 const newPrice = parseFloat(data.pair.priceUsd);
@@ -330,6 +327,15 @@ window.showCalculatorForPair = function(pairAddress, symbol) {
             }
         } catch (error) {
             console.error('Error updating calculator price:', error);
+            // Add visual feedback for errors
+            const calculatorError = document.createElement('div');
+            calculatorError.className = 'calculator-error';
+            calculatorError.innerHTML = `
+                <span class="material-icons-round">warning</span>
+                <span>Price update failed. Retrying...</span>
+            `;
+            calculator.appendChild(calculatorError);
+            setTimeout(() => calculatorError.remove(), 3000);
         }
     }
 
@@ -2264,7 +2270,7 @@ modalStyles.textContent = `
     }
 
     .token-type-badge {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         padding: 4px 12px;
         border-radius: 8px;
@@ -2277,6 +2283,45 @@ modalStyles.textContent = `
         background: rgba(0, 0, 0, 0.2);
         backdrop-filter: blur(4px);
         -webkit-backdrop-filter: blur(4px);
+        transition: all 0.2s ease;
+    }
+
+    .token-type-badge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .type-label {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 768px) {
+        .token-type-badge {
+            padding: 3px 8px;
+            font-size: 10px;
+        }
+        
+        .type-label {
+            font-size: 10px;
+        }
+
+        .analyze-btn {
+            width: auto !important;
+            height: auto !important;
+            padding: 4px 8px !important;
+        }
+
+        .analyze-btn .material-icons-round {
+            margin-right: 4px;
+        }
+
+        .analyze-btn-label {
+            display: inline !important;
+            font-size: 11px;
+        }
     }
 
     .token-type-badge.ai {
@@ -2367,22 +2412,6 @@ modalStyles.textContent = `
         background: rgba(189, 189, 189, 0.1);
         border-color: rgba(189, 189, 189, 0.2);
         color: #BDBDBD;
-    }
-
-    .type-label {
-        font-family: 'Roboto Mono', monospace;
-        font-size: 11px;
-    }
-
-    @media (max-width: 768px) {
-        .token-type-badge {
-            padding: 3px 8px;
-            font-size: 10px;
-        }
-        
-        .type-label {
-            font-size: 10px;
-        }
     }
 
     .token-type-badge.political {
@@ -2721,9 +2750,8 @@ window.showTokenDescription = async function(contractAddress, symbol) {
     modal.style.display = 'flex';
 
     try {
-        // Fetch token data from DexScreener API
-        const response = await fetch('https://api.dexscreener.com/token-boosts/top/v1');
-        const data = await response.json();
+        // Use fetchWithRetry instead of fetch
+        const data = await fetchWithRetry('https://api.dexscreener.com/token-boosts/top/v1');
         
         // Find the token in the response
         const tokenInfo = data.find(token => 
@@ -2735,9 +2763,7 @@ window.showTokenDescription = async function(contractAddress, symbol) {
                 <div class="zinc-description-content">
                     <h2 class="zinc-token-name">
                         ${tokenInfo.name || symbol}
-                        <div class="token-type-badge ${classifyTokenType(tokenInfo.description, tokenInfo.name || symbol, symbol).toLowerCase()}">
-                            <span class="type-label">${classifyTokenType(tokenInfo.description, tokenInfo.name || symbol, symbol)}</span>
-                        </div>
+                        ${getTokenTypeDisplay(tokenInfo.description, tokenInfo.name || symbol, symbol)}
                     </h2>
                     <div class="zinc-description-separator"></div>
                     <p class="zinc-description-text">${tokenInfo.description}</p>
@@ -2765,10 +2791,23 @@ window.showTokenDescription = async function(contractAddress, symbol) {
             throw new Error('Token description not found');
         }
     } catch (error) {
+        let errorMessage = 'Token information not available';
+        
+        // Enhanced error messaging
+        if (error.message.includes('rate limit')) {
+            errorMessage = 'API rate limit reached. Please try again in a few moments.';
+        } else if (error.message.includes('network')) {
+            errorMessage = 'Network error. Please check your connection and try again.';
+        }
+
         modal.querySelector('.zinc-modal-body').innerHTML = `
             <div class="zinc-description-error">
                 <span class="material-icons-round">error_outline</span>
-                <p>Error loading description: Token information not available</p>
+                <p>Error loading description: ${errorMessage}</p>
+                <button class="zinc-retry-btn" onclick="showTokenDescription('${contractAddress}', '${symbol}')">
+                    <span class="material-icons-round">refresh</span>
+                    Retry
+                </button>
             </div>
         `;
     }
@@ -2786,93 +2825,102 @@ window.showTokenDescription = async function(contractAddress, symbol) {
     };
 }
 
-// Update social link functions to use the API data
+// Update social link functions to use the unified data fetcher
 async function getSocialLinks(contractAddress) {
     try {
-        const response = await fetch('https://api.dexscreener.com/token-boosts/top/v1');
-        const data = await response.json();
-        
-        const tokenInfo = data.find(token => 
-            token.tokenAddress.toLowerCase() === contractAddress.toLowerCase()
-        );
-
-        return tokenInfo?.links || [];
+        const tokenData = await getTokenData(contractAddress);
+        return tokenData.links || [];
     } catch (error) {
         console.error('Error fetching social links:', error);
         return [];
     }
 }
 
+// Update social button handlers to use unified data
 window.openTokenWebsite = async function(contractAddress) {
-    const links = await getSocialLinks(contractAddress);
-    const websiteLink = links.find(link => link.label === 'Website' || link.type === 'website')?.url;
-    const button = document.querySelector('.social-btn[title="Website"]');
-    if (websiteLink) {
-        button?.removeAttribute('disabled');
-        window.open(websiteLink, '_blank');
+    try {
+        const tokenData = await getTokenData(contractAddress);
+        const button = document.querySelector('.social-btn[title="Website"]');
+        if (tokenData.social.website) {
+            button?.removeAttribute('disabled');
+            window.open(tokenData.social.website, '_blank');
+        }
+    } catch (error) {
+        console.error('Error opening website:', error);
     }
 }
 
 window.openTokenTwitter = async function(contractAddress) {
-    const links = await getSocialLinks(contractAddress);
-    const twitterLink = links.find(link => link.type === 'twitter' || link.label === 'Twitter')?.url;
-    const button = document.querySelector('.social-btn[title="Twitter"]');
-    if (twitterLink) {
-        button?.removeAttribute('disabled');
-        window.open(twitterLink, '_blank');
+    try {
+        const tokenData = await getTokenData(contractAddress);
+        const button = document.querySelector('.social-btn[title="Twitter"]');
+        if (tokenData.social.twitter) {
+            button?.removeAttribute('disabled');
+            window.open(tokenData.social.twitter, '_blank');
+        }
+    } catch (error) {
+        console.error('Error opening Twitter:', error);
     }
 }
 
 window.openTokenTelegram = async function(contractAddress) {
-    const links = await getSocialLinks(contractAddress);
-    const telegramLink = links.find(link => link.type === 'telegram' || link.label === 'Telegram')?.url;
-    const button = document.querySelector('.social-btn[title="Telegram"]');
-    if (telegramLink) {
-        button?.removeAttribute('disabled');
-        window.open(telegramLink, '_blank');
+    try {
+        const tokenData = await getTokenData(contractAddress);
+        const button = document.querySelector('.social-btn[title="Telegram"]');
+        if (tokenData.social.telegram) {
+            button?.removeAttribute('disabled');
+            window.open(tokenData.social.telegram, '_blank');
+        }
+    } catch (error) {
+        console.error('Error opening Telegram:', error);
     }
 }
 
 window.openTokenDiscord = async function(contractAddress) {
-    const links = await getSocialLinks(contractAddress);
-    const discordLink = links.find(link => link.type === 'discord' || link.label === 'Discord')?.url;
-    const button = document.querySelector('.social-btn[title="Discord"]');
-    if (discordLink) {
-        button?.removeAttribute('disabled');
-        window.open(discordLink, '_blank');
+    try {
+        const tokenData = await getTokenData(contractAddress);
+        const button = document.querySelector('.social-btn[title="Discord"]');
+        if (tokenData.social.discord) {
+            button?.removeAttribute('disabled');
+            window.open(tokenData.social.discord, '_blank');
+        }
+    } catch (error) {
+        console.error('Error opening Discord:', error);
     }
 }
 
 // Function to check and enable social buttons when loading the chart
 async function enableSocialButtons(contractAddress) {
-    const links = await getSocialLinks(contractAddress);
-    
-    // Website button
-    const websiteLink = links.find(link => link.label === 'Website' || link.type === 'website')?.url;
-    const websiteBtn = document.querySelector('.social-btn[title="Website"]');
-    if (websiteLink) {
-        websiteBtn?.removeAttribute('disabled');
-    }
+    try {
+        const tokenData = await getTokenData(contractAddress);
+        
+        if (tokenData.social) {
+            // Website button
+            const websiteBtn = document.querySelector('.social-btn[title="Website"]');
+            if (tokenData.social.website) {
+                websiteBtn?.removeAttribute('disabled');
+            }
 
-    // Twitter button
-    const twitterLink = links.find(link => link.type === 'twitter' || link.label === 'Twitter')?.url;
-    const twitterBtn = document.querySelector('.social-btn[title="Twitter"]');
-    if (twitterLink) {
-        twitterBtn?.removeAttribute('disabled');
-    }
+            // Twitter button
+            const twitterBtn = document.querySelector('.social-btn[title="Twitter"]');
+            if (tokenData.social.twitter) {
+                twitterBtn?.removeAttribute('disabled');
+            }
 
-    // Telegram button
-    const telegramLink = links.find(link => link.type === 'telegram' || link.label === 'Telegram')?.url;
-    const telegramBtn = document.querySelector('.social-btn[title="Telegram"]');
-    if (telegramLink) {
-        telegramBtn?.removeAttribute('disabled');
-    }
+            // Telegram button
+            const telegramBtn = document.querySelector('.social-btn[title="Telegram"]');
+            if (tokenData.social.telegram) {
+                telegramBtn?.removeAttribute('disabled');
+            }
 
-    // Discord button
-    const discordLink = links.find(link => link.type === 'discord' || link.label === 'Discord')?.url;
-    const discordBtn = document.querySelector('.social-btn[title="Discord"]');
-    if (discordLink) {
-        discordBtn?.removeAttribute('disabled');
+            // Discord button
+            const discordBtn = document.querySelector('.social-btn[title="Discord"]');
+            if (tokenData.social.discord) {
+                discordBtn?.removeAttribute('disabled');
+            }
+        }
+    } catch (error) {
+        console.error('Error enabling social buttons:', error);
     }
 }
 
@@ -2923,7 +2971,7 @@ function classifyTokenType(description = '', name = '', symbol = '') {
         },
         'CULTURE': {
             weight: 0,
-            keywords: ['game', 'play', 'nft', 'metaverse', 'quest', 'rpg', 'arcade', '🎮', '🎲', 'gaming', 'esports', 'player', 'gamer', 'console', 'stream', 'twitch']
+            keywords: ['game', 'play', 'nft', 'metaverse', 'quest', 'rpg', 'arcade', '🎮', '🎲', 'gaming', 'esports', 'player', 'gamer', 'console', 'stream', 'twitch', 'chill', 'mlg', 'cult', 'mog', 'giga', 'retardio', 'chilling', 'mogger', 'gigachad', 'mlgpro', 'cultist', 'retard']
         },
         'UTILITY': {
             weight: 0,
@@ -3016,4 +3064,208 @@ function classifyTokenType(description = '', name = '', symbol = '') {
     }
 
     return tokenType;
+}
+
+// Add this utility function at the top of the file
+async function fetchWithRetry(url, options = {}, maxRetries = 3) {
+    const baseDelay = 1000; // Start with 1 second delay
+    let lastError;
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+            const response = await fetch(url, options);
+            const data = await response.json();
+
+            // Check for rate limit response
+            if (response.status === 429 || 
+                data.error?.code === 429 || 
+                data.error?.code === -32429 ||
+                data.error?.message?.toLowerCase().includes('rate limit')) {
+                
+                const retryAfter = parseInt(response.headers.get('Retry-After')) || 
+                                 Math.pow(2, attempt) * baseDelay;
+                
+                console.log(`Rate limited, retrying after ${retryAfter}ms (Attempt ${attempt + 1}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, retryAfter));
+                continue;
+            }
+
+            // If we got data with no rate limit, return it
+            return data;
+
+        } catch (error) {
+            console.warn(`API request failed (Attempt ${attempt + 1}/${maxRetries}):`, error);
+            lastError = error;
+
+            // Only retry on network errors or rate limits
+            if (!error.message.includes('rate limit') && !error.message.includes('network')) {
+                throw error;
+            }
+
+            // Exponential backoff
+            const delay = Math.pow(2, attempt) * baseDelay;
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+
+    // If we exhausted all retries, throw the last error
+    throw new Error(`API request failed after ${maxRetries} retries: ${lastError.message}`);
+}
+
+// Add this function before showPairChart
+function getTokenTypeDisplay(description, name, symbol) {
+    console.log('Token Classification Data:', {
+        description: description,
+        name: name,
+        symbol: symbol
+    });
+    const type = classifyTokenType(description, name, symbol);
+    return `
+        <div class="token-type-badge ${type.toLowerCase()}">
+            <span class="type-label">${type}</span>
+        </div>
+    `;
+}
+
+// Token data cache and API management
+window.TOKEN_CACHE = {
+    data: new Map(),
+    lastFetch: new Map(),
+    cacheDuration: 60000, // Cache duration in milliseconds (1 minute)
+    pendingRequests: new Map()
+};
+
+// Rate limiting configuration
+window.API_CONFIG = {
+    lastFetchTimestamp: 0,
+    minFetchInterval: 500, // Minimum 500ms between requests
+    consecutiveErrors: 0,
+    backoffDelay: 1000, // Initial backoff delay
+    maxBackoffDelay: 30000, // Maximum backoff delay
+    rateLimitCooldown: false
+};
+
+// Unified API call handler with rate limiting
+async function withRateLimit(apiCall) {
+    const now = Date.now();
+    const timeSinceLastFetch = now - window.API_CONFIG.lastFetchTimestamp;
+    
+    // Enforce minimum interval between requests
+    if (timeSinceLastFetch < window.API_CONFIG.minFetchInterval) {
+        await new Promise(resolve => 
+            setTimeout(resolve, window.API_CONFIG.minFetchInterval - timeSinceLastFetch)
+        );
+    }
+
+    // If in cooldown, wait
+    if (window.API_CONFIG.rateLimitCooldown) {
+        await new Promise(resolve => 
+            setTimeout(resolve, window.API_CONFIG.maxBackoffDelay)
+        );
+        window.API_CONFIG.rateLimitCooldown = false;
+    }
+
+    try {
+        window.API_CONFIG.lastFetchTimestamp = Date.now();
+        const result = await apiCall();
+        
+        // Reset error count on success
+        window.API_CONFIG.consecutiveErrors = 0;
+        window.API_CONFIG.backoffDelay = 1000;
+        
+        return result;
+    } catch (error) {
+        // Handle rate limiting specifically
+        if (error.message.includes('429') || error.message.toLowerCase().includes('rate limit')) {
+            window.API_CONFIG.rateLimitCooldown = true;
+            window.API_CONFIG.consecutiveErrors++;
+            
+            // Exponential backoff
+            const backoffDelay = Math.min(
+                window.API_CONFIG.backoffDelay * Math.pow(2, window.API_CONFIG.consecutiveErrors),
+                window.API_CONFIG.maxBackoffDelay
+            );
+            
+            console.warn(`Rate limit detected, backing off for ${backoffDelay}ms`);
+            await new Promise(resolve => setTimeout(resolve, backoffDelay));
+        }
+        throw error;
+    }
+}
+
+// Unified token data fetcher
+async function getTokenData(contractAddress) {
+    const cacheKey = contractAddress.toLowerCase();
+    const now = Date.now();
+    const cachedData = window.TOKEN_CACHE.data.get(cacheKey);
+    const lastFetch = window.TOKEN_CACHE.lastFetch.get(cacheKey) || 0;
+    
+    // Check if we have valid cached data
+    if (cachedData && (now - lastFetch) < window.TOKEN_CACHE.cacheDuration) {
+        return cachedData;
+    }
+
+    // Check if there's a pending request for this token
+    if (window.TOKEN_CACHE.pendingRequests.has(cacheKey)) {
+        return window.TOKEN_CACHE.pendingRequests.get(cacheKey);
+    }
+
+    // Create a new request promise
+    const requestPromise = (async () => {
+        try {
+            // Fetch token boost data first (includes socials and description)
+            const [boostData, tokenData] = await Promise.all([
+                withRateLimit(() => 
+                    fetch('https://api.dexscreener.com/token-boosts/top/v1')
+                    .then(r => r.json())
+                ),
+                withRateLimit(() => 
+                    fetch(`https://api.dexscreener.com/latest/dex/tokens/${contractAddress}`)
+                    .then(r => r.json())
+                )
+            ]);
+
+            // Find token info from boost data
+            const tokenInfo = boostData.find(token => 
+                token.tokenAddress.toLowerCase() === cacheKey
+            );
+
+            // Process token data
+            const solanaPair = tokenData.pairs?.filter(p => p.chainId === 'solana')
+                .sort((a, b) => parseFloat(b.liquidity?.usd || 0) - parseFloat(a.liquidity?.usd || 0))[0];
+
+            if (!solanaPair) {
+                throw new Error('No valid Solana pair found');
+            }
+
+            // Combine data
+            const combinedData = {
+                ...solanaPair,
+                description: tokenInfo?.description || '',
+                links: tokenInfo?.links || [],
+                social: {
+                    website: tokenInfo?.links?.find(link => link.label === 'Website' || link.type === 'website')?.url,
+                    twitter: tokenInfo?.links?.find(link => link.type === 'twitter' || link.label === 'Twitter')?.url,
+                    telegram: tokenInfo?.links?.find(link => link.type === 'telegram' || link.label === 'Telegram')?.url,
+                    discord: tokenInfo?.links?.find(link => link.type === 'discord' || link.label === 'Discord')?.url
+                }
+            };
+
+            // Update cache
+            window.TOKEN_CACHE.data.set(cacheKey, combinedData);
+            window.TOKEN_CACHE.lastFetch.set(cacheKey, now);
+
+            return combinedData;
+        } catch (error) {
+            console.error('Error fetching token data:', error);
+            throw error;
+        } finally {
+            // Clean up pending request
+            window.TOKEN_CACHE.pendingRequests.delete(cacheKey);
+        }
+    })();
+
+    // Store the pending request
+    window.TOKEN_CACHE.pendingRequests.set(cacheKey, requestPromise);
+    return requestPromise;
 }
