@@ -1,5 +1,6 @@
 # Zinc Trading Interface
 
+```
 #######\  ######## \  ######\  ######## \##\   ##\ 
 ##  __##\ ##  _____|##  __##\ ##  _____|###\  ## |
 ## |  ## |## |      ## /  \__|## |      ####\ ## |
@@ -8,6 +9,7 @@
 ## |  ## |## |      ## \__## |## |      ## |\### |
 #######  |########\ \######  |########\ ## | \## |
 \_______/ \________| \______/ \________|\__|  \__|
+```
 
 A modern, responsive trading interface for Solana with integrated DexScreener data, wallet tracking, and Jupiter integration.
 
